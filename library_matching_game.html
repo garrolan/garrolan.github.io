@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>英語 ⇆ 中文 配對遊戲</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #fffaf4;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+    h2 { color: #ff8c94; margin-bottom: 8px; }
+    .game-container {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      overflow-x: auto;
+    }
+    .column {
+      flex: 0 0 45%;
+      max-width: 45%;
+      padding: 0 5px;
+    }
+    .card {
+      background: #ffe0e9;
+      border: 2px solid #ffb6c1;
+      border-radius: 12px;
+      padding: 10px 15px;
+      margin: 8px 0;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      user-select: none;
+    }
+    .card:hover {
+      background: #ffd6e0;
+      transform: scale(1.03);
+    }
+    .matched {
+      background: #b0f4b0 !important;
+      border-color: #4CAF50 !important;
+      color: #155724;
+      font-weight: bold;
+      pointer-events: none;
+    }
+    .wrong {
+      background: #f8d7da !important;
+      border-color: #dc3545 !important;
+      color: #721c24;
+    }
+    #message {
+      font-size: 18px;
+      color: #dc3545;
+      margin-top: 8px;
+      min-height: 24px;
+    }
+    #score {
+      font-size: 18px;
+      color: #333;
+      margin: 8px 0;
+    }
+    #reset-btn {
+      padding: 6px 14px;
+      border: none;
+      background: #ffb6c1;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>英語 ⇆ 中文 配對遊戲（進階互動版）</h2>
+<p>點選左邊的英文，再點右邊的中文解釋，完成配對！</p>
+<div id="message"></div>
+<div id="score">目前答對：<span id="correct-count">0</span> / 20</div>
+<button id="reset-btn" onclick="location.reload()">再玩一次</button>
+
+<div class="game-container">
+  <div class="column" id="english">
+    <div class="card" data-pair="pair0">library card</div>
+    <div class="card" data-pair="pair1">borrow</div>
+    <div class="card" data-pair="pair2">return</div>
+    <div class="card" data-pair="pair3">due date</div>
+    <div class="card" data-pair="pair4">overdue</div>
+    <div class="card" data-pair="pair5">catalog</div>
+    <div class="card" data-pair="pair6">shelf</div>
+    <div class="card" data-pair="pair7">quiet zone</div>
+    <div class="card" data-pair="pair8">study area</div>
+    <div class="card" data-pair="pair9">librarian</div>
+    <div class="card" data-pair="pair10">I’d like to borrow this book.</div>
+    <div class="card" data-pair="pair11">When is the due date?</div>
+    <div class="card" data-pair="pair12">Let's check the catalog.</div>
+    <div class="card" data-pair="pair13">It’s on the shelf.</div>
+    <div class="card" data-pair="pair14">We need to be quiet.</div>
+    <div class="card" data-pair="pair15">This is the quiet zone.</div>
+    <div class="card" data-pair="pair16">Stop flirting in the library.</div>
+    <div class="card" data-pair="pair17">We’ll get shushed by the librarian.</div>
+    <div class="card" data-pair="pair18">Let’s go to the study area.</div>
+    <div class="card" data-pair="pair19">Read together</div>
+  </div>
+  <div class="column" id="chinese">
+    <div class="card" data-pair="pair0">借書證</div>
+    <div class="card" data-pair="pair1">借（書）</div>
+    <div class="card" data-pair="pair2">還（書）</div>
+    <div class="card" data-pair="pair3">到期日</div>
+    <div class="card" data-pair="pair4">逾期</div>
+    <div class="card" data-pair="pair5">書目／目錄</div>
+    <div class="card" data-pair="pair6">書架</div>
+    <div class="card" data-pair="pair7">安靜區</div>
+    <div class="card" data-pair="pair8">自修區</div>
+    <div class="card" data-pair="pair9">圖書館員</div>
+    <div class="card" data-pair="pair10">我想借這本書。</div>
+    <div class="card" data-pair="pair11">什麼時候要還？</div>
+    <div class="card" data-pair="pair12">我們去看一下書目目錄。</div>
+    <div class="card" data-pair="pair13">它在書架上。</div>
+    <div class="card" data-pair="pair14">我們要小聲一點。</div>
+    <div class="card" data-pair="pair15">這裡是安靜區。</div>
+    <div class="card" data-pair="pair16">不要在圖書館裡撩人啦。</div>
+    <div class="card" data-pair="pair17">我們會被圖書館員噓的啦。</div>
+    <div class="card" data-pair="pair18">我們去自修區。</div>
+    <div class="card" data-pair="pair19">一起看書</div>
+  </div>
+</div>
+
+<audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+<audio id="wrong-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
+<script>
+  function shuffleColumn(colId) {
+    const col = document.getElementById(colId);
+    const cards = Array.from(col.children);
+    for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      col.appendChild(cards[j]);
+      cards.splice(j, 1);
+    }
+  }
+  shuffleColumn('english');
+  shuffleColumn('chinese');
+
+  let firstCard = null;
+  let correctCount = 0;
+  let isBusy = false;
+  const cards = document.querySelectorAll('.card');
+  const message = document.getElementById('message');
+  const correctDisplay = document.getElementById('correct-count');
+  const correctSound = document.getElementById('correct-sound');
+  const wrongSound = document.getElementById('wrong-sound');
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      if (isBusy) return;
+      if (card.classList.contains('matched') || card.classList.contains('selected')) return;
+      card.classList.add('selected');
+
+      if (!firstCard) {
+        firstCard = card;
+        return;
+      }
+
+      isBusy = true;
+      if (firstCard.dataset.pair === card.dataset.pair && firstCard !== card) {
+        firstCard.classList.add('matched');
+        card.classList.add('matched');
+        correctSound.play();
+        correctCount++;
+        correctDisplay.textContent = correctCount;
+      } else {
+        card.classList.add('wrong');
+        firstCard.classList.add('wrong');
+        wrongSound.play();
+        setTimeout(() => {
+          card.classList.remove('wrong', 'selected');
+          firstCard.classList.remove('wrong', 'selected');
+        }, 800);
+      }
+      setTimeout(() => {
+        firstCard = null;
+        isBusy = false;
+      }, 820);
+    });
+  });
+</script>
+
+</body>
+</html>
