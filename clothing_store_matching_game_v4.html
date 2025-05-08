@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>英語 ⇆ 中文 配對遊戲</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #fffaf4;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+    h2 { color: #ff8c94; margin-bottom: 8px; }
+    .game-container {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      overflow-x: auto;
+    }
+    .column {
+      flex: 0 0 45%;
+      max-width: 45%;
+      padding: 0 5px;
+    }
+    .card {
+      background: #ffe0e9;
+      border: 2px solid #ffb6c1;
+      border-radius: 12px;
+      padding: 10px 15px;
+      margin: 8px 0;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      user-select: none;
+    }
+    .card:hover {
+      background: #ffd6e0;
+      transform: scale(1.03);
+    }
+    .matched {
+      background: #b0f4b0 !important;
+      border-color: #4CAF50 !important;
+      color: #155724;
+      font-weight: bold;
+      pointer-events: none;
+    }
+    .wrong {
+      background: #f8d7da !important;
+      border-color: #dc3545 !important;
+      color: #721c24;
+    }
+    #message {
+      font-size: 18px;
+      color: #dc3545;
+      margin-top: 8px;
+      min-height: 24px;
+    }
+    #score {
+      font-size: 18px;
+      color: #333;
+      margin: 8px 0;
+    }
+    #reset-btn {
+      padding: 6px 14px;
+      border: none;
+      background: #ffb6c1;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>英語 ⇆ 中文 配對遊戲（進階互動版）</h2>
+<p>點選左邊的英文，再點右邊的中文解釋，完成配對！</p>
+<div id="message"></div>
+<div id="score">目前答對：<span id="correct-count">0</span> / 25</div>
+<button id="reset-btn" onclick="location.reload()">再玩一次</button>
+
+<div class="game-container">
+  <div class="column" id="english">
+    <div class="card" data-pair="pair0">try on</div>
+    <div class="card" data-pair="pair1">fitting room</div>
+    <div class="card" data-pair="pair2">size</div>
+    <div class="card" data-pair="pair3">too tight</div>
+    <div class="card" data-pair="pair4">too loose</div>
+    <div class="card" data-pair="pair5">on sale</div>
+    <div class="card" data-pair="pair6">cashier</div>
+    <div class="card" data-pair="pair7">receipt</div>
+    <div class="card" data-pair="pair8">exchange</div>
+    <div class="card" data-pair="pair9">refund</div>
+    <div class="card" data-pair="pair10">price tag</div>
+    <div class="card" data-pair="pair11">fit</div>
+    <div class="card" data-pair="pair12">pattern</div>
+    <div class="card" data-pair="pair13">fabric</div>
+    <div class="card" data-pair="pair14">material</div>
+    <div class="card" data-pair="pair15">discount</div>
+    <div class="card" data-pair="pair16">brand</div>
+    <div class="card" data-pair="pair17">fashionable</div>
+    <div class="card" data-pair="pair18">trendy</div>
+    <div class="card" data-pair="pair19">out of stock</div>
+    <div class="card" data-pair="pair20">seasonal collection</div>
+    <div class="card" data-pair="pair21">browsing</div>
+    <div class="card" data-pair="pair22">shop assistant</div>
+    <div class="card" data-pair="pair23">Does this come in other colors?</div>
+    <div class="card" data-pair="pair24">What material is this made of?</div>
+  </div>
+  <div class="column" id="chinese">
+    <div class="card" data-pair="pair0">試穿</div>
+    <div class="card" data-pair="pair1">試衣間</div>
+    <div class="card" data-pair="pair2">尺寸</div>
+    <div class="card" data-pair="pair3">太緊</div>
+    <div class="card" data-pair="pair4">太鬆</div>
+    <div class="card" data-pair="pair5">特價中</div>
+    <div class="card" data-pair="pair6">收銀員</div>
+    <div class="card" data-pair="pair7">收據</div>
+    <div class="card" data-pair="pair8">換貨</div>
+    <div class="card" data-pair="pair9">退款</div>
+    <div class="card" data-pair="pair10">價錢標籤</div>
+    <div class="card" data-pair="pair11">合身</div>
+    <div class="card" data-pair="pair12">圖案</div>
+    <div class="card" data-pair="pair13">布料</div>
+    <div class="card" data-pair="pair14">材質</div>
+    <div class="card" data-pair="pair15">折扣</div>
+    <div class="card" data-pair="pair16">品牌</div>
+    <div class="card" data-pair="pair17">時尚的</div>
+    <div class="card" data-pair="pair18">流行的</div>
+    <div class="card" data-pair="pair19">缺貨</div>
+    <div class="card" data-pair="pair20">當季系列</div>
+    <div class="card" data-pair="pair21">瀏覽</div>
+    <div class="card" data-pair="pair22">店員</div>
+    <div class="card" data-pair="pair23">這件有別的顏色嗎？</div>
+    <div class="card" data-pair="pair24">這是什麼材質做的？</div>
+  </div>
+</div>
+
+<audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+<audio id="wrong-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
+<script>
+  function shuffleColumn(colId) {
+    const col = document.getElementById(colId);
+    const cards = Array.from(col.children);
+    for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      col.appendChild(cards[j]);
+      cards.splice(j, 1);
+    }
+  }
+  shuffleColumn('english');
+  shuffleColumn('chinese');
+
+  let firstCard = null;
+  let correctCount = 0;
+  let isBusy = false;
+  const cards = document.querySelectorAll('.card');
+  const message = document.getElementById('message');
+  const correctDisplay = document.getElementById('correct-count');
+  const correctSound = document.getElementById('correct-sound');
+  const wrongSound = document.getElementById('wrong-sound');
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      if (isBusy) return;
+      if (card.classList.contains('matched') || card.classList.contains('selected')) return;
+      card.classList.add('selected');
+
+      if (!firstCard) {
+        firstCard = card;
+        return;
+      }
+
+      isBusy = true;
+      if (firstCard.dataset.pair === card.dataset.pair && firstCard !== card) {
+        firstCard.classList.add('matched');
+        card.classList.add('matched');
+        correctSound.play();
+        correctCount++;
+        correctDisplay.textContent = correctCount;
+      } else {
+        card.classList.add('wrong');
+        firstCard.classList.add('wrong');
+        wrongSound.play();
+        setTimeout(() => {
+          card.classList.remove('wrong', 'selected');
+          firstCard.classList.remove('wrong', 'selected');
+        }, 800);
+      }
+      setTimeout(() => {
+        firstCard = null;
+        isBusy = false;
+      }, 820);
+    });
+  });
+</script>
+
+</body>
+</html>
