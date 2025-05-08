@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>家庭五種需求配對遊戲</title>
+    <style>
+        body {
+            font-family: "Noto Sans TC", sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .category, .cards {
+            width: 48%;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .category h3, .cards h3 {
+            text-align: center;
+            color: #555;
+        }
+        .dropzone {
+            min-height: 100px;
+            border: 2px dashed #ccc;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .card {
+            background-color: #fff5cc;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: move;
+        }
+    </style>
+</head>
+<body>
+    <h1>家庭五種需求配對遊戲</h1>
+    <div class="container">
+        <div class="category">
+            <h3>需求分類</h3>
+            <div class="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)" data-type="生理需求">生理需求</div>
+            <div class="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)" data-type="心理需求">心理需求</div>
+            <div class="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)" data-type="安全需求">安全需求</div>
+            <div class="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)" data-type="社會需求">社會需求</div>
+            <div class="dropzone" ondrop="drop(event)" ondragover="allowDrop(event)" data-type="教育需求">教育需求</div>
+        </div>
+        <div class="cards" id="card-pool">
+            <h3>事件卡片</h3>
+            <div class="card" id="card-0" draggable="true" ondragstart="drag(event)" data-type="生理需求">爸爸煮晚餐給全家吃</div>
+<div class="card" id="card-1" draggable="true" ondragstart="drag(event)" data-type="生理需求">媽媽幫我準備保暖的外套</div>
+<div class="card" id="card-2" draggable="true" ondragstart="drag(event)" data-type="生理需求">家人每天提醒我要早睡早起</div>
+<div class="card" id="card-3" draggable="true" ondragstart="drag(event)" data-type="生理需求">爺爺煮湯給我喝讓我身體變好</div>
+<div class="card" id="card-4" draggable="true" ondragstart="drag(event)" data-type="心理需求">媽媽在我難過時抱著我說「我懂你」</div>
+<div class="card" id="card-5" draggable="true" ondragstart="drag(event)" data-type="心理需求">爸爸在我考不好時安慰我說沒關係</div>
+<div class="card" id="card-6" draggable="true" ondragstart="drag(event)" data-type="心理需求">姐姐寫卡片鼓勵我勇敢比賽</div>
+<div class="card" id="card-7" draggable="true" ondragstart="drag(event)" data-type="心理需求">家人一起為我慶生讓我覺得溫暖</div>
+<div class="card" id="card-8" draggable="true" ondragstart="drag(event)" data-type="安全需求">颱風天時家人幫我關窗鎖門</div>
+<div class="card" id="card-9" draggable="true" ondragstart="drag(event)" data-type="安全需求">爸爸媽媽教我過馬路要小心</div>
+<div class="card" id="card-10" draggable="true" ondragstart="drag(event)" data-type="安全需求">家裡有門鎖和警報器讓我安心</div>
+<div class="card" id="card-11" draggable="true" ondragstart="drag(event)" data-type="安全需求">生病時爸爸帶我去看醫生</div>
+<div class="card" id="card-12" draggable="true" ondragstart="drag(event)" data-type="社會需求">我和妹妹玩扮家家酒一起分工合作</div>
+<div class="card" id="card-13" draggable="true" ondragstart="drag(event)" data-type="社會需求">爸媽教我排隊等候和說謝謝</div>
+<div class="card" id="card-14" draggable="true" ondragstart="drag(event)" data-type="社會需求">全家一起開會討論家務分工</div>
+<div class="card" id="card-15" draggable="true" ondragstart="drag(event)" data-type="社會需求">和哥哥一起練習接力比賽</div>
+<div class="card" id="card-16" draggable="true" ondragstart="drag(event)" data-type="教育需求">阿嬤教我怎麼包粽子並說明由來</div>
+<div class="card" id="card-17" draggable="true" ondragstart="drag(event)" data-type="教育需求">爸爸幫我複習數學功課</div>
+<div class="card" id="card-18" draggable="true" ondragstart="drag(event)" data-type="教育需求">媽媽陪我讀書準備小考</div>
+<div class="card" id="card-19" draggable="true" ondragstart="drag(event)" data-type="教育需求">哥哥教我打字和查資料</div>
+        </div>
+    </div>
+
+    <script>
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("id", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const id = ev.dataTransfer.getData("id");
+            const dragged = document.getElementById(id);
+            const correctType = ev.target.dataset.type;
+
+            if (dragged.dataset.type === correctType) {
+                ev.target.appendChild(dragged);
+                dragged.setAttribute("draggable", false);
+                dragged.style.backgroundColor = "#c8f7c5";
+
+                const cardPool = document.getElementById("card-pool");
+                if (cardPool.contains(dragged)) {
+                    cardPool.removeChild(dragged);
+                }
+            } else {
+                alert("這張卡片放錯位置囉！");
+            }
+        }
+    </script>
+</body>
+</html>
