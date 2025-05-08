@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: "Microsoft JhengHei", sans-serif;
-            background-color: #f5f5f5;
+            background-color: #fdfdfd;
             margin: 0;
             padding: 2em;
             text-align: center;
@@ -16,30 +16,72 @@
             color: #333;
         }
         p {
-            font-size: 1.2em;
+            font-size: 1.1em;
             color: #666;
         }
-        .button {
-            display: inline-block;
+        .game-list {
             margin-top: 2em;
-            padding: 1em 2em;
-            font-size: 1.1em;
+        }
+        .game-button {
+            display: block;
+            margin: 1em auto;
+            padding: 0.8em 1.5em;
+            font-size: 1em;
             color: white;
             background-color: #4CAF50;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 6px;
+            width: fit-content;
         }
-        .button:hover {
+        .game-button:hover {
             background-color: #388e3c;
+        }
+        .footer {
+            margin-top: 4em;
+            font-size: 0.9em;
+            color: #aaa;
         }
     </style>
 </head>
 <body>
     <h1>GARRO 的 AI 編程之旅</h1>
-    <p>歡迎來到一個屬於 AI × 教學 × 自由創造的世界！</p>
-    <a class="button" href="climate_explanation_game_final_v2.html">🌍 開始玩《地球暖化探究遊戲》</a>
-    <p style="margin-top: 4em; font-size: 0.9em; color: #aaa;">
+    <p>這裡收錄了我的 AI 教學互動遊戲，一起來探索吧！</p>
+    
+    <div class="game-list" id="game-list">
+        <p>載入遊戲列表中...</p>
+    </div>
+
+    <div class="footer">
         本網站由 Chiaki 協助製作，使用 GitHub Pages 技術部署。
-    </p>
+    </div>
+
+    <script>
+        const repoOwner = "garrolan";
+        const repoName = "garrolan.github.io";
+        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(files => {
+                const gameList = document.getElementById("game-list");
+                gameList.innerHTML = "";
+                files.forEach(file => {
+                    if (file.name.endsWith(".html") && file.name !== "index.html") {
+                        const link = document.createElement("a");
+                        link.href = file.name;
+                        link.className = "game-button";
+                        link.textContent = `▶ 開始遊戲：${file.name.replace(".html", "")}`;
+                        gameList.appendChild(link);
+                    }
+                });
+                if (gameList.innerHTML === "") {
+                    gameList.innerHTML = "<p>目前尚未上傳任何遊戲頁面。</p>";
+                }
+            })
+            .catch(error => {
+                document.getElementById("game-list").innerHTML = "<p>載入失敗，請稍後再試。</p>";
+                console.error("錯誤：", error);
+            });
+    </script>
 </body>
 </html>
