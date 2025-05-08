@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>理財小學堂：收入與支出遊戲</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #fff0f5;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #e75480;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .column {
+      width: 30%;
+      background-color: #fff8fc;
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
+    .column h2 {
+      text-align: center;
+      color: #d6336c;
+    }
+    .card {
+      background: #ffe0ed;
+      border: 2px solid #f9c6d3;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 10px;
+      cursor: grab;
+      text-align: center;
+      font-weight: bold;
+    }
+    .dropzone {
+      min-height: 300px;
+      padding: 10px;
+      background: #fff3f8;
+      border: 2px dashed #f5aac4;
+      border-radius: 10px;
+    }
+    .totals {
+      text-align: center;
+      font-size: 20px;
+      margin-top: 20px;
+      color: #c71585;
+    }
+  </style>
+</head>
+<body>
+  <h1>💰 理財小學堂｜計算你的儲蓄</h1>
+  <div class="container">
+    <div class="column">
+      <h2>🟢 收入項目</h2>
+      <div class="card" draggable="true" data-value="50">幫爸媽洗碗 +$50</div>
+      <div class="card" draggable="true" data-value="100">考試100分 +$100</div>
+      <div class="card" draggable="true" data-value="150">賣二手玩具 +$150</div>
+      <div class="card" draggable="true" data-value="120">賣自製卡片 +$120</div>
+      <div class="card" draggable="true" data-value="1000">壓歲錢 +$1000</div>
+      <div class="card" draggable="true" data-value="200">生日紅包 +$200</div>
+      <div class="card" draggable="true" data-value="50">幫忙掃地拖地 +$50</div>
+      <div class="card" draggable="true" data-value="70">幫忙看弟妹 +$70</div>
+      <div class="card" draggable="true" data-value="100">自己存下來的零用錢 +$100</div>
+    </div>
+
+    <div class="column">
+      <h2>🔴 支出項目</h2>
+      <div class="card" draggable="true" data-value="-40">買飲料 -$40</div>
+      <div class="card" draggable="true" data-value="-60">買文具 -$60</div>
+      <div class="card" draggable="true" data-value="-80">買貼紙卡片 -$80</div>
+      <div class="card" draggable="true" data-value="-200">買玩具 -$200</div>
+      <div class="card" draggable="true" data-value="-300">參加校外教學 -$300</div>
+      <div class="card" draggable="true" data-value="-100">送禮物給同學 -$100</div>
+      <div class="card" draggable="true" data-value="-150">借錢給朋友 -$150</div>
+      <div class="card" draggable="true" data-value="-200">遊戲儲值 -$200</div>
+    </div>
+
+    <div class="column">
+      <h2>📦 我的收支紀錄</h2>
+      <div class="dropzone" id="dropzone"></div>
+      <div class="totals" id="totals">
+        收入：$0｜支出：$0｜儲蓄：$0
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cards = document.querySelectorAll('.card');
+    const dropzone = document.getElementById('dropzone');
+    const totalsDisplay = document.getElementById('totals');
+
+    let income = 0;
+    let expense = 0;
+
+    cards.forEach(card => {
+      card.addEventListener('dragstart', () => {
+        card.classList.add('dragging');
+      });
+
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+      });
+    });
+
+    dropzone.addEventListener('dragover', e => {
+      e.preventDefault();
+    });
+
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      const draggedCard = document.querySelector('.dragging');
+      const clone = draggedCard.cloneNode(true);
+      clone.classList.remove('dragging');
+      dropzone.appendChild(clone);
+
+      const value = parseInt(draggedCard.dataset.value);
+      if (value > 0) {
+        income += value;
+      } else {
+        expense += Math.abs(value);
+      }
+      updateTotals();
+    });
+
+    function updateTotals() {
+      const saving = income - expense;
+      totalsDisplay.textContent = `收入：$${income}｜支出：$${expense}｜儲蓄：$${saving}`;
+    }
+  </script>
+</body>
+</html>
