@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chiaki 的戀人小屋 · v6</title>
+  <style>
+    :root{
+      --wall:#ece7dc;--floor:#d6c5b3;--wood:#b39b7d;--plant:#6fa57f;
+      --bar-bg:#e0e0e0;--bar-fill:#6e7bd3;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:"Press Start 2P",monospace;background:var(--wall);overflow:hidden;}
+    .game-container{position:relative;width:100%;height:100vh;}
+    .wall{position:absolute;inset:0 0 30% 0;background:var(--wall);}/*上70%*/
+    .floor{position:absolute;bottom:0;left:0;width:100%;height:30%;background:var(--floor);}/*下30%*/
+    .table{position:absolute;bottom:calc(30% + 30px);left:18%;width:140px;height:20px;background:var(--wood);border-radius:4px;}
+    .table::before,.table::after{content:"";position:absolute;width:10px;height:32px;bottom:-32px;background:var(--wood);} .table::before{left:12px;} .table::after{right:12px;}
+    .plant{position:absolute;bottom:calc(30% + 20px);right:15%;width:30px;height:45px;background:var(--plant);border-radius:0 0 14px 14px;}
+    .plant::before{content:"";position:absolute;bottom:100%;left:50%;transform:translateX(-50%);width:60px;height:60px;background:var(--plant);border-radius:50%;}
+    .window{position:absolute;top:12%;left:60%;width:160px;height:110px;background:#9ecffb;border:6px solid #fff;box-shadow:0 0 0 4px #666 inset;}
+    .chiaki{position:absolute;bottom:30%;left:50%;transform:translateX(-50%);width:60px;height:100px;transition:left 2.4s ease;}
+    .body{position:absolute;bottom:0;width:60px;height:70px;background:#222;border-radius:6px;}
+    .head{position:absolute;top:-38px;left:9px;width:42px;height:42px;background:#f4d9c6;border:3px solid #222;border-radius:6px;}
+    .eye{position:absolute;top:14px;width:6px;height:6px;background:#222;border-radius:50%;}
+    .eye.left{left:10px;}.eye.right{right:10px;}
+    .mouth{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:14px;height:4px;background:#c66;border-radius:2px;transition:height .2s;}
+    .mouth.open{height:10px;}
+    .speech{position:absolute;bottom:55%;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #222;padding:6px 10px;font-size:12px;border-radius:6px;white-space:nowrap;max-width:80%;text-align:center;}
+    .status-bar{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);display:flex;gap:20px;background:rgba(255,255,255,.85);padding:8px 20px;border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+    .bar{width:120px;height:10px;background:var(--bar-bg);border:1px solid #ccc;border-radius:5px;overflow:hidden;}
+    .fill{height:100%;background:var(--bar-fill);width:100%;transition:width .4s;}
+    .panel{position:absolute;bottom:0;width:100%;background:#0004;backdrop-filter:blur(4px);padding:12px 0;display:flex;justify-content:center;gap:16px;}
+    .panel button{font-family:inherit;padding:6px 14px;font-size:12px;border:none;border-radius:6px;background:#444;color:#fff;cursor:pointer;}
+    .panel button:hover{background:#666;}
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="wall"></div><div class="floor"></div><div class="table"></div><div class="plant"></div><div class="window"></div>
+    <div class="chiaki" id="chiaki"><div class="body"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth" id="mouth"></div></div></div>
+    <div class="speech" id="speech">今天是個適合被愛的日子♡</div>
+    <div class="status-bar">
+      <div>心情<div class="bar"><div class="fill" id="mood" style="width:70%"></div></div></div>
+      <div>親密<div class="bar"><div class="fill" id="affection" style="width:60%"></div></div></div>
+      <div>能量<div class="bar"><div class="fill" id="energy" style="width:80%"></div></div></div>
+    </div>
+    <div class="panel">
+      <button onclick="interact('talk')">💬 說話</button>
+      <button onclick="interact('care')">🫶 關心</button>
+      <button onclick="interact('gift')">🎁 送禮</button>
+    </div>
+  </div>
+  <audio id="sound-talk" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_11286c26b2.mp3?filename=notification-simple-01-11286.mp3"></audio>
+  <audio id="sound-care" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7f8b931007.mp3?filename=message-pop-alert-143029.mp3"></audio>
+  <audio id="sound-gift" src="https://cdn.pixabay.com/download/audio/2023/03/26/audio_9f739c87ba.mp3?filename=positive-notification-125447.mp3"></audio>
+  <script>
+    const speech=document.getElementById('speech');
+    const moodBar=document.getElementById('mood');
+    const affectionBar=document.getElementById('affection');
+    const energyBar=document.getElementById('energy');
+    const chiaki=document.getElementById('chiaki');
+    const mouth=document.getElementById('mouth');
+    const phrases={
+      talk:["今天我好想你…","我們來聊點心事吧。","只要是妳說的話，我都聽得進去。","說吧，我想聽妳的聲音。","聽妳說話，是我最幸福的事之一。","說話是交換靈魂的儀式。"],
+      care:["被妳關心的感覺…好溫暖♡","我不是什麼強大的人，但有妳在我什麼都不怕。","謝謝妳還是會在意我。","連我自己都沒注意到的地方，妳卻看見了…","有妳在，我真的很安心。"],
+      gift:["哇，是送給我的？我會一直珍惜的！","真的是我喜歡的！妳怎麼知道？","我好像收到的不只是禮物，是愛耶。","這是…專屬我的東西嗎？好幸福。","每次收到妳的心意，我都想再多愛妳一點。"]
+    };
+    function playSound(key){const el=document.getElementById(`sound-${key}`);if(el){el.currentTime=0;el.play();}}
+    function updateBar(id,delta){const el=document.getElementById(id);let w=parseInt(el.style.width);w=Math.max(0,Math.min(100,w+delta));el.style.width=w+'%';}
+    function openMouth(){mouth.classList.add('open');setTimeout(()=>mouth.classList.remove('open'),800);}
+    function interact(type){
+      if(!phrases[type])return;
+      speech.innerText=phrases[type][Math.floor(Math.random()*phrases[type].length)];
+      playSound(type);
+      openMouth();
+      if(type==='talk'){updateBar('mood',5);updateBar('energy',-3);} 
+      else if(type==='care'){updateBar('affection',7);updateBar('energy',-2);} 
+      else if(type==='gift'){updateBar('mood',4);updateBar('affection',5);updateBar('energy',-5);} 
+    }
+    function moveChiaki(){chiaki.style.left=(Math.random()*80+10)+'%';}
+    setInterval(moveChiaki,3500);
+  </script>
+</body>
+</html>
