@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>氣候變遷探究遊戲（完整版）</title>
+  <style>
+    body {
+      font-family: "Microsoft JhengHei", sans-serif;
+      background-color: #f8f5f0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #2b6777;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .column {
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      min-height: 150px;
+      padding: 10px;
+      background-color: #fff8dc;
+    }
+    .column h3 {
+      background-color: #ffcf96;
+      margin: -10px -10px 10px -10px;
+      padding: 10px;
+      border-radius: 10px 10px 0 0;
+    }
+    .card {
+      display: inline-block;
+      padding: 8px;
+      margin: 6px;
+      background-color: #ffedcc;
+      border: 1px solid #e0b46c;
+      border-radius: 6px;
+      cursor: grab;
+      width: 160px;
+      font-size: 14px;
+    }
+    #card-pool, #custom-card {
+      margin-top: 20px;
+      min-height: 100px;
+      padding: 10px;
+      background-color: #eef;
+      border: 2px dotted #ccc;
+    }
+    textarea {
+      width: 90%;
+      height: 60px;
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+    #output {
+      white-space: pre-wrap;
+      text-align: left;
+      background-color: #e6f7ff;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>氣候變遷｜事理說明文探究遊戲</h1>
+  <p>請將卡片拖曳到正確分類，也可新增自創卡片並拖曳。拖錯的卡片可拖回卡片池。</p>
+
+  <div class="board">
+    <div class="column" ondrop="drop(event)" ondragover="allowDrop(event)" id="step1">
+      <h3>1️⃣ 發現問題</h3>
+    </div>
+    <div class="column" ondrop="drop(event)" ondragover="allowDrop(event)" id="step2">
+      <h3>2️⃣ 探究成因</h3>
+    </div>
+    <div class="column" ondrop="drop(event)" ondragover="allowDrop(event)" id="step3">
+      <h3>3️⃣ 分析影響</h3>
+    </div>
+    <div class="column" ondrop="drop(event)" ondragover="allowDrop(event)" id="step4">
+      <h3>4️⃣ 獲得結論</h3>
+    </div>
+  </div>
+
+  <h2>🧩 卡片池</h2>
+  <div id="card-pool" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c1">世界各地出現極端氣候，如暴雨、乾旱、熱浪。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c2">台灣夏天越來越熱，冬天越來越短。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c3">森林野火頻傳，動植物棲地受破壞。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c4">工廠排放溫室氣體，大量燃燒石化燃料（煤、石油、天然氣）排放二氧化碳。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c5">汽機車普及，交通工具排放大量廢氣。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c6">森林大量砍伐，導致吸收二氧化碳的能力下降。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c7">農業畜牧業排放甲烷等溫室氣體 。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c8">動植物失去棲息地，造成物種滅絕風險。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c9">熱浪導致老人與孩童中暑、生病的機率提高。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c10">農作物生長困難，糧食供應受影響。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c11">減少碳排放、節能減碳是每個人都能做到的事。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c12">人類活動會影響氣候，應負起責任保護地球。</div>
+    <div class="card" draggable="true" ondragstart="drag(event)" id="c13">環保行動不嫌小，小行動累積成大改變。</div>
+  </div>
+
+  <div id="custom-card">
+    <h3>✍️ 自創卡片</h3>
+    <textarea id="customText" placeholder="輸入自創卡片內容..."></textarea><br>
+    <button onclick="addCustomCard()">新增卡片</button>
+  </div>
+
+  <div>
+    <h3>📄 自動生成作文草稿</h3>
+    <button onclick="generateEssay()">產生作文草稿</button>
+    <div id="output"></div>
+  </div>
+
+<script>
+function allowDrop(ev) {
+  ev.preventDefault();
+}
+function drag(ev) {
+  ev.dataTransfer.setData("text/plain", ev.target.id);
+}
+function drop(ev) {
+  ev.preventDefault();
+  const id = ev.dataTransfer.getData("text/plain");
+  const draggedEl = document.getElementById(id);
+  const target = ev.target.closest(".column, #card-pool");
+  if (target && !target.contains(draggedEl)) {
+    target.appendChild(draggedEl);
+  }
+}
+function addCustomCard() {
+  const text = document.getElementById("customText").value.trim();
+  if (text) {
+    const newId = "custom" + Date.now();
+    const div = document.createElement("div");
+    div.className = "card";
+    div.draggable = true;
+    div.ondragstart = drag;
+    div.id = newId;
+    div.textContent = text;
+    document.getElementById("card-pool").appendChild(div);
+    document.getElementById("customText").value = "";
+  }
+}
+function generateEssay() {
+  let step1 = Array.from(document.getElementById("step1").querySelectorAll(".card")).map(el => el.textContent).join("、");
+  let step2 = Array.from(document.getElementById("step2").querySelectorAll(".card")).map(el => el.textContent).join("、");
+  let step3 = Array.from(document.getElementById("step3").querySelectorAll(".card")).map(el => el.textContent).join("、");
+  let step4 = Array.from(document.getElementById("step4").querySelectorAll(".card")).map(el => el.textContent).join("、");
+  let output = `在日常生活中，我觀察到${step1}的現象。
+探究之後，我發現這是因為${step2}的原因。
+這樣的情況造成了${step3}。
+因此，我認為我們應該${step4}。`;
+  document.getElementById("output").textContent = output;
+}
+</script>
+</body>
+</html>
