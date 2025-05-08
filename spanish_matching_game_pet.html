@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>西語配對遊戲（進階互動版）</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #fffaf4;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+    h2 { color: #ff8c94; }
+    .game-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .column {
+      flex: 1;
+      padding: 10px;
+      max-width: 400px;
+    }
+    .card {
+      background: #ffe0e9;
+      border: 2px solid #ffb6c1;
+      border-radius: 12px;
+      padding: 10px 15px;
+      margin: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .card:hover {
+      background: #ffd6e0;
+      transform: scale(1.03);
+    }
+    .matched {
+      background: #b0f4b0 !important;
+      border-color: #4CAF50 !important;
+      color: #155724;
+      font-weight: bold;
+      pointer-events: none;
+    }
+    .wrong {
+      background: #f8d7da !important;
+      border-color: #dc3545 !important;
+      color: #721c24;
+    }
+    #message {
+      font-size: 18px;
+      color: #dc3545;
+      margin-top: 10px;
+      height: 24px;
+    }
+    #score {
+      font-size: 18px;
+      color: #333;
+      margin: 10px 0;
+    }
+    #reset-btn {
+      padding: 8px 16px;
+      border: none;
+      background: #ffb6c1;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>西班牙語 ⇆ 中文 配對遊戲（進階互動版）</h2>
+<p>點選左邊的西班牙語單字或句子，再點右邊的中文解釋，完成配對！</p>
+<div id="message"></div>
+<div id="score">目前答對：<span id="correct-count">0</span> / 15</div>
+<button id="reset-btn" onclick="location.reload()">重新開始</button>
+
+<div class="game-container">
+  <div class="column" id="spanish">
+    <div class="card" data-pair="correa">correa</div>
+<div class="card" data-pair="¿Cuánto cuesta esta jaula?">¿Cuánto cuesta esta jaula?</div>
+<div class="card" data-pair="Queremos algo cómodo para nuestra mascota.">Queremos algo cómodo para nuestra mascota.</div>
+<div class="card" data-pair="veterinario">veterinario</div>
+<div class="card" data-pair="jugar">jugar</div>
+<div class="card" data-pair="Queremos ver comida para gatitos.">Queremos ver comida para gatitos.</div>
+<div class="card" data-pair="tienda de mascotas">tienda de mascotas</div>
+<div class="card" data-pair="juguetes">juguetes</div>
+<div class="card" data-pair="perro">perro</div>
+<div class="card" data-pair="gato">gato</div>
+<div class="card" data-pair="comida">comida</div>
+<div class="card" data-pair="Estoy buscando un juguete para mi perro.">Estoy buscando un juguete para mi perro.</div>
+<div class="card" data-pair="bañera">bañera</div>
+<div class="card" data-pair="arena">arena</div>
+<div class="card" data-pair="rascador">rascador</div>
+
+  </div>
+  <div class="column" id="chinese">
+    <div class="card" data-pair="veterinario">獸醫</div>
+<div class="card" data-pair="bañera">洗澡盆</div>
+<div class="card" data-pair="juguetes">玩具</div>
+<div class="card" data-pair="Queremos ver comida para gatitos.">我們想看看小貓的飼料。</div>
+<div class="card" data-pair="correa">牽繩</div>
+<div class="card" data-pair="rascador">抓板</div>
+<div class="card" data-pair="arena">貓砂</div>
+<div class="card" data-pair="tienda de mascotas">寵物店</div>
+<div class="card" data-pair="¿Cuánto cuesta esta jaula?">這個籠子多少錢？</div>
+<div class="card" data-pair="jugar">玩耍</div>
+<div class="card" data-pair="gato">貓</div>
+<div class="card" data-pair="perro">狗</div>
+<div class="card" data-pair="comida">飼料</div>
+<div class="card" data-pair="Estoy buscando un juguete para mi perro.">我在找給我狗狗的玩具。</div>
+<div class="card" data-pair="Queremos algo cómodo para nuestra mascota.">我們想找個舒適的東西給我們的寵物。</div>
+
+  </div>
+</div>
+
+<audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+<audio id="wrong-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
+<script>
+  let firstCard = null;
+  let correctCount = 0;
+  const cards = document.querySelectorAll('.card');
+  const message = document.getElementById('message');
+  const correctDisplay = document.getElementById('correct-count');
+  const correctSound = document.getElementById('correct-sound');
+  const wrongSound = document.getElementById('wrong-sound');
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      if (card.classList.contains('matched')) return;
+      if (firstCard === card) return;
+
+      card.classList.add('selected');
+
+      if (!firstCard) {
+        firstCard = card;
+        message.textContent = "";
+      } else {
+        if (firstCard.dataset.pair === card.dataset.pair) {
+          firstCard.classList.add('matched');
+          card.classList.add('matched');
+          correctSound.play();
+          correctCount++;
+          correctDisplay.textContent = correctCount;
+          message.textContent = "";
+        } else {
+          card.classList.add('wrong');
+          firstCard.classList.add('wrong');
+          wrongSound.play();
+          message.textContent = "不對喔，再試一次！";
+          setTimeout(() => {
+            card.classList.remove('wrong', 'selected');
+            firstCard.classList.remove('wrong', 'selected');
+            message.textContent = "";
+          }, 1000);
+        }
+        firstCard = null;
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
