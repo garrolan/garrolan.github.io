@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>記分統計工具</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      background: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+    }
+    #drop-area {
+      border: 2px dashed #999;
+      padding: 2em;
+      text-align: center;
+      background: white;
+    }
+    #output {
+      margin-top: 2em;
+      white-space: pre-wrap;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 1em;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5em;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 記分統計工具（拖曳 Excel 檔案進來）</h1>
+  <div id="drop-area">將多個 Excel 檔案 (.xlsx) 拖放到這裡</div>
+  <div id="output"></div>
+
+  <script>
+    const dropArea = document.getElementById('drop-area');
+    const output = document.getElementById('output');
+    let dataMap = {};
+
+    dropArea.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropArea.style.borderColor = '#555';
+    });
+    dropArea.addEventListener('dragleave', () => dropArea.style.borderColor = '#999');
+    dropArea.addEventListener('drop', e => {
+      e.preventDefault();
+      dropArea.style.borderColor = '#999';
+      const files = Array.from(e.dataTransfer.files);
+      files.forEach(file => processFile(file));
+    });
+
+    function processFile(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const fileName = file.name;
+
+        ['F11','F12','F13'].forEach((nameCell, i) => {
+          const scoreCell = 'H' + (11 + i);
+          const name = sheet[nameCell] ? sheet[nameCell].v : null;
+          const score = sheet[scoreCell] ? parseFloat(sheet[scoreCell].v) : 0;
+          if (name) {
+            if (!dataMap[name]) dataMap[name] = {};
+            dataMap[name][fileName] = score;
+          }
+        });
+        updateOutput();
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function updateOutput() {
+      const allNames = Object.keys(dataMap);
+      const allFiles = new Set();
+      allNames.forEach(name => Object.keys(dataMap[name]).forEach(file => allFiles.add(file)));
+      const filesArray = Array.from(allFiles);
+
+      let html = '<table><tr><th>姓名</th>' + filesArray.map(f => `<th>${f}</th>`).join('') + '<th>總分</th></tr>';
+      allNames.forEach(name => {
+        let total = 0;
+        let row = `<tr><td>${name}</td>`;
+        filesArray.forEach(file => {
+          const score = dataMap[name][file] || 0;
+          total += score;
+          row += `<td>${score}</td>`;
+        });
+        row += `<td>${total}</td></tr>`;
+        html += row;
+      });
+      html += '</table>';
+      output.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
