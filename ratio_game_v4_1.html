@@ -1,0 +1,265 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>比率挑戰小遊戲 V4.1</title>
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #fffbe6;
+            color: #333;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .main-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .item-column {
+            width: 30%;
+            text-align: center;
+        }
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 40px);
+            gap: 5px;
+            justify-content: center;
+            margin: 5px auto;
+        }
+        .emoji-box {
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+        }
+        .answer-zone {
+            margin-top: 5px;
+        }
+        .fraction {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px;
+        }
+        .drop-zone {
+            width: 50px;
+            height: 50px;
+            border: 2px dashed #90caf9;
+            border-radius: 8px;
+            margin: 2px;
+            font-size: 20px;
+            line-height: 50px;
+            text-align: center;
+        }
+        .card-zone {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .card {
+            display: inline-block;
+            border: 2px solid #ffcc80;
+            border-radius: 8px;
+            padding: 8px;
+            margin: 4px;
+            background-color: #fff3e0;
+            font-size: 20px;
+            cursor: grab;
+        }
+        .controls {
+            text-align: center;
+            margin: 10px 0;
+        }
+        button {
+            padding: 6px 16px;
+            font-size: 16px;
+            background-color: #81d4fa;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .timer, .feedback {
+            text-align: center;
+            font-size: 18px;
+            margin: 4px;
+        }
+        canvas {
+            max-width: 180px;
+            height: 180px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+
+<h2 style="text-align:center;">⏱️ 比率挑戰小遊戲 V4.1</h2>
+
+<div class="main-container">
+    <div class="item-column">
+        <div><strong>物品 A</strong></div>
+        <div class="emoji-grid" id="emojiA"></div>
+        <div class="answer-zone">
+            <div class="fraction">
+                <div class="drop-zone" id="numeratorA"></div>
+                <div>──</div>
+                <div class="drop-zone" id="denominatorA"></div>
+            </div>
+        </div>
+    </div>
+    <div class="item-column">
+        <div><strong>物品 B</strong></div>
+        <div class="emoji-grid" id="emojiB"></div>
+        <div class="answer-zone">
+            <div class="fraction">
+                <div class="drop-zone" id="numeratorB"></div>
+                <div>──</div>
+                <div class="drop-zone" id="denominatorB"></div>
+            </div>
+        </div>
+    </div>
+    <div class="item-column">
+        <div><strong>圓餅圖</strong></div>
+        <canvas id="pieChart"></canvas>
+    </div>
+</div>
+
+<div class="card-zone" id="cardZone"></div>
+
+<div class="controls">
+    <button onclick="checkAnswer()">提交答案</button>
+    <button onclick="location.reload()">重新開始</button>
+</div>
+
+<div class="timer" id="timer">⏳ 時間：0 秒</div>
+<div class="feedback" id="feedbackMsg"></div>
+
+<audio id="correctSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_327b1d6b0a.mp3?filename=success-1-6297.mp3"></audio>
+<audio id="wrongSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_1421bc88cc.mp3?filename=wrong-2-46060.mp3"></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let categories = [["🍎", "🍌"], ["🚗", "🚌"], ["👦", "👧"], ["🐶", "🐱"], ["🍩", "🍰"], ["😊", "😡"]];
+    let itemA, itemB, countA, countB, total;
+    let correctAnswers = {};
+    let timer = 0;
+    let interval;
+
+    function initGame() {
+        let cat = categories[Math.floor(Math.random() * categories.length)];
+        itemA = cat[0];
+        itemB = cat[1];
+        countA = Math.floor(Math.random() * 12) + 6;
+        countB = Math.floor(Math.random() * 12) + 6;
+        total = countA + countB;
+        if (total > 50) { countA = 24; countB = 20; total = 44; }
+
+        generateEmoji("emojiA", itemA, countA);
+        generateEmoji("emojiB", itemB, countB);
+
+        correctAnswers = {
+            numeratorA: countA.toString(),
+            denominatorA: total.toString(),
+            numeratorB: countB.toString(),
+            denominatorB: total.toString()
+        };
+
+        let cardValues = new Set([countA, countB, total]);
+        while (cardValues.size < 14) {
+            cardValues.add(Math.floor(Math.random() * 50) + 1);
+        }
+
+        let cardZone = document.getElementById("cardZone");
+        cardZone.innerHTML = "";
+        Array.from(cardValues).sort(() => Math.random() - 0.5).forEach(val => {
+            let card = document.createElement("div");
+            card.className = "card";
+            card.textContent = val;
+            card.draggable = true;
+            card.addEventListener("dragstart", e => {
+                e.dataTransfer.setData("text", e.target.textContent);
+            });
+            cardZone.appendChild(card);
+        });
+
+        pieChart.data.datasets[0].data = [countA, countB];
+        pieChart.data.labels = [itemA, itemB];
+        pieChart.update();
+
+        interval = setInterval(() => {
+            timer++;
+            document.getElementById("timer").textContent = "⏳ 時間：" + timer + " 秒";
+        }, 1000);
+    }
+
+    function generateEmoji(containerId, emoji, count) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = "";
+        for (let i = 0; i < count; i++) {
+            const div = document.createElement("div");
+            div.className = "emoji-box";
+            div.textContent = emoji;
+            container.appendChild(div);
+        }
+    }
+
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drop(ev, id) {
+        ev.preventDefault();
+        const data = ev.dataTransfer.getData("text");
+        document.getElementById(id).textContent = data;
+    }
+
+    ["numeratorA", "denominatorA", "numeratorB", "denominatorB"].forEach(id => {
+        let zone = document.getElementById(id);
+        zone.addEventListener("dragover", allowDrop);
+        zone.addEventListener("drop", e => drop(e, id));
+    });
+
+    let pieChart = new Chart(document.getElementById("pieChart"), {
+        type: "pie",
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: ["#ffcc80", "#90caf9"]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: "bottom" }
+            }
+        }
+    });
+
+    function checkAnswer() {
+        clearInterval(interval);
+        let correct = true;
+        for (let id in correctAnswers) {
+            if (document.getElementById(id).textContent !== correctAnswers[id]) {
+                correct = false;
+                break;
+            }
+        }
+        let feedback = document.getElementById("feedbackMsg");
+        if (correct) {
+            document.getElementById("correctSound").play();
+            feedback.textContent = "🎉 正確！用時：" + timer + " 秒，太棒了！";
+            feedback.style.color = "green";
+        } else {
+            document.getElementById("wrongSound").play();
+            feedback.textContent = "😅 再試試看吧！目前用時：" + timer + " 秒";
+            feedback.style.color = "red";
+        }
+    }
+
+    initGame();
+</script>
+
+</body>
+</html>
