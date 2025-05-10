@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>國語生字練習 ‑ 第十課</title>
+  <style>
+    body { font-family: "標楷體", sans-serif; background: #fdfcf8; margin: 0; padding: 0.5rem; transform: scale(0.95); transform-origin: top center; }
+    h1 { text-align: center; margin-bottom: 0.5rem; font-size: 1.5rem; }
+    .zone { margin: 0.5rem auto; padding: 0.5rem; background: #fff; border: 1px solid #ccc; border-radius: 8px; max-width: 98%; }
+    .zone h2 { text-align: center; margin-bottom: 0.5rem; font-size: 1.2rem; }
+    .grid { display: grid; gap: 0.4rem; justify-content: center; }
+    .radical-grid { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); }
+    .word-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+    .char-grid { grid-template-columns: repeat(5, 1fr); }
+    .card { padding: 0.4rem; text-align: center; background: #f0f0f0; border: 1px solid #aaa; border-radius: 5px; cursor: move; user-select: none; font-size: 1.1rem; }
+    .card[data-type='radical'] { color: red; font-weight: bold; }
+    .char-slot { font-size: 1.5rem; text-align: center; padding: 0.6rem; border: 2px dashed #bbb; background: #fafafa; min-height: 60px; border-radius: 6px; position: relative; }
+    .char-slot.dragover { border-color: #000; background: #eef; }
+    #controls { text-align: center; margin-top: 0.5rem; font-size: 1.1rem; }
+    #timer { font-weight: bold; }
+    .feedback { text-align: center; margin-top: 0.5rem; font-weight: bold; color: green; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+  <h1>第九課 生字配對遊戲</h1>
+  <div class="zone">
+    <h2>部首卡片</h2>
+    <div class="grid radical-grid" id="radicals"></div>
+  </div>
+  <div class="zone">
+    <h2>生字區</h2>
+    <div class="grid char-grid" id="characters"></div>
+  </div>
+  <div class="zone">
+    <h2>語詞卡片</h2>
+    <div class="grid word-grid" id="words"></div>
+  </div>
+  <div id="controls">
+    <button onclick="startGame()">重新開始</button>
+    ⏱ 時間：<span id="timer">0</span> 秒
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <audio id="sound-success" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c95714b1fb.mp3"></audio>
+  <audio id="sound-fail" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_af02e282b1.mp3"></audio>
+  <audio id="sound-complete" src="https://cdn.pixabay.com/download/audio/2022/03/01/audio_4d83b9a78a.mp3"></audio>
+
+<script>
+const data = {
+  "積": {
+    "radical": "禾",
+    "words": [
+      "積累",
+      "積少成多"
+    ]
+  },
+  "噸": {
+    "radical": "口",
+    "words": [
+      "公噸",
+      "千噸之力"
+    ]
+  },
+  "垃": {
+    "radical": "土",
+    "words": [
+      "垃圾",
+      "垃圾分類"
+    ]
+  },
+  "壟": {
+    "radical": "土",
+    "words": [
+      "壟斷",
+      "壟斷市場"
+    ]
+  },
+  "謎": {
+    "radical": "言",
+    "words": [
+      "謎語",
+      "不解之謎"
+    ]
+  },
+  "貨": {
+    "radical": "貝",
+    "words": [
+      "貨物",
+      "貨真價實"
+    ]
+  },
+  "循": {
+    "radical": "彳",
+    "words": [
+      "循環",
+      "循序漸進"
+    ]
+  },
+  "菌": {
+    "radical": "艸",
+    "words": [
+      "細菌",
+      "病菌"
+    ]
+  },
+  "鉤": {
+    "radical": "金",
+    "words": [
+      "鉤子",
+      "一鉤一劃"
+    ]
+  },
+  "鏈": {
+    "radical": "金",
+    "words": [
+      "鏈接",
+      "鏈條反應"
+    ]
+  },
+  "孔": {
+    "radical": "子",
+    "words": [
+      "孔洞",
+      "孔武有力"
+    ]
+  },
+  "倖": {
+    "radical": "亻",
+    "words": [
+      "倖存",
+      "倖免於難"
+    ]
+  },
+  "據": {
+    "radical": "扌",
+    "words": [
+      "根據",
+      "據理力爭"
+    ]
+  },
+  "宜": {
+    "radical": "宀",
+    "words": [
+      "適宜",
+      "宜室宜家"
+    ]
+  },
+  "估": {
+    "radical": "亻",
+    "words": [
+      "估價",
+      "估計不足"
+    ]
+  },
+  "廢": {
+    "radical": "广",
+    "words": [
+      "廢棄",
+      "廢寢忘食"
+    ]
+  },
+  "踐": {
+    "radical": "足",
+    "words": [
+      "實踐",
+      "踐行承諾"
+    ]
+  },
+  "益": {
+    "radical": "皿",
+    "words": [
+      "益處",
+      "受益匪淺"
+    ]
+  },
+  "殼": {
+    "radical": "殳",
+    "words": [
+      "外殼",
+      "金蟬脫殼"
+    ]
+  }
+};
+
+let timer = 0;
+let interval;
+
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
+}
+
+function createCard(text, type, key) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.textContent = text;
+  div.draggable = true;
+  div.dataset.type = type;
+  div.dataset.key = key;
+  div.addEventListener('dragstart', e => {
+    e.dataTransfer.setData("text", JSON.stringify({ type, key, text }));
+  });
+  return div;
+}
+
+function createSlot(character) {
+  const div = document.createElement('div');
+  div.className = 'char-slot';
+  div.dataset.char = character;
+  div.innerText = character;
+  div.addEventListener('dragover', e => {
+    e.preventDefault();
+    div.classList.add('dragover');
+  });
+  div.addEventListener('dragleave', () => div.classList.remove('dragover'));
+  div.addEventListener('drop', e => {
+    e.preventDefault();
+    div.classList.remove('dragover');
+    const { type, key, text } = JSON.parse(e.dataTransfer.getData("text"));
+    const char = div.dataset.char;
+    const correct = (type === 'radical' && data[char].radical === key) ||
+                    (type === 'word' && data[char].words.includes(text));
+    if (correct) {
+      if (type === 'radical') {
+        div.innerHTML = `<div class='card' data-type='radical' style='color:red;'>${text}</div>` + div.innerHTML;
+      } else {
+        div.innerHTML += `<div class='card'>${text}</div>`;
+      }
+      document.getElementById('feedback').textContent = '✔ 正確！';
+      document.getElementById(`sound-success`).play();
+      const allCards = document.querySelectorAll(`.card[data-type='${type}'][data-key='${key}']`);
+      if (allCards.length) allCards[0].remove();
+      checkCompletion();
+    } else {
+      document.getElementById('feedback').textContent = '✘ 錯誤，再試一次～';
+      document.getElementById(`sound-fail`).play();
+    }
+  });
+  return div;
+}
+
+function startGame() {
+  clearInterval(interval);
+  timer = 0;
+  document.getElementById('timer').textContent = timer;
+  interval = setInterval(() => {
+    timer++;
+    document.getElementById('timer').textContent = timer;
+  }, 1000);
+
+  const radicals = document.getElementById('radicals');
+  const characters = document.getElementById('characters');
+  const words = document.getElementById('words');
+  radicals.innerHTML = '';
+  characters.innerHTML = '';
+  words.innerHTML = '';
+  document.getElementById('feedback').textContent = '';
+
+  const allChars = Object.keys(data);
+  shuffle(allChars).forEach(char => {
+    characters.appendChild(createSlot(char));
+  });
+
+  const allRadicals = shuffle(allChars.map(c => data[c].radical));
+  allRadicals.forEach(rad => radicals.appendChild(createCard(rad, 'radical', rad)));
+
+  const allWords = shuffle(allChars.flatMap(c => data[c].words));
+  allWords.forEach(word => words.appendChild(createCard(word, 'word', word)));
+}
+
+function checkCompletion() {
+  const remainingCards = document.querySelectorAll('.card');
+  if (remainingCards.length === 0) {
+    document.getElementById('sound-complete').play();
+    setTimeout(() => alert('🎉 全部完成！太棒了！'), 200);
+  }
+}
+
+window.onload = startGame;
+</script>
+</body>
+</html>
