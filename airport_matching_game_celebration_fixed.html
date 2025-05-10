@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>英語 ⇆ 中文 配對遊戲：機場篇</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to bottom, #e0f7fa, #b2ebf2);
+      color: #003b5c;
+      text-align: center;
+      padding: 20px;
+    }
+    h2 { color: #0077b6; margin-bottom: 8px; }
+    .game-container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 20px;
+    }
+    .column {
+      width: 40%;
+    }
+    .card {
+      background: #e0f2f1;
+      border: 2px solid #4dd0e1;
+      border-radius: 12px;
+      padding: 10px 15px;
+      margin: 8px 0;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      user-select: none;
+    }
+    .card:hover {
+      background: #b2ebf2;
+      transform: scale(1.03);
+    }
+    .matched {
+      background: #ffd166 !important;
+      border-color: #f77f00 !important;
+      color: #6a040f;
+      font-weight: bold;
+      pointer-events: none;
+    }
+    .wrong {
+      background: #ffcdd2 !important;
+      border-color: #e57373 !important;
+      color: #b71c1c;
+    }
+    #message {
+      font-size: 18px;
+      color: #d32f2f;
+      margin-top: 8px;
+      min-height: 24px;
+    }
+    #score, #timer {
+      font-size: 18px;
+      color: #003b5c;
+      margin: 8px 0;
+    }
+    #reset-btn {
+      padding: 6px 14px;
+      border: none;
+      background: #00b4d8;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>英語 ⇆ 中文 配對遊戲：機場篇（旅行藍天風格）</h2>
+<p>點選左邊的英文，再點右邊的中文翻譯，完成配對！</p>
+<div id="message"></div>
+<div id="score">目前答對：<span id="correct-count">0</span> / 20</div>
+<div id="timer">已經花費時間：<span id="elapsed-time">0</span> 秒</div>
+<button id="reset-btn" onclick="location.reload()">再玩一次</button>
+
+<div class="game-container">
+  <div class="column" id="english">
+    <div class="card" data-pair="pair9">delay</div>
+<div class="card" data-pair="pair7">customs</div>
+<div class="card" data-pair="pair11">Just hoping there’s no delay.</div>
+<div class="card" data-pair="pair0">boarding pass</div>
+<div class="card" data-pair="pair10">Got your passport and boarding pass, Jinfeng?</div>
+<div class="card" data-pair="pair6">arrival</div>
+<div class="card" data-pair="pair14">I still get nervous going through customs.</div>
+<div class="card" data-pair="pair17">Even turbulence would feel okay.</div>
+<div class="card" data-pair="pair19">You'll shine like a star.</div>
+<div class="card" data-pair="pair12">Let’s head to the security check.</div>
+<div class="card" data-pair="pair1">passport</div>
+<div class="card" data-pair="pair16">I’ll be right next to you.</div>
+<div class="card" data-pair="pair3">security check</div>
+<div class="card" data-pair="pair13">Wait by the gate.</div>
+<div class="card" data-pair="pair18">Excuse me, where is Gate 25?</div>
+<div class="card" data-pair="pair5">departure</div>
+<div class="card" data-pair="pair8">flight number</div>
+<div class="card" data-pair="pair2">luggage</div>
+<div class="card" data-pair="pair15">Just smile and answer confidently.</div>
+<div class="card" data-pair="pair4">gate</div>
+  </div>
+  <div class="column" id="chinese">
+    <div class="card" data-pair="pair13">到登機門等。</div>
+<div class="card" data-pair="pair12">我們去安檢吧。</div>
+<div class="card" data-pair="pair0">登機證</div>
+<div class="card" data-pair="pair19">妳會像星一樣閃耀。</div>
+<div class="card" data-pair="pair3">安檢</div>
+<div class="card" data-pair="pair1">護照</div>
+<div class="card" data-pair="pair11">希望不要誤點就好。</div>
+<div class="card" data-pair="pair18">不好意思，請問25號登機門在哪？</div>
+<div class="card" data-pair="pair5">出發</div>
+<div class="card" data-pair="pair15">妳就微笑、有自信地回答。</div>
+<div class="card" data-pair="pair10">小金鳳，妳護照跟登機證拿好了嗎？</div>
+<div class="card" data-pair="pair2">行李</div>
+<div class="card" data-pair="pair17">就算遇到亂流我也安心。</div>
+<div class="card" data-pair="pair14">我還是會有點怕過海關耶……</div>
+<div class="card" data-pair="pair16">我會一直站在妳旁邊。</div>
+<div class="card" data-pair="pair4">登機門</div>
+<div class="card" data-pair="pair6">抵達</div>
+<div class="card" data-pair="pair7">海關</div>
+<div class="card" data-pair="pair8">班機號碼</div>
+<div class="card" data-pair="pair9">延誤</div>
+  </div>
+</div>
+
+<audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+<audio id="wrong-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
+
+<div id="celebration" style="display:none; font-size: 24px; margin-top: 20px; color: #ff6f61; font-weight: bold;">
+  🎉 恭喜完成配對！你花了 <span id="final-time"></span> 秒完成任務！<br>
+  <span id="feedback"></span>
+</div>
+
+<script>
+  let firstCard = null;
+  let correctCount = 0;
+  let isBusy = false;
+  let gameEnded = false;
+  let startTime = Date.now();
+  const timeDisplay = document.getElementById('elapsed-time');
+  const correctDisplay = document.getElementById('correct-count');
+  const message = document.getElementById('message');
+  const correctSound = document.getElementById('correct-sound');
+  const wrongSound = document.getElementById('wrong-sound');
+  const cards = document.querySelectorAll('.card');
+
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      const seconds = Math.floor((Date.now() - startTime) / 1000);
+      timeDisplay.textContent = seconds;
+    }, 1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timerInterval);
+  }
+
+  function showCelebration(finalSeconds) {
+    document.getElementById("final-time").textContent = finalSeconds;
+    const feedback = document.getElementById("feedback");
+    if (finalSeconds <= 30) {
+      feedback.textContent = "超強！妳根本是登機小天才 ✈️🌟";
+    } else if (finalSeconds <= 60) {
+      feedback.textContent = "不錯喔～記憶力滿分 👍";
+    } else {
+      feedback.textContent = "完成就是好事～下次可以更快一點 😉";
+    }
+    document.getElementById("celebration").style.display = "block";
+    launchConfetti();
+  }
+
+  function launchConfetti() {
+    const confettiCount = 80;
+    for (let i = 0; i < confettiCount; i++) {
+      const confetti = document.createElement("div");
+      confetti.textContent = "🎊";
+      confetti.style.position = "fixed";
+      confetti.style.left = Math.random() * window.innerWidth + "px";
+      confetti.style.top = "-40px";
+      confetti.style.fontSize = "24px";
+      confetti.style.opacity = "0.9";
+      confetti.style.zIndex = 9999;
+      document.body.appendChild(confetti);
+
+      const fall = confetti.animate([
+        { transform: 'translateY(0px)' },
+        { transform: `translateY(${window.innerHeight + 100}px)` }
+      ], { duration: 2000 + Math.random() * 1000, iterations: 1 });
+
+      fall.onfinish = () => confetti.remove();
+    }
+  }
+
+  function checkComplete() {
+    if (correctCount === 20 && !gameEnded) {
+      gameEnded = true;
+      stopTimer();
+      const secondsUsed = Math.floor((Date.now() - startTime) / 1000);
+      showCelebration(secondsUsed);
+    }
+  }
+
+  startTimer();
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      if (isBusy || gameEnded) return;
+      if (card.classList.contains('matched') || card.classList.contains('selected')) return;
+      card.classList.add('selected');
+
+      if (!firstCard) {
+        firstCard = card;
+        return;
+      }
+
+      isBusy = true;
+      if (firstCard.dataset.pair === card.dataset.pair && firstCard !== card) {
+        firstCard.classList.add('matched');
+        card.classList.add('matched');
+        correctSound.play();
+        correctCount++;
+        correctDisplay.textContent = correctCount;
+        checkComplete();
+      } else {
+        card.classList.add('wrong');
+        firstCard.classList.add('wrong');
+        wrongSound.play();
+        setTimeout(() => {
+          card.classList.remove('wrong', 'selected');
+          firstCard.classList.remove('wrong', 'selected');
+        }, 800);
+      }
+      setTimeout(() => {
+        firstCard = null;
+        isBusy = false;
+      }, 820);
+    });
+  });
+</script>
+</body>
+
+</html>
