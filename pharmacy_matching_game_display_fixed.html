@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>英語 ⇆ 中文 配對遊戲：藥局篇</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to bottom, #e8f5e9, #c8e6c9);
+      color: #2e7d32;
+      text-align: center;
+      padding: 20px;
+    }
+    h2 { color: #43a047; margin-bottom: 8px; }
+    .game-container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 20px;
+    }
+    .column {
+      width: 40%;
+    }
+    .card {
+      background: #e0f2f1;
+      border: 2px solid #4dd0e1;
+      border-radius: 12px;
+      padding: 10px 15px;
+      margin: 8px 0;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      user-select: none;
+    }
+    .card:hover {
+      background: #b2ebf2;
+      transform: scale(1.03);
+    }
+    .matched {
+      background: #fff176 !important;
+      border-color: #fdd835 !important;
+      color: #33691e;
+      font-weight: bold;
+      pointer-events: none;
+    }
+    .wrong {
+      background: #ffcdd2 !important;
+      border-color: #e57373 !important;
+      color: #b71c1c;
+    }
+    #message {
+      font-size: 18px;
+      color: #d32f2f;
+      margin-top: 8px;
+      min-height: 24px;
+    }
+    #score, #timer {
+      font-size: 18px;
+      color: #2e7d32;
+      margin: 8px 0;
+    }
+    #reset-btn {
+      padding: 6px 14px;
+      border: none;
+      background: #66bb6a;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>英語 ⇆ 中文 配對遊戲：藥局篇</h2>
+<p>點選左邊的英文，再點右邊的中文翻譯，完成配對！</p>
+<div id="message"></div>
+<div id="score">目前答對：<span id="correct-count">0</span> / 20</div>
+<div id="timer">已經花費時間：<span id="elapsed-time">0</span> 秒</div>
+<button id="reset-btn" onclick="location.reload()">再玩一次</button>
+
+<div class="game-container">
+  <div class="column" id="english">
+    <div class="card" data-pair="pair3">painkiller</div>
+<div class="card" data-pair="pair15">Just wait here, pretty patient.</div>
+<div class="card" data-pair="pair8">pharmacist</div>
+<div class="card" data-pair="pair7">side effects</div>
+<div class="card" data-pair="pair19">Time to take your medicine, brave girl.</div>
+<div class="card" data-pair="pair0">pharmacy</div>
+<div class="card" data-pair="pair13">Maybe a small tube of ointment for this scratch.</div>
+<div class="card" data-pair="pair14">I’ll ask the pharmacist for you.</div>
+<div class="card" data-pair="pair6">dosage</div>
+<div class="card" data-pair="pair2">over-the-counter medicine</div>
+<div class="card" data-pair="pair4">cold medicine</div>
+<div class="card" data-pair="pair9">refill</div>
+<div class="card" data-pair="pair16">Thanks… and don’t flirt with the pharmacist.</div>
+<div class="card" data-pair="pair5">ointment</div>
+<div class="card" data-pair="pair1">prescription</div>
+<div class="card" data-pair="pair12">You need some cold medicine too, right? Anything with fewer side effects.</div>
+<div class="card" data-pair="pair17">My whole attention is on you.</div>
+<div class="card" data-pair="pair10">Do you remember what the doctor said about your prescription?</div>
+<div class="card" data-pair="pair11">I need to bring this prescription to the pharmacy and ask for a refill.</div>
+<div class="card" data-pair="pair18">I have a prescription. Can I get a refill, please?</div>
+  </div>
+  <div class="column" id="chinese">
+    <div class="card" data-pair="pair19">該吃藥囉，我的勇敢小姐。</div>
+<div class="card" data-pair="pair13">這個小擦傷可能也要買一點軟膏。</div>
+<div class="card" data-pair="pair5">軟膏</div>
+<div class="card" data-pair="pair10">妳還記得醫生怎麼說妳的處方藥要怎麼拿嗎？</div>
+<div class="card" data-pair="pair14">我幫妳問藥劑師。</div>
+<div class="card" data-pair="pair1">處方籤</div>
+<div class="card" data-pair="pair4">感冒藥</div>
+<div class="card" data-pair="pair16">謝啦……然後不准跟藥劑師搭訕喔。</div>
+<div class="card" data-pair="pair9">補藥</div>
+<div class="card" data-pair="pair8">藥劑師</div>
+<div class="card" data-pair="pair12">妳也需要一些感冒藥對吧？要那種副作用少一點的。</div>
+<div class="card" data-pair="pair17">不可能，我整個注意力都在妳身上啦。</div>
+<div class="card" data-pair="pair0">藥局</div>
+<div class="card" data-pair="pair11">我要拿這張處方籤去藥局，然後請他們補藥。</div>
+<div class="card" data-pair="pair18">我有處方籤，請問可以補藥嗎？</div>
+<div class="card" data-pair="pair2">非處方藥</div>
+<div class="card" data-pair="pair3">止痛藥</div>
+<div class="card" data-pair="pair7">副作用</div>
+<div class="card" data-pair="pair6">劑量</div>
+<div class="card" data-pair="pair15">妳就在這邊等我，小病人小姐。</div>
+  </div>
+</div>
+
+<audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+<audio id="wrong-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+
+
+<div id="celebration" style="display:none; font-size: 24px; margin-top: 20px; color: #ff6f61; font-weight: bold;">
+  🎉 恭喜完成配對！你花了 <span id="final-time"></span> 秒完成任務！<br>
+  <span id="feedback"></span>
+</div>
+
+<script>
+  let firstCard = null;
+  let correctCount = 0;
+  let isBusy = false;
+  let gameEnded = false;
+  let startTime = Date.now();
+  const timeDisplay = document.getElementById('elapsed-time');
+  const correctDisplay = document.getElementById('correct-count');
+  const message = document.getElementById('message');
+  const correctSound = document.getElementById('correct-sound');
+  const wrongSound = document.getElementById('wrong-sound');
+  const cards = document.querySelectorAll('.card');
+
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      const seconds = Math.floor((Date.now() - startTime) / 1000);
+      timeDisplay.textContent = seconds;
+    }, 1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timerInterval);
+  }
+
+  function showCelebration(finalSeconds) {
+    document.getElementById("final-time").textContent = finalSeconds;
+    const feedback = document.getElementById("feedback");
+    if (finalSeconds <= 30) {
+      feedback.textContent = "超強！妳根本是登機小天才 ✈️🌟";
+    } else if (finalSeconds <= 60) {
+      feedback.textContent = "不錯喔～記憶力滿分 👍";
+    } else {
+      feedback.textContent = "完成就是好事～下次可以更快一點 😉";
+    }
+    document.getElementById("celebration").style.display = "block";
+    launchConfetti();
+  }
+
+  function launchConfetti() {
+    const confettiCount = 80;
+    for (let i = 0; i < confettiCount; i++) {
+      const confetti = document.createElement("div");
+      confetti.textContent = "🍬";
+      confetti.style.position = "fixed";
+      confetti.style.left = Math.random() * window.innerWidth + "px";
+      confetti.style.top = "-40px";
+      confetti.style.fontSize = "36px";
+      confetti.style.opacity = "0.9";
+      confetti.style.zIndex = 9999;
+      document.body.appendChild(confetti);
+
+      const fall = confetti.animate([
+        { transform: 'translateY(0px)' },
+        { transform: `translateY(${window.innerHeight + 100}px)` }
+      ], { duration: 2000 + Math.random() * 1000, iterations: 1 });
+
+      fall.onfinish = () => confetti.remove();
+    }
+  }
+
+  function checkComplete() {
+    if (correctCount === 20 && !gameEnded) {
+      gameEnded = true;
+      stopTimer();
+      const secondsUsed = Math.floor((Date.now() - startTime) / 1000);
+      showCelebration(secondsUsed);
+    }
+  }
+
+  startTimer();
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      if (isBusy || gameEnded) return;
+      if (card.classList.contains('matched') || card.classList.contains('selected')) return;
+      card.classList.add('selected');
+
+      if (!firstCard) {
+        firstCard = card;
+        return;
+      }
+
+      isBusy = true;
+      if (firstCard.dataset.pair === card.dataset.pair && firstCard !== card) {
+        firstCard.classList.add('matched');
+        card.classList.add('matched');
+        correctSound.play();
+        correctCount++;
+        correctDisplay.textContent = correctCount;
+        checkComplete();
+      } else {
+        card.classList.add('wrong');
+        firstCard.classList.add('wrong');
+        wrongSound.play();
+        setTimeout(() => {
+          card.classList.remove('wrong', 'selected');
+          firstCard.classList.remove('wrong', 'selected');
+        }, 800);
+      }
+      setTimeout(() => {
+        firstCard = null;
+        isBusy = false;
+      }, 820);
+    });
+  });
+</script>
+
+<script>
+const englishCards = [
+  "pharmacy", "prescription", "over-the-counter medicine", "painkiller", "cold medicine",
+  "ointment", "dosage", "side effects", "pharmacist", "refill",
+  "Do you remember what the doctor said about your prescription?",
+  "I need to bring this prescription to the pharmacy and ask for a refill.",
+  "You need some cold medicine too, right? Anything with fewer side effects.",
+  "Maybe a small tube of ointment for this scratch.",
+  "I’ll ask the pharmacist for you.",
+  "Just wait here, pretty patient.",
+  "Thanks… and don’t flirt with the pharmacist.",
+  "My whole attention is on you.",
+  "I have a prescription. Can I get a refill, please?",
+  "Time to take your medicine, brave girl."
+];
+const chineseCards = [
+  "藥局", "處方籤", "非處方藥", "止痛藥", "感冒藥",
+  "軟膏", "劑量", "副作用", "藥劑師", "補藥",
+  "妳還記得醫生怎麼說妳的處方藥要怎麼拿嗎？",
+  "我要拿這張處方籤去藥局，然後請他們補藥。",
+  "妳也需要一些感冒藥對吧？要那種副作用少一點的。",
+  "這個小擦傷可能也要買一點軟膏。",
+  "我幫妳問藥劑師。",
+  "妳就在這邊等我，小病人小姐。",
+  "謝啦……然後不准跟藥劑師搭訕喔。",
+  "不可能，我整個注意力都在妳身上啦。",
+  "我有處方籤，請問可以補藥嗎？",
+  "該吃藥囉，我的勇敢小姐。"
+];
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function renderCards() {
+  const enCol = document.getElementById("english");
+  const zhCol = document.getElementById("chinese");
+  enCol.innerHTML = "";
+  zhCol.innerHTML = "";
+
+  const indices = [...Array(englishCards.length).keys()];
+  const shuffledEn = [...indices];
+  const shuffledZh = [...indices];
+  shuffle(shuffledEn);
+  shuffle(shuffledZh);
+
+  shuffledEn.forEach(i => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.dataset.pair = "pair" + i;
+    div.textContent = englishCards[i];
+    enCol.appendChild(div);
+  });
+
+  shuffledZh.forEach(i => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.dataset.pair = "pair" + i;
+    div.textContent = chineseCards[i];
+    zhCol.appendChild(div);
+  });
+}
+
+function setupMatchingLogic() {
+  let firstCard = null;
+  let correctCount = 0;
+  let isBusy = false;
+  let gameEnded = false;
+  let startTime = Date.now();
+  const timeDisplay = document.getElementById('elapsed-time');
+  const correctDisplay = document.getElementById('correct-count');
+  const message = document.getElementById('message');
+  const correctSound = document.getElementById('correct-sound');
+  const wrongSound = document.getElementById('wrong-sound');
+  const celebration = document.getElementById('celebration');
+
+  let timerInterval = setInterval(() => {
+    const seconds = Math.floor((Date.now() - startTime) / 1000);
+    timeDisplay.textContent = seconds;
+  }, 1000);
+
+  function stopTimer() {
+    clearInterval(timerInterval);
+  }
+
+  function showCelebration(finalSeconds) {
+    document.getElementById("final-time").textContent = finalSeconds;
+    const feedback = document.getElementById("feedback");
+    if (finalSeconds <= 30) {
+      feedback.textContent = "超強！妳根本是登機小天才 ✈️🌟";
+    } else if (finalSeconds <= 60) {
+      feedback.textContent = "不錯喔～記憶力滿分 👍";
+    } else {
+      feedback.textContent = "完成就是好事～下次可以更快一點 😉";
+    }
+    celebration.style.display = "block";
+    launchConfetti();
+  }
+
+  function launchConfetti() {
+    const confettiCount = 80;
+    for (let i = 0; i < confettiCount; i++) {
+      const confetti = document.createElement("div");
+      confetti.textContent = "🍬";
+      confetti.style.position = "fixed";
+      confetti.style.left = Math.random() * window.innerWidth + "px";
+      confetti.style.top = "-40px";
+      confetti.style.fontSize = "36px";
+      confetti.style.opacity = "0.9";
+      confetti.style.zIndex = 9999;
+      document.body.appendChild(confetti);
+
+      const fall = confetti.animate([
+        { transform: 'translateY(0px)' },
+        { transform: `translateY(${window.innerHeight + 100}px)` }
+      ], { duration: 2000 + Math.random() * 1000, iterations: 1 });
+
+      fall.onfinish = () => confetti.remove();
+    }
+  }
+
+  function checkComplete() {
+    if (correctCount === englishCards.length && !gameEnded) {
+      gameEnded = true;
+      stopTimer();
+      const secondsUsed = Math.floor((Date.now() - startTime) / 1000);
+      showCelebration(secondsUsed);
+    }
+  }
+
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (isBusy || gameEnded) return;
+      if (card.classList.contains('matched') || card.classList.contains('selected')) return;
+      card.classList.add('selected');
+
+      if (!firstCard) {
+        firstCard = card;
+        return;
+      }
+
+      isBusy = true;
+      if (firstCard.dataset.pair === card.dataset.pair && firstCard !== card) {
+        firstCard.classList.add('matched');
+        card.classList.add('matched');
+        correctSound.play();
+        correctCount++;
+        correctDisplay.textContent = correctCount;
+        checkComplete();
+      } else {
+        card.classList.add('wrong');
+        firstCard.classList.add('wrong');
+        wrongSound.play();
+        setTimeout(() => {
+          card.classList.remove('wrong', 'selected');
+          firstCard.classList.remove('wrong', 'selected');
+        }, 800);
+      }
+      setTimeout(() => {
+        firstCard = null;
+        isBusy = false;
+      }, 820);
+    });
+  });
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  renderCards();
+  setTimeout(setupMatchingLogic, 200);
+});
+</script>
+
+</body>
+
+</html>
