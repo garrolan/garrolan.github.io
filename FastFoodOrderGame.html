@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fast Food Ordering Game</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #fffbe6;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .menu-item input {
+      margin-right: 10px;
+    }
+    .section {
+      margin-top: 20px;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-top: 20px;
+    }
+    .btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #ffcc00;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .btn:hover {
+      background-color: #ff9900;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍔 Fast Food Order Game</h1>
+
+  <div class="section">
+    <h3>Choose your meal:</h3>
+    <div class="menu-item"><input type="checkbox" value="6" data-name="Combo Meal 🍟🍔">Combo Meal 🍟🍔 - $6</div>
+    <div class="menu-item"><input type="checkbox" value="4" data-name="Burger 🍔">Burger 🍔 - $4</div>
+    <div class="menu-item"><input type="checkbox" value="2" data-name="Fries 🍟">Fries 🍟 - $2</div>
+    <div class="menu-item"><input type="checkbox" value="1.5" data-name="Drink 🥤">Drink 🥤 - $1.5</div>
+  </div>
+
+  <div class="section">
+    <h3>Dine Option:</h3>
+    <select id="dineOption">
+      <option value="for here">For here</option>
+      <option value="to go">To go</option>
+    </select>
+  </div>
+
+  <div class="section">
+    <h3>Payment Method:</h3>
+    <select id="payment">
+      <option value="cash">Cash</option>
+      <option value="card">Card</option>
+    </select>
+  </div>
+
+  <button class="btn" onclick="submitOrder()">Submit Order</button>
+
+  <div class="total" id="summary"></div>
+
+  <script>
+    function submitOrder() {
+      const items = document.querySelectorAll('.menu-item input');
+      let total = 0;
+      let orderList = [];
+
+      items.forEach(item => {
+        if (item.checked) {
+          total += parseFloat(item.value);
+          orderList.push(item.getAttribute('data-name'));
+        }
+      });
+
+      const dine = document.getElementById('dineOption').value;
+      const payment = document.getElementById('payment').value;
+
+      let summary = `🧾 You ordered: ${orderList.join(', ')}<br>` +
+                    `🍽️ Dine option: ${dine}<br>` +
+                    `💳 Payment: ${payment}<br>` +
+                    `💰 Total: $${total.toFixed(2)}`;
+
+      document.getElementById('summary').innerHTML = summary;
+    }
+  </script>
+</body>
+</html>
