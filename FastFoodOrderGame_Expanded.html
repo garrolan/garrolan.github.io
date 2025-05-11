@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fast Food Order Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #fff7f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #d35400;
+        }
+        .menu-section, .order-section, .summary-section {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 8px 0;
+        }
+        .menu-item button {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .menu-item button:hover {
+            background-color: #e67e22;
+        }
+        .option-group {
+            margin: 10px 0;
+        }
+        .option-group label {
+            margin-right: 15px;
+        }
+        .summary {
+            font-weight: bold;
+        }
+        .cute-icon {
+            font-size: 20px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🍔 Fast Food Ordering Game 🍟</h1>
+
+<div class="menu-section">
+    <h2>Menu</h2>
+    <div class="menu-item"><span>🍔 Cheeseburger - $80</span><button onclick="addItem('Cheeseburger', 80)">Add</button></div>
+    <div class="menu-item"><span>🍔 Chicken Burger - $85</span><button onclick="addItem('Chicken Burger', 85)">Add</button></div>
+    <div class="menu-item"><span>🍔 Veggie Burger - $75</span><button onclick="addItem('Veggie Burger', 75)">Add</button></div>
+    <div class="menu-item"><span>🍟 Fries - $40</span><button onclick="addItem('Fries', 40)">Add</button></div>
+    <div class="menu-item"><span>🥤 Soda - $30</span><button onclick="addItem('Soda', 30)">Add</button></div>
+    <div class="menu-item"><span>☕ Coffee - $35</span><button onclick="addItem('Coffee', 35)">Add</button></div>
+    <div class="menu-item"><span>🫖 Black Tea - $35</span><button onclick="addItem('Black Tea', 35)">Add</button></div>
+    <div class="menu-item"><span>🛍️ Plastic Bag - $2</span><button onclick="addItem('Plastic Bag', 2)">Add</button></div>
+</div>
+
+<div class="order-section">
+    <h2>Options</h2>
+    <div class="option-group">
+        <strong>Eat-in or Take-out?</strong><br>
+        <label><input type="radio" name="eatOption" value="For here"> For here</label>
+        <label><input type="radio" name="eatOption" value="To go"> To go</label>
+    </div>
+    <div class="option-group">
+        <strong>Payment Method</strong><br>
+        <label><input type="radio" name="paymentOption" value="Cash"> Cash</label>
+        <label><input type="radio" name="paymentOption" value="Card"> Card</label>
+    </div>
+</div>
+
+<div class="summary-section">
+    <h2>Order Summary</h2>
+    <div id="orderList"></div>
+    <p class="summary" id="totalAmount">Total: $0</p>
+    <button onclick="finalizeOrder()">Complete Order</button>
+    <div id="finalSummary" style="margin-top:15px;"></div>
+</div>
+
+<script>
+    let total = 0;
+    let orderItems = [];
+
+    function addItem(name, price) {
+        orderItems.push({name, price});
+        total += price;
+        updateOrderList();
+    }
+
+    function updateOrderList() {
+        const orderList = document.getElementById('orderList');
+        orderList.innerHTML = '';
+        orderItems.forEach(item => {
+            const div = document.createElement('div');
+            div.textContent = `${item.name} - $${item.price}`;
+            orderList.appendChild(div);
+        });
+        document.getElementById('totalAmount').textContent = `Total: $${total}`;
+    }
+
+    function finalizeOrder() {
+        const eatOption = document.querySelector('input[name="eatOption"]:checked');
+        const paymentOption = document.querySelector('input[name="paymentOption"]:checked');
+        let summary = '<strong>Your Order:</strong><br>';
+        if (orderItems.length === 0) {
+            summary += 'No items selected.';
+        } else {
+            orderItems.forEach(item => {
+                summary += `${item.name} - $${item.price}<br>`;
+            });
+            summary += `<br><strong>Total: $${total}</strong><br>`;
+            summary += `Eat Option: ${eatOption ? eatOption.value : 'Not selected'}<br>`;
+            summary += `Payment Method: ${paymentOption ? paymentOption.value : 'Not selected'}`;
+        }
+        document.getElementById('finalSummary').innerHTML = summary;
+    }
+</script>
+
+</body>
+</html>
