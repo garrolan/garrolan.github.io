@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>童趣數字抽獎遊戲</title>
+  <style>
+    body {
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      background-color: #ffeef8;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 36px;
+      color: #ff66a3;
+    }
+    select, input {
+      font-size: 24px;
+      margin: 10px;
+      padding: 5px;
+    }
+    #cards {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .card {
+      width: 100px;
+      height: 140px;
+      background-color: #fff0f5;
+      border: 3px solid #ff99cc;
+      border-radius: 10px;
+      font-size: 48px;
+      color: #ff66a3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+    }
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+    .card .front, .card .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card .back {
+      transform: rotateY(180deg);
+      background-color: #ffccf2;
+    }
+  </style>
+</head>
+<body>
+  <h1>童趣數字抽獎遊戲</h1>
+  <label>選擇範圍：1 ~ 
+    <select id="rangeSelect"></select>
+  </label>
+  <label>抽幾個數字：
+    <input type="number" id="drawCount" value="1" min="1" style="width: 60px;">
+  </label>
+  <button onclick="startDraw()">開始抽獎！</button>
+  <div id="cards"></div>
+
+  <audio id="drum" src="https://www.soundjay.com/button/sounds/button-10.mp3"></audio>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script>
+    const rangeSelect = document.getElementById('rangeSelect');
+    for (let i = 10; i <= 99; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = i;
+      rangeSelect.appendChild(option);
+    }
+    rangeSelect.value = 99;
+
+    function startDraw() {
+      const max = parseInt(rangeSelect.value);
+      const count = parseInt(document.getElementById('drawCount').value);
+      const drum = document.getElementById('drum');
+      const cardsDiv = document.getElementById('cards');
+      const numbers = [...Array(max).keys()].map(i => i + 1);
+      const drawn = [];
+      cardsDiv.innerHTML = '';
+
+      for (let i = 0; i < count; i++) {
+        const index = Math.floor(Math.random() * numbers.length);
+        drawn.push(numbers.splice(index, 1)[0]);
+      }
+
+      drawn.forEach((num, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const front = document.createElement('div');
+        front.className = 'front';
+        front.textContent = '🎁';
+
+        const back = document.createElement('div');
+        back.className = 'back';
+        back.textContent = num;
+
+        card.appendChild(front);
+        card.appendChild(back);
+
+        card.onclick = async () => {
+          card.onclick = null;
+          drum.play();
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          card.classList.add('flipped');
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#ff66a3', '#ffd1dc', '#ff99cc']
+          });
+        };
+        cardsDiv.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
