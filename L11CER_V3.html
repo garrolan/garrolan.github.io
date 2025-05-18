@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>幸福的火苗｜立場選擇遊戲</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f7f3e9;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #c1440e;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .dropzone {
+      min-height: 250px;
+      border: 2px dashed #ccc;
+      padding: 10px;
+      background-color: #fff;
+    }
+    .dropzone h2 {
+      text-align: center;
+      color: #444;
+    }
+    .card {
+      background-color: #fefefe;
+      border: 1px solid #ccc;
+      margin: 5px;
+      padding: 8px;
+      cursor: grab;
+      border-radius: 5px;
+      width: 150px;
+      display: inline-block;
+    }
+    #card-pool {
+      margin-top: 20px;
+      background-color: #fff3cd;
+      border: 2px solid #f0ad4e;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .container {
+      display: flex;
+      justify-content: space-around;
+      gap: 20px;
+    }
+    .button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #c1440e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .stance-options {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    #custom-card {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>幸福的火苗｜我是立場小律師</h1>
+
+  <div class="section">
+    <p>請先選擇你的立場：</p>
+    <div class="stance-options">
+      <label><input type="radio" name="stance" value="hero"> 我支持普羅米修斯是英雄</label>
+      <label><input type="radio" name="stance" value="villain"> 我認為普羅米修斯違反規定</label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="dropzone" id="player-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <h2>請將支持你立場的句子拖曳至此</h2>
+    </div>
+  </div>
+
+  <div id="card-pool">
+    <h2>句子卡（請拖曳）</h2>
+    <div id="card-container"></div>
+  </div>
+
+  <div class="section">
+    <h3>補充自己的觀點：</h3>
+    <input type="text" id="custom-card" placeholder="輸入你的補充句子...">
+    <button onclick="addCustomCard()">新增卡片</button>
+  </div>
+
+  <button class="button" onclick="checkAnswer()">提交並驗證</button>
+  <p id="result"></p>
+
+  <script>
+    const correctHero = ['c1','c2','c3','c4','c5'];
+    const correctVillain = ['c6','c7','c8','c9','c10'];
+
+    const cards = [
+      { id: 'c1', text: '我願意承擔所有的後果！' },
+      { id: 'c2', text: '火焰帶來了明亮、溫暖與幸福。' },
+      { id: 'c3', text: '人們又唱又跳，高聲的呼喊著：謝謝您！普羅米修斯！' },
+      { id: 'c4', text: '他創造了人類，把人類當成心愛的孩子。' },
+      { id: 'c5', text: '普羅米修斯不但創造了人類，還費盡心思教導他們各種技能。' },
+      { id: 'c6', text: '不給人類火苗，是宙斯立下的規定，無論是誰違反，都將面臨嚴重的後果。' },
+      { id: 'c7', text: '普羅米修斯躲躲藏藏地上山取火。' },
+      { id: 'c8', text: '他被鎖在岩壁上，每天被老鷹啄食身體。' },
+      { id: 'c9', text: '宙斯大發雷霆，命人將我綁在岩壁上。' },
+      { id: 'c10', text: '火惹怒了宙斯，他還打算降禍給人類。' },
+      { id: 'n1', text: '火看起來好美，但也可能會傷人。' },
+      { id: 'n2', text: '人類太依賴神的幫助，什麼時候才能自立自強呢？' },
+      { id: 'n3', text: '老鷹真的有這麼餓嗎？還是只是執行命令？' }
+    ];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function renderCards() {
+      const container = document.getElementById("card-container");
+      shuffle(cards).forEach(card => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.id = card.id;
+        div.draggable = true;
+        div.ondragstart = drag;
+        div.textContent = card.text;
+        container.appendChild(div);
+      });
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+    function drop(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
+      const dragged = document.getElementById(data);
+      ev.target.appendChild(dragged);
+    }
+
+    function addCustomCard() {
+      const input = document.getElementById("custom-card");
+      const value = input.value.trim();
+      if (value) {
+        const id = "custom-" + Date.now();
+        const div = document.createElement("div");
+        div.className = "card";
+        div.id = id;
+        div.draggable = true;
+        div.ondragstart = drag;
+        div.textContent = value;
+        document.getElementById("card-container").appendChild(div);
+        input.value = "";
+      }
+    }
+
+    function checkAnswer() {
+      const stance = document.querySelector('input[name="stance"]:checked');
+      if (!stance) {
+        alert("請先選擇你的立場！");
+        return;
+      }
+
+      const chosen = document.getElementById("player-zone").querySelectorAll(".card");
+      let score = 0;
+      chosen.forEach(c => {
+        if ((stance.value === 'hero' && correctHero.includes(c.id)) ||
+            (stance.value === 'villain' && correctVillain.includes(c.id)) ||
+            c.id.startsWith("custom-")) {
+          score += 20;
+        }
+      });
+      document.getElementById("result").innerText = `你得到 ${score} 分！`;
+    }
+
+    renderCards();
+  </script>
+</body>
+</html>
