@@ -1,0 +1,215 @@
+<!-- 📌 Find All the Factors Game - 完整版 HTML/CSS/JS 可直接放在 Canva Code 或瀏覽器中執行 -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>因數配對遊戲｜Find All the Factors</title>
+    <style>
+      /* ===== 🎨 介面樣式設定 ===== */
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #2b235a; /* 紫藍背景 */
+        font-family: "Noto Sans TC", sans-serif;
+      }
+      #game-wrapper {
+        background: #ffffff;
+        color: #333;
+        border-radius: 24px;
+        padding: 32px 28px 40px;
+        width: min(92vw, 480px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+        text-align: center;
+      }
+      h1 {
+        margin: 0 0 12px;
+        color: #2b235a;
+        font-size: 2rem;
+      }
+      #stats {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      #target-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2b235a;
+        margin: 14px 0 6px;
+      }
+      #options {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .option-btn {
+        padding: 12px 0;
+        border: none;
+        border-radius: 14px;
+        background: #eef1ff;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: transform 0.15s;
+      }
+      .option-btn:hover {
+        transform: scale(1.05);
+      }
+      .option-btn.correct {
+        background: #43d14d;
+        color: #fff;
+        animation: flash 0.35s alternate 2;
+      }
+      .option-btn.wrong {
+        animation: shake 0.3s;
+        background: #f9c8c8;
+      }
+      .option-btn:disabled {
+        opacity: 0.65;
+        cursor: default;
+      }
+      #timer {
+        color: #ffda44;
+      }
+      @keyframes flash {
+        from {
+          transform: scale(1);
+        }
+        to {
+          transform: scale(1.13);
+        }
+      }
+      @keyframes shake {
+        10%, 90% {
+          transform: translateX(-2px);
+        }
+        20%, 80% {
+          transform: translateX(4px);
+        }
+        30%, 50%, 70% {
+          transform: translateX(-6px);
+        }
+        40%, 60% {
+          transform: translateX(6px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-wrapper">
+      <h1>因數配對遊戲</h1>
+      <div id="stats">
+        <span id="level">第 1 關</span>
+        <span id="score">分數：0</span>
+        <span id="timer">倒數：20 秒</span>
+      </div>
+      <div id="target-number">請找出 22 的所有因數</div>
+      <div id="options"></div>
+    </div>
+
+    <!-- 音效（自行替換為實際檔案或移除） -->
+    <audio id="correct-sound" src="correct.mp3" preload="auto"></audio>
+    <audio id="wrong-sound" src="wrong.mp3" preload="auto"></audio>
+
+    <script>
+      // ===== 🧠 遊戲邏輯 =====
+      let currentScore = 0;
+      let currentLevel = 1;
+      let timeLeft = 20;
+      let countdownInterval;
+
+      const $score = document.getElementById("score");
+      const $level = document.getElementById("level");
+      const $timer = document.getElementById("timer");
+      const $target = document.getElementById("target-number");
+      const $options = document.getElementById("options");
+
+      const correctSound = document.getElementById("correct-sound");
+      const wrongSound = document.getElementById("wrong-sound");
+
+      function getFactors(num) {
+        const list = [];
+        for (let i = 1; i <= num; i++) if (num % i === 0) list.push(i);
+        return list;
+      }
+
+      function generateOptions(target) {
+        const factors = getFactors(target);
+        const set = new Set(factors);
+        while (set.size < 12) set.add(Math.floor(Math.random() * 50) + 1);
+        return Array.from(set).sort(() => Math.random() - 0.5);
+      }
+
+      function updateStats() {
+        $score.textContent = `分數：${currentScore}`;
+        $level.textContent = `第 ${currentLevel} 關`;
+        $timer.textContent = `倒數：${timeLeft} 秒`;
+      }
+
+      function nextQuestion() {
+        clearInterval(countdownInterval);
+        timeLeft = 20;
+        updateStats();
+
+        const target = Math.floor(Math.random() * 91) + 10; // 10~100
+        const factors = getFactors(target);
+        const opts = generateOptions(target);
+
+        $target.textContent = `請找出 ${target} 的所有因數`;
+        $options.innerHTML = "";
+
+        opts.forEach((num) => {
+          const btn = document.createElement("button");
+          btn.className = "option-btn";
+          btn.textContent = num;
+          btn.addEventListener("click", () => handleChoice(btn, num, factors));
+          $options.appendChild(btn);
+        });
+
+        countdownInterval = setInterval(() => {
+          timeLeft--;
+          $timer.textContent = `倒數：${timeLeft} 秒`;
+          if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            alert(`時間到！\n遊戲結束，你的分數是：${currentScore}`);
+            resetGame();
+          }
+        }, 1000);
+      }
+
+      function handleChoice(btn, num, factors) {
+        if (factors.includes(num)) {
+          btn.classList.add("correct");
+          btn.disabled = true;
+          correctSound && correctSound.play();
+
+          const found = $options.querySelectorAll(".correct").length;
+          if (found === factors.length) {
+            currentScore += 10;
+            currentLevel++;
+            setTimeout(nextQuestion, 800);
+          }
+        } else if (!btn.classList.contains("wrong")) {
+          btn.classList.add("wrong");
+          wrongSound && wrongSound.play();
+        }
+      }
+
+      function resetGame() {
+        currentScore = 0;
+        currentLevel = 1;
+        nextQuestion();
+      }
+
+      // ===== 🚀 啟動遊戲 =====
+      document.addEventListener("DOMContentLoaded", () => {
+        nextQuestion();
+      });
+    </script>
+  </body>
+</html>
