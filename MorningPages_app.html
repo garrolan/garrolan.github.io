@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>晨間隨筆 · 小金鳳專屬</title>
+  <style>
+    body{
+      margin:0; font-family: 'Noto Sans TC', sans-serif; background:#fffaf6; color:#333;
+      display:flex; flex-direction:column; min-height:100vh;
+    }
+    header{
+      background:#ff9aa2; color:white; padding:1.2rem; text-align:center; font-size:1.4rem; font-weight:700;
+      box-shadow:0 3px 8px rgba(0,0,0,.12);
+    }
+    main{ flex:1; padding:1rem; max-width:720px; margin:auto; width:100%; }
+    .prompt{ margin:.8rem 0; padding:.8rem 1rem; background:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,.06); }
+    .prompt h3{ margin:0 0 .4rem; font-size:1.05rem; color:#c94f5d }
+    textarea{
+      width:100%; min-height:80px; resize:vertical; padding:.6rem; border:1px solid #ddd; border-radius:8px; font-size:1rem;
+      font-family:inherit; line-height:1.5; background:#fffdfd;
+    }
+    button{
+      margin-top:1rem; background:#ff9aa2; border:none; padding:.8rem 1.4rem; color:#fff; border-radius:10px; cursor:pointer;
+      font-size:1rem; font-weight:600; box-shadow:0 4px 10px rgba(0,0,0,.12);
+    }
+    button:hover{ background:#ff7a8a }
+    .entries{ margin-top:2rem; }
+    .entry{ background:#fff; padding:1rem; margin-bottom:1rem; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,.08); }
+    .entry time{ font-size:.85rem; color:#777; display:block; margin-bottom:.5rem; }
+    footer{ text-align:center; font-size:.8rem; padding:1rem; color:#888; }
+  </style>
+</head>
+<body>
+  <header>🌅 晨間隨筆 · 小金鳳專屬</header>
+  <main>
+    <form id="journalForm">
+      <div class="prompt">
+        <h3>1. 此刻的心情是什麼？</h3>
+        <textarea id="mood"></textarea>
+      </div>
+      <div class="prompt">
+        <h3>2. 今天最想專注的事情？</h3>
+        <textarea id="focus"></textarea>
+      </div>
+      <div class="prompt">
+        <h3>3. 此刻最感恩的一件事？</h3>
+        <textarea id="gratitude"></textarea>
+      </div>
+      <button type="submit">✍️ 儲存今日隨筆</button>
+    </form>
+
+    <section class="entries" id="entries">
+      <h2>📖 我的隨筆紀錄</h2>
+    </section>
+  </main>
+  <footer>這是千彰為小金鳳準備的 · 所有內容只會保存在本機瀏覽器</footer>
+
+  <script>
+    const form = document.getElementById('journalForm');
+    const entriesDiv = document.getElementById('entries');
+    const KEY = 'morning_journal_v1';
+
+    function loadEntries(){
+      const list = JSON.parse(localStorage.getItem(KEY)||'[]');
+      entriesDiv.innerHTML = '<h2>📖 我的隨筆紀錄</h2>';
+      list.reverse().forEach(e => {
+        const div = document.createElement('div');
+        div.className = 'entry';
+        div.innerHTML = `<time>${e.date}</time>
+          <div><strong>心情：</strong>${e.mood||''}</div>
+          <div><strong>專注：</strong>${e.focus||''}</div>
+          <div><strong>感恩：</strong>${e.gratitude||''}</div>`;
+        entriesDiv.appendChild(div);
+      });
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const entry = {
+        mood: document.getElementById('mood').value.trim(),
+        focus: document.getElementById('focus').value.trim(),
+        gratitude: document.getElementById('gratitude').value.trim(),
+        date: new Date().toLocaleString('zh-TW')
+      };
+      if(!entry.mood && !entry.focus && !entry.gratitude) return;
+      const list = JSON.parse(localStorage.getItem(KEY)||'[]');
+      list.push(entry);
+      localStorage.setItem(KEY, JSON.stringify(list.slice(-200)));
+      form.reset();
+      loadEntries();
+    });
+
+    loadEntries();
+  </script>
+</body>
+</html>
