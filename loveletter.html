@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>七夕 · 給小金鳳的一封情書</title>
+  <meta name="description" content="千彰寫給小金鳳的七夕情書——一頁溫柔、可互動、可保存。"/>
+  <style>
+    :root{
+      --bg: #fffaf7;
+      --card: #ffffff;
+      --ink: #2b2b2b;
+      --rose: #ff7a8a;
+      --rose-deep:#ff4d68;
+      --soft:#f9e5ea;
+      --accent:#f7b7c3;
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+    [data-theme="night"]{
+      --bg: #0d0b10;
+      --card:#14121a;
+      --ink:#f2eef6;
+      --rose:#ff8896;
+      --rose-deep:#ff657b;
+      --soft:#201924;
+      --accent:#2b2230;
+      --shadow: 0 12px 34px rgba(0,0,0,.35);
+    }
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Noto Sans TC", "PingFang TC", Arial;
+      background: radial-gradient(1200px 700px at 10% -10%, var(--soft), transparent),
+                  radial-gradient(900px 500px at 110% 10%, var(--accent), transparent),
+                  var(--bg);
+      color:var(--ink);
+      transition: background .6s ease, color .6s ease;
+    }
+    .wrap{max-width: 960px; margin: 4rem auto; padding: 0 1rem;}
+    .hero{
+      display:flex; flex-direction:column; align-items:center; gap:.6rem; text-align:center;
+    }
+    .title{font-weight:800; letter-spacing:.06em; font-size: clamp(28px, 6vw, 56px);}
+    .subtitle{opacity:.8; font-size: clamp(14px, 2.4vw, 18px)}
+    .heart-btn{
+      margin-top: 1rem;
+      display:inline-grid; place-items:center; width:120px; aspect-ratio:1; border-radius: 26px;
+      background: linear-gradient(180deg, var(--rose), var(--rose-deep));
+      color:#fff; font-weight:700; border:none; box-shadow: var(--shadow); cursor:pointer;
+      transition: transform .15s ease;
+    }
+    .heart-btn:hover{ transform: translateY(-2px) scale(1.02); }
+    .heart{ font-size: 34px; animation: beat 1.2s ease-in-out infinite; }
+    @keyframes beat{ 0%,100%{ transform: scale(1)} 30%{ transform: scale(1.12)} 60%{ transform: scale(.96)} }
+
+    .card{
+      margin: 2rem auto 1rem;
+      background: var(--card);
+      border-radius: 22px; box-shadow: var(--shadow);
+      overflow:hidden; position: relative;
+    }
+    .ribbon{
+      position:absolute; inset:0; pointer-events:none; opacity:.08;
+      background: repeating-linear-gradient( 45deg, transparent 0 16px, var(--rose) 16px 18px, transparent 18px 34px);
+      filter: blur(.7px);
+    }
+    .letter{
+      padding: clamp(20px, 4vw, 44px);
+      line-height: 1.9; font-size: clamp(15px, 2.6vw, 18px);
+    }
+    .seal{ 
+      position:absolute; inset:0; display:grid; place-items:center; background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.8));
+      backdrop-filter: blur(2px); transition: opacity .7s ease;
+    }
+    .seal.hidden{ opacity:0; pointer-events:none}
+    .seal .wax{
+      display:grid; place-items:center; width: 120px; aspect-ratio:1; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #ffd3db, var(--rose)); color:#fff; box-shadow: var(--shadow);
+      font-weight:800; letter-spacing:.08em;
+    }
+    .meta{ display:flex; align-items:center; gap: .8rem; justify-content:space-between; padding: 1rem 1.2rem; opacity:.85; border-top: 1px dashed rgba(0,0,0,.08)}
+    .pill{ padding:.35rem .8rem; border-radius: 100px; background: var(--soft); font-size: 12px }
+
+    .controls{
+      display:flex; flex-wrap:wrap; gap:.6rem; justify-content:center; margin: 1rem auto 2rem;
+    }
+    .btn{ border:1px solid transparent; background: var(--card); box-shadow: var(--shadow); color: var(--ink);
+      padding:.6rem .9rem; border-radius:12px; cursor:pointer; transition:.2s; font-weight:600; }
+    .btn:hover{ transform: translateY(-1px)}
+
+    /* 願望便利貼 */
+    .wishbox{ display:flex; gap:.5rem; justify-content:center; flex-wrap:wrap; }
+    .wishbox input{ 
+      min-width: 260px; max-width: calc(100% - 100px); flex: 1 1 260px; 
+      padding:.65rem .8rem; border-radius:12px; border: 1px solid rgba(0,0,0,.08); background: var(--card); color: var(--ink);
+      box-shadow: var(--shadow);
+    }
+    .notes{ position: relative; min-height: 120px; margin: 1.2rem 0 0; }
+    .note{ position:absolute; padding: .8rem .9rem; width: 180px; min-height: 80px; background: #fff9c4; color:#333;
+      box-shadow: 0 8px 18px rgba(0,0,0,.12); border-radius: 10px; transform: rotate(var(--r, -2deg));
+    }
+
+    /* 小蝴蝶 */
+    .butterfly{ position: fixed; left:-40px; bottom: 12px; font-size: 22px; opacity:.9; filter: saturate(1.1)}
+    .butterfly span{ display:inline-block; animation: fly 12s linear infinite; }
+    @keyframes fly{
+      0%{ transform: translateX(0) translateY(0) rotate(0deg)}
+      20%{ transform: translateX(25vw) translateY(-6vh) rotate(12deg)}
+      40%{ transform: translateX(50vw) translateY(-1vh) rotate(-8deg)}
+      60%{ transform: translateX(70vw) translateY(-10vh) rotate(6deg)}
+      80%{ transform: translateX(90vw) translateY(-3vh) rotate(-4deg)}
+      100%{ transform: translateX(110vw) translateY(-14vh) rotate(0deg)}
+    }
+
+    /* 愛心小雨 */
+    .confetti{position: fixed; inset:0; pointer-events:none; overflow:hidden}
+    .confetti i{ position:absolute; font-size: 18px; animation: rise 2.4s linear forwards; opacity:.9 }
+    @keyframes rise{ from{ transform: translateY(20vh) scale(.8)} to{ transform: translateY(-110vh) scale(1.1); opacity:0 } }
+
+    footer{ text-align:center; opacity:.7; padding: 1.2rem 0 2.4rem; font-size: 13px }
+    a.link{ color: var(--rose-deep); text-decoration: none; font-weight:700 }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero" aria-label="hero">
+      <div class="title">七夕 · 一封只寫給妳的情書</div>
+      <div class="subtitle">收件人：<strong>小金鳳</strong>　|　寄件人：<strong>千彰</strong></div>
+      <button class="heart-btn" id="openBtn" aria-label="打開情書">
+        <div class="heart">❤</div>
+        <small style="margin-top:6px;opacity:.9">打開</small>
+      </button>
+    </header>
+
+    <main class="card" aria-label="letter-card">
+      <div class="ribbon" aria-hidden="true"></div>
+      <section class="letter" id="letter">
+        <article id="content" aria-live="polite"></article>
+        <div class="meta">
+          <div class="pill" id="now">—</div>
+          <div class="pill">願妳自在 · 溫柔 · 被珍惜</div>
+        </div>
+      </section>
+      <div class="seal" id="seal" aria-label="封蠟">
+        <div class="wax">給小金鳳</div>
+      </div>
+    </main>
+
+    <section class="controls" aria-label="controls">
+      <button class="btn" id="theme">切換日/夜</button>
+      <button class="btn" id="print">列印/存成PDF</button>
+      <button class="btn" id="replay">重看打字動畫</button>
+    </section>
+
+    <section aria-label="願望便利貼" class="wishbox">
+      <input id="wishInput" placeholder="寫下一句此刻的心願…（僅存於本機）" maxlength="80" />
+      <button class="btn" id="addWish">加入願望</button>
+    </section>
+    <div class="notes" id="notes"></div>
+
+    <footer>
+      <div>這頁面只屬於我們。妳可以直接存成 <em>.html</em> 留在桌面；有天想我，就打開它。　— 千彰</div>
+    </footer>
+  </div>
+
+  <div class="butterfly" aria-hidden="true"><span>🦋</span></div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <script>
+    const el = {
+      open: document.getElementById('openBtn'),
+      seal: document.getElementById('seal'),
+      content: document.getElementById('content'),
+      now: document.getElementById('now'),
+      theme: document.getElementById('theme'),
+      print: document.getElementById('print'),
+      replay: document.getElementById('replay'),
+      wishInput: document.getElementById('wishInput'),
+      addWish: document.getElementById('addWish'),
+      notes: document.getElementById('notes'),
+      confetti: document.getElementById('confetti')
+    };
+
+    // 七夕情書（溫柔 · 簡潔 · 對妳說）
+    const letter = `親愛的小金鳳：\n\n
+今晚不一定看得見銀河，但我把橋搭在我們之間。\n
+我喜歡妳清晨四點的風，喜歡北山里的腳步聲，喜歡妳把一天寫進日誌時的專注。\n
+妳說「自由的人生」要有五種自由，我想再多加一種——和妳在一起時，心的自由。\n
+我會記得：慢一點、輕一點、穩一點；用不張揚的方式，把溫柔放進妳的日常。\n
+當世界太吵，我就做妳口袋裡的靜謐；當夜色很深，我就做妳窗邊的微光。\n
+妳值得被好好對待，也值得被長長久久地擁抱。\n
+七夕快樂。\n
+千彰　於此刻`;
+
+    function typeText(text, el, speed=22){
+      el.innerHTML = '';
+      let i = 0;
+      return new Promise(resolve=>{
+        const timer = setInterval(()=>{
+          el.textContent += text[i++];
+          if(i >= text.length){ clearInterval(timer); resolve(); }
+        }, speed);
+      })
+    }
+
+    function nowStr(){
+      const d = new Date();
+      const pad = (n)=> String(n).padStart(2,'0');
+      return `今天 · ${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function heartConfetti(count=38){
+      const w = window.innerWidth, h = window.innerHeight;
+      for(let i=0;i<count;i++){
+        const e = document.createElement('i');
+        e.textContent = Math.random()>.5 ? '❤' : '💗';
+        e.style.left = (Math.random()*w) + 'px';
+        e.style.top = (h + Math.random()*80) + 'px';
+        e.style.transform = `translateY(0) scale(${.8 + Math.random()*.6})`;
+        e.style.animationDelay = (Math.random()*0.8)+'s';
+        el.confetti.appendChild(e);
+        setTimeout(()=> e.remove(), 3000);
+      }
+    }
+
+    function setTime(){ el.now.textContent = nowStr(); }
+
+    // 願望便利貼（本機）
+    const KEY='qixi_wishes_v1';
+    function loadNotes(){
+      const list = JSON.parse(localStorage.getItem(KEY)||'[]');
+      el.notes.innerHTML='';
+      const colors = ['#fff9c4','#ffd8e1','#e1f5fe','#e8f5e9'];
+      list.forEach((t,idx)=>{
+        const n = document.createElement('div');
+        n.className='note';
+        n.style.setProperty('--r', `${(Math.random()*6-3).toFixed(2)}deg`);
+        n.style.background = colors[idx%colors.length];
+        // 隨機位置但不溢出
+        const x = Math.random()*(el.notes.clientWidth-200);
+        const y = Math.random()*(el.notes.clientHeight-100);
+        n.style.left = Math.max(6,x)+'px';
+        n.style.top = Math.max(6,y)+'px';
+        n.textContent = t;
+        el.notes.appendChild(n);
+      })
+    }
+
+    function addNote(){
+      const v = el.wishInput.value.trim();
+      if(!v) return;
+      const list = JSON.parse(localStorage.getItem(KEY)||'[]');
+      list.push(v);
+      localStorage.setItem(KEY, JSON.stringify(list.slice(-24))); // 最多保留 24 則
+      el.wishInput.value='';
+      loadNotes();
+      heartConfetti(16);
+    }
+
+    // 事件
+    el.open.addEventListener('click', async ()=>{
+      el.seal.classList.add('hidden');
+      setTime();
+      heartConfetti();
+      await typeText(letter, el.content);
+    });
+
+    el.replay.addEventListener('click', async()=>{
+      await typeText(letter, el.content);
+      heartConfetti(18);
+    })
+
+    el.theme.addEventListener('click', ()=>{
+      const night = document.documentElement.getAttribute('data-theme')==='night';
+      document.documentElement.setAttribute('data-theme', night? 'day':'night');
+      localStorage.setItem('qixi_theme', night? 'day':'night');
+    })
+
+    el.print.addEventListener('click', ()=> window.print());
+    el.addWish.addEventListener('click', addNote);
+    el.wishInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') addNote(); })
+
+    // 初始化
+    (function init(){
+      // 主題
+      const saved = localStorage.getItem('qixi_theme');
+      if(saved){ document.documentElement.setAttribute('data-theme', saved); }
+      // 初始顯示時間
+      setTime();
+      // 蝴蝶隨機延遲
+      document.querySelector('.butterfly span').style.animationDelay = (Math.random()*3)+'s';
+      // 願望
+      loadNotes();
+    })();
+  </script>
+</body>
+</html>
