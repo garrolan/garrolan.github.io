@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>晨間隨筆 · 小金鳳專屬 App</title>
+  <meta name="description" content="極簡、離線、可匯出。每天 10 分鐘，寫給自己的清晨。" />
+  <style>
+    :root{
+      --bg:#fcfcfb; --ink:#222; --card:#fff; --muted:#6b7280; --brand:#ef476f; --ok:#2fbf71; --line:rgba(0,0,0,.08);
+      --shadow:0 10px 28px rgba(0,0,0,.08);
+    }
+    [data-theme="night"]{ --bg:#0e1116; --ink:#f3f4f6; --card:#141821; --muted:#9ca3af; --brand:#ff5c82; --ok:#3ddf8a; --line:rgba(255,255,255,.12); --shadow:0 12px 34px rgba(0,0,0,.45) }
+    *{ box-sizing: border-box }
+    html,body{ height:100% }
+    body{ margin:0; font-family: ui-sans-serif, system-ui, "Noto Sans TC", "PingFang TC", Arial;
+      background: radial-gradient(1200px 700px at -10% -20%, rgba(239,71,111,.06), transparent), var(--bg); color:var(--ink); transition: background .6s ease, color .6s ease }
+    .wrap{ max-width: 900px; margin: 2.2rem auto 3rem; padding: 0 1rem }
+    header{ display:flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap }
+    .title{ font-weight: 800; font-size: clamp(22px, 4.8vw, 36px); letter-spacing:.02em }
+    .muted{ color: var(--muted) }
+    .bar{ display:flex; gap:.6rem; align-items:center; flex-wrap:wrap }
+    .btn{ border:1px solid var(--line); background:var(--card); color:var(--ink); padding:.6rem .9rem; border-radius:12px; cursor:pointer; box-shadow:var(--shadow); font-weight:700 }
+    .btn:hover{ transform: translateY(-1px) }
+    .pill{ padding:.35rem .7rem; border-radius:999px; background: var(--card); border:1px solid var(--line) }
+
+    .grid{ display:grid; gap: 1rem; grid-template-columns: 1fr }
+    @media(min-width: 860px){ .grid{ grid-template-columns: 1.1fr .9fr } }
+
+    .card{ background: var(--card); border-radius: 16px; box-shadow: var(--shadow); overflow:hidden; border:1px solid var(--line) }
+    .card h3{ margin: 0; padding: .9rem 1rem; border-bottom:1px solid var(--line) }
+    .card section{ padding: 1rem }
+    .row{ display:grid; gap:.6rem; grid-template-columns: 1fr }
+    @media(min-width: 560px){ .row{ grid-template-columns: 1fr 1fr } }
+
+    input[type="text"], textarea{ width:100%; padding:.8rem .9rem; background: var(--card); color: var(--ink); border-radius: 12px; border:1px solid var(--line); font-size: 15px }
+    textarea{ min-height: 240px; line-height: 1.7; resize: vertical }
+
+    .counter{ font-size: 12px; color: var(--muted) }
+
+    /* 計時器 */
+    .timer{ display:grid; place-items:center; padding: 1rem }
+    .dial{ width: 170px; aspect-ratio: 1; border-radius: 50%; display:grid; place-items:center; background:
+      conic-gradient(var(--brand) var(--deg,0deg), rgba(0,0,0,0) 0deg); border: 8px solid rgba(0,0,0,.06) }
+    .dial .face{ display:grid; place-items:center; background: var(--card); width: 82%; aspect-ratio:1; border-radius:50%; box-shadow: inset 0 0 0 1px var(--line) }
+    .t-big{ font-size: 28px; font-variant-numeric: tabular-nums; font-weight:800 }
+    .t-sub{ font-size: 12px; color: var(--muted) }
+    .tbar{ display:flex; gap:.6rem; justify-content:center; margin-top: .9rem }
+
+    footer{ text-align:center; margin-top: 1rem; color: var(--muted); font-size: 12px }
+
+    .ok{ color: var(--ok); font-weight:700 }
+    .danger{ color: var(--brand); font-weight:700 }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="title">晨間隨筆 · 小金鳳</div>
+        <div class="muted" id="today">—</div>
+      </div>
+      <div class="bar">
+        <span class="pill" id="autosave">自動儲存：—</span>
+        <button class="btn" id="theme">日/夜</button>
+        <button class="btn" id="exportTxt">匯出 .txt</button>
+        <button class="btn" id="backup">備份 .json</button>
+        <input type="file" id="restore" accept="application/json" style="display:none"/>
+        <button class="btn" id="importBtn">還原</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <article class="card">
+        <h3>三格提示</h3>
+        <section>
+          <div class="row">
+            <div>
+              <label class="muted">① 此刻的心情 / 感受</label>
+              <input id="mood" type="text" placeholder="例如：安靜、清明、微困…" maxlength="80" />
+            </div>
+            <div>
+              <label class="muted">② 今天的專注目標</label>
+              <input id="focus" type="text" placeholder="例如：上午備課、下午整理文章卡片" maxlength="80" />
+            </div>
+          </div>
+          <div style="margin-top:.6rem">
+            <label class="muted">③ 一句感恩</label>
+            <input id="grat" type="text" placeholder="例如：感謝清晨的風、感謝自己的規律" maxlength="120" />
+          </div>
+        </section>
+      </article>
+
+      <aside class="card">
+        <h3>10 分鐘靜心計時器</h3>
+        <section class="timer">
+          <div class="dial" id="dial"><div class="face">
+            <div class="t-big" id="tleft">10:00</div>
+            <div class="t-sub" id="tstate">待機</div>
+          </div></div>
+          <div class="tbar">
+            <button class="btn" id="start">開始</button>
+            <button class="btn" id="pause">暫停</button>
+            <button class="btn" id="reset">重設</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <article class="card" style="margin-top:1rem">
+      <h3>自由書寫（可直接貼上／輸入）</h3>
+      <section>
+        <textarea id="free" placeholder="把腦中的念頭全部傾倒，不用修飾，不用正確。"></textarea>
+        <div class="row" style="margin-top:.4rem">
+          <div class="counter">字數：<span id="chars">0</span>｜單詞估計：<span id="words">0</span></div>
+          <div class="muted" style="text-align:right">內容僅儲存在本機（localStorage），不會上傳。</div>
+        </div>
+      </section>
+    </article>
+
+    <footer>
+      製作：千彰。建議把本頁另存為 <em>.html</em> 放桌面，清晨打開就能寫。若想換裝置，請用「備份 / 還原」。
+    </footer>
+  </div>
+
+  <script>
+    const q = (s)=> document.querySelector(s);
+    const el = {
+      today: q('#today'), autosave: q('#autosave'), theme: q('#theme'),
+      mood: q('#mood'), focus: q('#focus'), grat: q('#grat'), free: q('#free'),
+      exportTxt: q('#exportTxt'), backup: q('#backup'), restore: q('#restore'), importBtn: q('#importBtn'),
+      start: q('#start'), pause: q('#pause'), reset: q('#reset'), dial: q('#dial'), tleft: q('#tleft'), tstate: q('#tstate')
+    };
+
+    const KEY_PREFIX = 'mpages_v1_';
+    const THEME_KEY = 'mpages_theme';
+
+    function yyyy_mm_dd(d=new Date()){
+      const p = (n)=> String(n).padStart(2,'0');
+      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+    }
+    const TODAY = yyyy_mm_dd();
+
+    function updateToday(){
+      const d = new Date();
+      const p = (n)=> String(n).padStart(2,'0');
+      el.today.textContent = `今天 · ${d.getFullYear()}/${p(d.getMonth()+1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+    }
+
+    function k(field){ return `${KEY_PREFIX}${TODAY}_${field}` }
+
+    function save(){
+      localStorage.setItem(k('mood'), el.mood.value);
+      localStorage.setItem(k('focus'), el.focus.value);
+      localStorage.setItem(k('grat'), el.grat.value);
+      localStorage.setItem(k('free'), el.free.value);
+      el.autosave.innerHTML = `自動儲存：<span class="ok">已更新</span>`;
+      clearTimeout(save.resetTimer);
+      save.resetTimer = setTimeout(()=> el.autosave.textContent = '自動儲存：—', 1800);
+    }
+
+    function load(){
+      el.mood.value = localStorage.getItem(k('mood'))||'';
+      el.focus.value = localStorage.getItem(k('focus'))||'';
+      el.grat.value = localStorage.getItem(k('grat'))||'';
+      el.free.value = localStorage.getItem(k('free'))||'';
+      count();
+    }
+
+    function count(){
+      const txt = el.free.value.trim();
+      q('#chars').textContent = txt.length;
+      q('#words').textContent = txt ? (txt.split(/\s+/).filter(Boolean).length) : 0;
+    }
+
+    // 匯出 .txt
+    function exportTxt(){
+      const lines = [
+        `日期: ${TODAY}`,
+        `心情: ${el.mood.value}`,
+        `專注: ${el.focus.value}`,
+        `感恩: ${el.grat.value}`,
+        '',
+        '—— 自由書寫 ——',
+        el.free.value
+      ].join('\n');
+      const blob = new Blob([lines], {type:'text/plain;charset=utf-8'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${TODAY}_晨間隨筆.txt`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    // 備份 / 還原（JSON）
+    function backup(){
+      const data = {};
+      for(let i=0;i<localStorage.length;i++){
+        const key = localStorage.key(i);
+        if(key && key.startsWith(KEY_PREFIX)) data[key] = localStorage.getItem(key);
+      }
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `晨間隨筆_backup_${yyyy_mm_dd()}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function restore(file){
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        try{
+          const data = JSON.parse(reader.result);
+          let count = 0;
+          Object.entries(data).forEach(([k,v])=>{ if(typeof v === 'string'){ localStorage.setItem(k,v); count++; }});
+          el.autosave.innerHTML = `還原完成：<span class="ok">${count}</span> 筆`;
+          load();
+        }catch(e){ el.autosave.innerHTML = `<span class="danger">還原失敗</span>`; }
+      };
+      reader.readAsText(file);
+    }
+
+    // 計時器（10:00）
+    let timer = { total: 10*60, left: 10*60, ticking: false, h: null };
+    function mmss(s){ const m = Math.floor(s/60), sec = s%60; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}` }
+    function drawDial(){
+      const pct = 1 - (timer.left / timer.total);
+      const deg = Math.floor(pct*360);
+      el.dial.style.setProperty('--deg', deg+'deg');
+      el.tleft.textContent = mmss(timer.left);
+    }
+    function tick(){
+      if(!timer.ticking) return;
+      timer.left = Math.max(0, timer.left-1);
+      drawDial();
+      if(timer.left === 0){
+        timer.ticking = false; clearInterval(timer.h); el.tstate.textContent = '完成';
+        try{ new AudioContext().resume(); }catch(e){}
+        try{ const osc = new (window.AudioContext||window.webkitAudioContext)(); const o = osc.createOscillator(); const g = osc.createGain(); o.connect(g); g.connect(osc.destination); o.type='sine'; o.frequency.value=660; o.start(); setTimeout(()=>{o.stop(); osc.close();}, 400); }catch(err){}
+      }
+    }
+
+    el.start.addEventListener('click', ()=>{ if(timer.ticking) return; timer.ticking = true; el.tstate.textContent = '進行中'; timer.h = setInterval(tick, 1000) });
+    el.pause.addEventListener('click', ()=>{ timer.ticking = false; clearInterval(timer.h); el.tstate.textContent = '已暫停' });
+    el.reset.addEventListener('click', ()=>{ timer.ticking = false; clearInterval(timer.h); timer.left = timer.total; drawDial(); el.tstate.textContent = '待機' });
+
+    // 主題
+    function applyTheme(){ const t = localStorage.getItem(THEME_KEY)||'day'; document.documentElement.setAttribute('data-theme', t==='night'?'night':'day'); }
+    el.theme.addEventListener('click', ()=>{ const cur = document.documentElement.getAttribute('data-theme')==='night'?'night':'day'; const next = cur==='night'?'day':'night'; localStorage.setItem(THEME_KEY, next); applyTheme(); })
+
+    // 綁定輸入
+    [el.mood, el.focus, el.grat, el.free].forEach(x=> x.addEventListener('input', ()=>{ save(); if(x===el.free) count(); }))
+    el.free.addEventListener('keyup', (e)=>{ if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); save(); }});
+
+    // 匯出 / 備份 / 還原
+    el.exportTxt.addEventListener('click', exportTxt);
+    el.backup.addEventListener('click', backup);
+    el.importBtn.addEventListener('click', ()=> el.restore.click());
+    el.restore.addEventListener('change', (e)=>{ if(e.target.files && e.target.files[0]) restore(e.target.files[0]); e.target.value=''; });
+
+    // INIT
+    (function(){ updateToday(); applyTheme(); load(); drawDial(); })();
+  </script>
+</body>
+</html>
