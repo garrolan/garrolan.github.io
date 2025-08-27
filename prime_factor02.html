@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>質因數分解｜教學＋挑戰</title>
+<style>
+  :root{
+    --bg:#0f131a; --card:#151b23; --ink:#eaf0ff; --muted:#9fb2d0; --accent:#4aa3ff; --ok:#35d07f; --warn:#ffb020; --err:#ff6b6b;
+    --gap:14px; --radius:18px; --btn-h:60px; --pad:18px; --chip:#1f2733;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, Arial, "PingFang TC", "Microsoft JhengHei", sans-serif; background:var(--bg); color:var(--ink);}
+  .wrap{max-width:1100px; margin:0 auto; padding:22px;}
+  header{display:flex; flex-wrap:wrap; align-items:center; gap:var(--gap); margin-bottom:var(--gap);}
+  h1{font-size: clamp(26px, 4.5vw, 40px); margin:0; letter-spacing:1px}
+  .mode-tabs{display:flex; gap:10px; margin-left:auto;}
+  button, .btn{border:0; background:#223045; color:var(--ink); border-radius:var(--radius); padding:12px 20px; font-size:20px; cursor:pointer; min-height:var(--btn-h); display:inline-flex; align-items:center; justify-content:center; transition:transform .03s ease, background .2s ease; user-select:none}
+  button.big{font-size:22px; min-width:160px}
+  button[disabled]{opacity:.5; cursor:not-allowed}
+  button:active{transform:scale(.98)}
+  .tab{background:#1a2536}
+  .tab.active{background:var(--accent); color:#001028; font-weight:700}
+  .card{background:var(--card); border-radius:var(--radius); padding:var(--pad);}
+  .grid{display:grid; gap:var(--gap)}
+  .cols-2{grid-template-columns:1fr 1fr}
+  @media (max-width: 860px){ .cols-2{grid-template-columns:1fr} }
+  .row{display:flex; gap:var(--gap); align-items:center; flex-wrap:wrap}
+  label{font-size:18px; color:var(--muted)}
+  input[type="text"], input[type="number"]{width:100%; padding:14px 16px; border-radius:14px; border:1px solid #28364c; background:#101722; color:var(--ink); font-size:22px}
+  input[readonly].display{background:#0d141e; opacity:.95}
+  .panel{display:grid; gap:var(--gap)}
+  .status-board{display:grid; grid-template-columns:1fr 1fr; gap:var(--gap)}
+  .status-box{background:#101722; border:1px solid #24334a; border-radius:16px; padding:16px}
+  .status-title{font-size:18px; color:var(--muted); margin-bottom:8px}
+  .status-value{font-size: clamp(28px, 5vw, 46px); font-weight:800; letter-spacing:1px}
+  .equation{font-size: clamp(18px, 3.2vw, 26px); color:var(--muted)}
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+  .chip{background:var(--chip); border:1px solid #2a3a54; padding:6px 12px; border-radius:999px; font-size:20px;}
+
+  .pad{display:grid; grid-template-columns: repeat(3, 1fr); gap:12px}
+  .key{background:#1b2940; border:1px solid #2a3a54; border-radius:16px; min-height:70px; font-size:28px; font-weight:700; display:flex; align-items:center; justify-content:center; user-select:none; cursor:pointer; transition: transform .06s ease, background .15s ease}
+  .key:hover{background:#223454}
+  .key.pressed{transform:scale(.96); background:#29466f}
+  .pad .wide{grid-column: span 2}
+
+  .msg{min-height:28px; font-size:20px; color:var(--muted)}
+  .msg.ok{color:var(--ok)}
+  .msg.warn{color:var(--warn)}
+  .msg.err{color:var(--err)}
+  .toolbar{display:flex; flex-wrap:wrap; gap:10px}
+  select{background:#101722; border:1px solid #28364c; color:var(--ink); border-radius:12px; padding:12px 14px; font-size:18px}
+  .ghost{opacity:.7}
+  .side{background:#101722; border:1px solid #27374f; border-radius:16px; padding:14px; display:grid; gap:8px}
+  .side h3{margin:0; font-size:20px}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace}
+  .list{max-height:280px; overflow:auto; border-top:1px dashed #2b3b54; padding-top:10px}
+  .list-item{display:flex; align-items:center; justify-content:space-between; font-size:16px; gap:8px; padding:6px 0; border-bottom:1px dashed #1f2a3e}
+  .stats{display:grid; grid-template-columns: repeat(3, 1fr); gap:8px}
+  .pill{background:#132134; border:1px solid #2a3a54; padding:8px 10px; border-radius:12px; text-align:center}
+  .tiny{font-size:14px; color:var(--muted)}
+  .hint{color:var(--muted); font-size:16px}
+  .timer{font-variant-numeric: tabular-nums; font-size:22px; padding:8px 12px; border-radius:10px; background:#0e1621; border:1px solid #25324a}
+
+  .footer{margin-top:24px; color:#88a; font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>質因數分解</h1>
+    <div class="mode-tabs" role="tablist" aria-label="模式選擇">
+      <button id="tabTeach" class="tab active big" role="tab" aria-selected="true" aria-controls="teach" tabindex="0">教學模式</button>
+      <button id="tabGame" class="tab big" role="tab" aria-selected="false" aria-controls="game" tabindex="-1">挑戰模式</button>
+    </div>
+  </header>
+
+  <!-- 教學模式 -->
+  <section id="teach" class="panel" role="tabpanel" aria-labelledby="tabTeach">
+    <div class="card">
+      <div class="row">
+        <label for="startN">要分解的數</label>
+        <input id="startN" type="number" inputmode="numeric" min="2" value="90" aria-label="要分解的數" style="max-width:240px">
+        <button id="btnStart" class="big">開始／重設</button>
+        <button id="btnHint" class="big" title="最小質因數">提示</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="status-board">
+        <div class="status-box" aria-live="polite">
+          <div class="status-title">剩餘</div>
+          <div id="restVal" class="status-value mono">—</div>
+        </div>
+        <div class="status-box">
+          <div class="status-title">目前的分解</div>
+          <div id="equation" class="equation mono">—</div>
+          <div id="chips" class="chips" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid cols-2">
+      <div class="card">
+        <div class="row">
+          <input id="teachInput" type="text" class="display mono" placeholder="輸入質數（2,3,5,7,11）" aria-label="質數輸入">
+          <button id="btnApply" class="big">套用</button>
+          <button id="btnUndo" class="big" disabled>復原一步</button>
+        </div>
+        <div id="teachMsg" class="msg" aria-live="polite"></div>
+      </div>
+      <div id="teachPad" class="card">
+        <div class="pad" aria-label="教學數字鍵盤">
+          <div class="key" data-k="7">7</div>
+          <div class="key" data-k="8">8</div>
+          <div class="key" data-k="9">9</div>
+          <div class="key" data-k="4">4</div>
+          <div class="key" data-k="5">5</div>
+          <div class="key" data-k="6">6</div>
+          <div class="key" data-k="1">1</div>
+          <div class="key" data-k="2">2</div>
+          <div class="key" data-k="3">3</div>
+          <div class="key wide" data-k="0">0</div>
+          <div class="key" data-k="bk">⌫</div>
+          <div class="key wide" data-k="ok">確定</div>
+          <div class="key" data-k="cl">清空</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 挑戰模式 -->
+  <section id="game" class="panel" role="tabpanel" aria-labelledby="tabGame" hidden>
+    <div class="card">
+      <div class="toolbar" style="gap:12px; align-items:center">
+        <div class="row" style="gap:8px">
+          <label>難度</label>
+          <select id="selLv" aria-label="選擇難度">
+            <option value="easy">容易（2位數）</option>
+            <option value="mid" selected>中等（2–3位）</option>
+            <option value="hard" disabled>困難（關閉）</option>
+          </select>
+        </div>
+        <div class="row" style="gap:8px">
+          <label>題數</label>
+          <select id="selNum" aria-label="題數">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+          </select>
+        </div>
+        <div class="row" style="gap:8px">
+          <label>計分</label>
+          <select id="selRule" aria-label="計分規則">
+            <option value="std" selected>標準（+10）</option>
+            <option value="combo">連擊（+10，連對+2）</option>
+            <option value="speed">速度（+10，≤20秒+5）</option>
+          </select>
+        </div>
+        <button id="btnStartGame" class="big">開始挑戰</button>
+        <div class="timer" id="timer">00:00</div>
+      </div>
+    </div>
+
+    <div class="grid cols-2">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <div class="tiny">第 <span id="qIdx">0</span> / <span id="qTotal">0</span> 題</div>
+          <div class="tiny">本題：<span id="qTime" class="mono">—</span>s</div>
+        </div>
+        <div style="font-size: clamp(30px, 6vw, 60px); font-weight:800; letter-spacing:1px; margin:6px 0 10px">N = <span id="qN">—</span></div>
+        <label for="gameInput" class="hint">答案請輸入質因數乘積（例如：2x3x5 或 2×3×5）</label>
+        <input id="gameInput" type="text" class="mono" placeholder="2x3x5" aria-label="挑戰答案">
+        <div class="row" style="gap:10px; margin-top:10px">
+          <button id="btnSubmit" class="big">送出</button>
+          <button id="btnSkip" class="big">跳過</button>
+        </div>
+        <div id="gameMsg" class="msg" aria-live="polite"></div>
+      </div>
+
+      <div class="card">
+        <div id="gamePad" class="pad" aria-label="挑戰輸入鍵盤">
+          <div class="key" data-k="7">7</div>
+          <div class="key" data-k="8">8</div>
+          <div class="key" data-k="9">9</div>
+          <div class="key" data-k="4">4</div>
+          <div class="key" data-k="5">5</div>
+          <div class="key" data-k="6">6</div>
+          <div class="key" data-k="1">1</div>
+          <div class="key" data-k="2">2</div>
+          <div class="key" data-k="3">3</div>
+          <div class="key wide" data-k="0">0</div>
+          <div class="key" data-k="bk">⌫</div>
+          <div class="key" data-k="x">x</div>
+          <div class="key" data-k="times">×</div>
+          <div class="key" data-k="mul">*</div>
+          <div class="key wide" data-k="ok">確定</div>
+          <div class="key" data-k="cl">清空</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid cols-2" style="margin-top:var(--gap)">
+      <div class="card side">
+        <h3>成績</h3>
+        <div class="stats">
+          <div class="pill">分數<br><span id="statScore" class="mono" style="font-size:22px">0</span></div>
+          <div class="pill">連擊<br><span id="statStreak" class="mono" style="font-size:22px">0</span></div>
+          <div class="pill">正確率<br><span id="statAcc" class="mono" style="font-size:22px">—</span></div>
+        </div>
+        <div class="row" style="justify-content:space-between; margin-top:8px">
+          <span class="tiny">總用時：<span id="totalTime" class="mono">00:00</span></span>
+          <button id="btnExport" class="big" disabled>下載CSV</button>
+        </div>
+        <div class="list" id="hist"></div>
+      </div>
+      <div class="card" id="summaryCard" hidden>
+        <div class="status-title">挑戰完成</div>
+        <div class="status-value">做對 <span id="sumCorrect">0</span> / <span id="sumTotal">0</span> 題</div>
+        <div class="equation">總分：<span id="sumScore" class="mono">0</span>｜正確率：<span id="sumAcc">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer tiny">單檔離線可用．支援 Enter 快捷鍵．合成音效省略，採視覺回饋</div>
+</div>
+
+<script>
+(()=>{
+  // ====== 共用小工具 ======
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  const fmtTime = s => {
+    s = Math.max(0, Math.floor(s));
+    const m = Math.floor(s/60).toString().padStart(2,'0');
+    const ss = (s%60).toString().padStart(2,'0');
+    return `${m}:${ss}`;
+  };
+  const allowedPrimes = [2,3,5,7,11];
+  const isPrimeSmall = n => allowedPrimes.includes(n);
+  function smallestPrimeFactor(n){
+    for(const p of allowedPrimes){ if(n % p === 0) return p; }
+    return null; // 若含其他質數，回 null
+  }
+  function factorizeSmall(n){
+    const f=[]; let x=n;
+    for(const p of allowedPrimes){ while(x%p===0){ f.push(p); x/=p; } }
+    return x===1? f : null; // 若還有殘留，代表含非小質數
+  }
+  function renderPadPress(el){ el.classList.add('pressed'); setTimeout(()=>el.classList.remove('pressed'),90); }
+
+  // ====== 模式切換 ======
+  const tabTeach = $('#tabTeach');
+  const tabGame = $('#tabGame');
+  const secTeach = $('#teach');
+  const secGame  = $('#game');
+  function setMode(mode){
+    const teachOn = (mode==='teach');
+    tabTeach.classList.toggle('active', teachOn);
+    tabTeach.setAttribute('aria-selected', teachOn);
+    tabTeach.tabIndex = teachOn? 0 : -1;
+    tabGame.classList.toggle('active', !teachOn);
+    tabGame.setAttribute('aria-selected', !teachOn);
+    tabGame.tabIndex = teachOn? -1 : 0;
+    secTeach.hidden = !teachOn;
+    secGame.hidden  = teachOn? true : false;
+  }
+  tabTeach.addEventListener('click',()=>setMode('teach'));
+  tabGame.addEventListener('click',()=>setMode('game'));
+
+  // ====== 教學狀態 ======
+  const startNInput = $('#startN');
+  const btnStart = $('#btnStart');
+  const btnHint = $('#btnHint');
+  const restVal = $('#restVal');
+  const eq = $('#equation');
+  const chips = $('#chips');
+  const teachInput = $('#teachInput');
+  const btnApply = $('#btnApply');
+  const btnUndo = $('#btnUndo');
+  const teachMsg = $('#teachMsg');
+  const teachPad = $('#teachPad');
+
+  const Teach = {
+    startN: null,
+    rest: null,
+    factors: [],
+    reset(n){
+      const N = parseInt(n,10);
+      if(!Number.isFinite(N) || N<2){ this.message('請輸入 ≥ 2 的整數','err'); return; }
+      this.startN = N; this.rest = N; this.factors = [];
+      restVal.textContent = N;
+      eq.textContent = `${N} = —`;
+      chips.innerHTML='';
+      teachInput.value = '';
+      teachMsg.className='msg'; teachMsg.textContent='';
+      btnUndo.disabled = true;
+    },
+    message(text, kind=''){
+      teachMsg.className = `msg ${kind}`.trim();
+      teachMsg.textContent = text;
+    },
+    pushFactor(p){
+      this.factors.push(p);
+      this.rest = this.rest / p;
+      restVal.textContent = this.rest;
+      chips.insertAdjacentHTML('beforeend', `<span class="chip">${p}</span>`);
+      eq.textContent = `${this.startN} = ${this.factors.join(' × ')}${this.rest===1?'': ' × ' + this.rest}`;
+      btnUndo.disabled = this.factors.length===0;
+      if(this.rest===1){
+        this.message(`完成！${this.startN} = ${this.factors.join(' × ')}`,'ok');
+      }
+    },
+    undo(){
+      if(this.factors.length===0) return;
+      const p = this.factors.pop();
+      this.rest *= p;
+      restVal.textContent = this.rest;
+      chips.removeChild(chips.lastElementChild);
+      eq.textContent = this.factors.length? `${this.startN} = ${this.factors.join(' × ')} × ${this.rest}` : `${this.startN} = ${this.rest}`;
+      this.message(`復原：移除 ${p}，剩餘 ${this.rest}`,'warn');
+      btnUndo.disabled = this.factors.length===0;
+    }
+  };
+
+  // 初始化教學模式
+  Teach.reset(startNInput.value);
+  btnStart.addEventListener('click',()=>Teach.reset(startNInput.value));
+  btnHint.addEventListener('click',()=>{
+    if(!Teach.rest){ return; }
+    if(Teach.rest===1){ Teach.message('已完成分解','warn'); return; }
+    const sp = smallestPrimeFactor(Teach.rest);
+    if(!sp){ Teach.message('含有範圍外的質因數，無法提示','err'); return; }
+    teachInput.value = String(sp);
+    Teach.message(`提示：最小質因數是 ${sp}`);
+    teachInput.focus();
+  });
+
+  function applyTeach(){
+    const raw = teachInput.value.trim();
+    if(!raw){ Teach.message('請輸入質數（2,3,5,7,11）','warn'); return; }
+    const n = Number(raw);
+    if(!Number.isInteger(n) || n<2){ Teach.message(`${raw} 不是質數`,'err'); return; }
+    if(!isPrimeSmall(n)){ Teach.message(`${n} 不是質數（僅接受 2,3,5,7,11）`,'err'); return; }
+    if(Teach.rest===1){ Teach.message('已完成分解','warn'); return; }
+    if(Teach.rest % n !== 0){ Teach.message(`${n} 不能整除 ${Teach.rest}`,'err'); return; }
+    Teach.pushFactor(n);
+    teachInput.value='';
+    if(Teach.rest>1){ Teach.message(`收下 ${n}，剩餘 ${Teach.rest}`,'ok'); }
+  }
+  btnApply.addEventListener('click', applyTeach);
+  btnUndo.addEventListener('click', ()=>Teach.undo());
+  teachInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ applyTeach(); }});
+
+  // 教學數字鍵盤（分域綁定）
+  teachPad.addEventListener('click', e=>{
+    const key = e.target.closest('.key'); if(!key) return; renderPadPress(key);
+    const k = key.dataset.k;
+    if(k==='ok'){ applyTeach(); return; }
+    if(k==='cl'){ teachInput.value=''; return; }
+    if(k==='bk'){ teachInput.value = teachInput.value.slice(0,-1); return; }
+    teachInput.value += k;
+    teachInput.focus();
+  });
+
+  // ====== 題庫與產生器 ======
+  const poolEasy = [12,18,20,24,28,30,36,40,42,45,48,50,54,56,60,63,70,72,75,80];
+  const poolMid  = [66,84,90,99,105,110,126,132,150,154,165,168,176,198,210,231,242,264];
+  const poolHard = [330,462,525,588,693,770,924,1155,1260]; // 先不使用
+  const pools = {easy:poolEasy, mid:poolMid, hard:poolHard};
+  function sample(arr, n){
+    const a = arr.slice();
+    const out=[]; n=Math.min(n,a.length);
+    for(let i=0;i<n;i++){ const j = Math.floor(Math.random()*a.length); out.push(a.splice(j,1)[0]); }
+    return out;
+  }
+
+  // ====== 挑戰狀態 ======
+  const selLv = $('#selLv');
+  const selNum = $('#selNum');
+  const selRule = $('#selRule');
+  const btnStartGame = $('#btnStartGame');
+  const timer = $('#timer');
+  const qIdx = $('#qIdx');
+  const qTotal = $('#qTotal');
+  const qN = $('#qN');
+  const qTime = $('#qTime');
+  const gameInput = $('#gameInput');
+  const btnSubmit = $('#btnSubmit');
+  const btnSkip = $('#btnSkip');
+  const gameMsg = $('#gameMsg');
+  const gamePad = $('#gamePad');
+  const statScore = $('#statScore');
+  const statStreak = $('#statStreak');
+  const statAcc = $('#statAcc');
+  const totalTime = $('#totalTime');
+  const hist = $('#hist');
+  const btnExport = $('#btnExport');
+  const sumCard = $('#summaryCard');
+  const sumCorrect = $('#sumCorrect');
+  const sumTotal = $('#sumTotal');
+  const sumScore = $('#sumScore');
+  const sumAcc = $('#sumAcc');
+
+  const Game = {
+    i:0, n:0, lv:'mid', rule:'std', score:0, streak:0, correct:0,
+    startTime:0, tick:null,
+    bank:[], // 題目序列
+    cur:{N:null, truth:[], start:0},
+    records:[],
+    running:false,
+    setMsg(t,k=''){ gameMsg.className = `msg ${k}`.trim(); gameMsg.textContent=t; },
+    start(){
+      this.lv = selLv.value; this.n = parseInt(selNum.value,10); this.rule = selRule.value;
+      const pool = pools[this.lv] || poolMid;
+      this.bank = sample(pool, this.n);
+      this.i=0; this.score=0; this.streak=0; this.correct=0; this.records=[];
+      statScore.textContent='0'; statStreak.textContent='0'; statAcc.textContent='—';
+      hist.innerHTML=''; sumCard.hidden=true; btnExport.disabled=true; this.running=true;
+      timer.textContent='00:00'; totalTime.textContent='00:00'; this.startTime = Date.now();
+      clearInterval(this.tick); this.tick = setInterval(()=>{ if(this.running){ timer.textContent = fmtTime((Date.now()-this.startTime)/1000); } }, 200);
+      qTotal.textContent = this.bank.length;
+      this.next();
+    },
+    next(){
+      if(this.i>=this.bank.length){ return this.finish(); }
+      const N = this.bank[this.i];
+      const truth = factorizeSmall(N);
+      // 理論上皆可分解
+      this.cur = {N, truth, start: Date.now()};
+      qIdx.textContent = this.i+1; qN.textContent = N; qTime.textContent = '0';
+      this.setMsg(''); gameInput.value=''; gameInput.focus();
+      // 問題配時顯示
+      const startT = Date.now();
+      if(this.cur.tick){ clearInterval(this.cur.tick); }
+      this.cur.tick = setInterval(()=>{
+        qTime.textContent = Math.floor((Date.now()-startT)/1000);
+      }, 250);
+    },
+    normalizeAns(str){
+      const s = (str||'').toLowerCase().replace(/\s+/g,'');
+      if(!s) return [];
+      const parts = s.split(/[x×*]/).filter(Boolean);
+      const nums = parts.map(x=>Number(x)).filter(v=>Number.isInteger(v));
+      return nums.sort((a,b)=>a-b);
+    },
+    eqArrays(a,b){ if(a.length!==b.length) return false; for(let i=0;i<a.length;i++){ if(a[i]!==b[i]) return false; } return true; },
+    submit(){
+      if(!this.running) return;
+      const ans = this.normalizeAns(gameInput.value);
+      if(ans.length===0){ this.setMsg('請輸入答案（例如 2x3x5）','warn'); return; }
+      // 僅接受小質數
+      const okPrime = ans.every(v=>allowedPrimes.includes(v));
+      if(!okPrime){ this.setMsg('只接受 2,3,5,7,11 的分解','err'); return; }
+      const dt = (Date.now()-this.cur.start)/1000;
+      const truth = this.cur.truth.slice().sort((a,b)=>a-b);
+      const isRight = this.eqArrays(ans, truth);
+      let gain=0; let note='';
+      if(isRight){
+        this.correct++;
+        switch(this.rule){
+          case 'std': gain=10; note='+10'; break;
+          case 'combo': this.streak++; gain=10 + 2*Math.max(0,this.streak-1); note=`+${10 + 2*(this.streak-1)}（連擊）`; break;
+          case 'speed': this.streak= (this.streak||0)+1; gain=10 + (dt<=20?5:0); note = dt<=20? '+15（速度）' : '+10'; break;
+        }
+        this.score += gain;
+        statScore.textContent = this.score;
+        statStreak.textContent = this.streak;
+        const acc = (100*this.correct/Math.max(1,this.i+1)).toFixed(0)+'%';
+        statAcc.textContent = acc;
+        this.setMsg(`✓ 正確！${note}`,'ok');
+        this.pushHist(true, ans, dt, gain);
+        clearInterval(this.cur.tick);
+        this.i++;
+        this.next();
+      }else{
+        // 不扣分也不前進；不立刻歸零連擊
+        this.setMsg('再想想～ 可以修正或按「跳過」看解答','warn');
+      }
+    },
+    skip(){
+      if(!this.running) return;
+      const dt = (Date.now()-this.cur.start)/1000;
+      // 按規則：跳過才顯示正解並進入下一題（連擊歸零）
+      this.streak = 0; statStreak.textContent='0';
+      const truthStr = this.cur.truth.join('x');
+      this.setMsg(`→ 正解：${truthStr}`);
+      this.pushHist(false, this.normalizeAns(gameInput.value), dt, 0, true);
+      clearInterval(this.cur.tick);
+      this.i++;
+      this.next();
+    },
+    pushHist(ok, ansArr, dt, gain, skipped=false){
+      const row = document.createElement('div'); row.className='list-item';
+      const idx = String(this.i+1).padStart(2,'0');
+      const left = document.createElement('div');
+      left.textContent = `#${idx}  ${this.cur.N} → ${ansArr.join('x')||'—'}`;
+      const right = document.createElement('div'); right.className='tiny mono';
+      right.textContent = (ok?'✓':'✗') + `  ${Math.floor(dt)}s  ${gain?('+'+gain):''}` + (skipped?'  ↷':'');
+      row.appendChild(left); row.appendChild(right);
+      hist.prepend(row);
+      this.records.push({
+        idx:this.i+1,
+        N:this.cur.N,
+        answer: ansArr.join('x'),
+        truth: this.cur.truth.join('x'),
+        correct: ok,
+        skipped: !!skipped,
+        time: Math.round(dt),
+        gain: gain
+      });
+    },
+    finish(){
+      this.running=false; clearInterval(this.tick); timer.textContent = fmtTime((Date.now()-this.startTime)/1000); totalTime.textContent = timer.textContent;
+      const acc = this.records.length? (100*this.records.filter(r=>r.correct).length/this.records.length).toFixed(0)+'%' : '—';
+      statAcc.textContent = acc;
+      sumCard.hidden=false; sumCorrect.textContent = String(this.correct); sumTotal.textContent = String(this.records.length);
+      sumScore.textContent = String(this.score); sumAcc.textContent = acc;
+      btnExport.disabled = this.records.length===0;
+      this.setMsg('挑戰結束！','ok');
+    },
+    exportCSV(){
+      if(!this.records.length) return;
+      const header = ['index','N','answer','truth','correct','skipped','time_sec','score_gain'];
+      const rows = this.records.map(r=>[r.idx,r.N,r.answer,r.truth,r.correct?1:0,r.skipped?1:0,r.time,r.gain]);
+      const all = [header].concat(rows).map(arr=>arr.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+      const blob = new Blob(["\uFEFF" + all.join('\n')], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download = `factor-challenge.csv`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+  };
+
+  btnStartGame.addEventListener('click',()=>Game.start());
+  btnSubmit.addEventListener('click',()=>Game.submit());
+  btnSkip.addEventListener('click',()=>Game.skip());
+  btnExport.addEventListener('click',()=>Game.exportCSV());
+
+  // 挑戰鍵盤（分域綁定）
+  gamePad.addEventListener('click', e=>{
+    const key = e.target.closest('.key'); if(!key) return; renderPadPress(key);
+    const k = key.dataset.k; const input = gameInput;
+    if(k==='ok'){ Game.submit(); return; }
+    if(k==='cl'){ input.value=''; return; }
+    if(k==='bk'){ input.value = input.value.slice(0,-1); return; }
+    if(k==='times'){ input.value += '×'; }
+    else if(k==='mul'){ input.value += '*'; }
+    else if(k==='x'){ input.value += 'x'; }
+    else { input.value += k; }
+    input.focus();
+  });
+
+  // 鍵盤快捷：Enter ＝ 套用/送出
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){
+      if(!secTeach.hidden){ applyTeach(); }
+      else if(!secGame.hidden){ Game.submit(); }
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
