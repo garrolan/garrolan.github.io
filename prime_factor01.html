@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>質因數分解｜教學模式＋挑戰模式</title>
+  <style>
+    :root{--bg:#f7f7fb;--card:#ffffff;--ink:#222;--muted:#667;--accent:#3b82f6;--good:#16a34a;--bad:#dc2626;--warn:#d97706}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--ink)}
+    header{padding:18px 20px;background:#fff;position:sticky;top:0;border-bottom:1px solid #eee;z-index:2}
+    h1{margin:0;font-size:20px}
+    main{max-width:980px;margin:18px auto;padding:0 16px;display:grid;gap:16px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .card{background:var(--card);border:1px solid #eee;border-radius:14px;padding:14px 16px}
+    .toolbar button{border:1px solid #ddd;background:#fff;border-radius:12px;padding:8px 12px;cursor:pointer}
+    .toolbar button.active{border-color:var(--accent);color:#fff;background:var(--accent)}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;margin-left:6px}
+    .muted{color:var(--muted);font-size:13px}
+    .grid{display:grid;gap:12px}
+    .grid.two{grid-template-columns:1fr;}
+    @media (min-width: 860px){.grid.two{grid-template-columns:1.2fr .8fr}}
+    input[type="number"], input[type="text"], select{padding:10px;border:1px solid #ddd;border-radius:10px;width:100%;font-size:16px}
+    .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer}
+    .btn.ghost{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+    .btn.warning{background:var(--warn)}
+    .btn.success{background:var(--good)}
+    .btn.danger{background:var(--bad)}
+    .stack{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:6px 10px;border-radius:999px;border:1px solid #ddd;background:#fff}
+    .chip.prime{border-color:#c7ebd3;background:#ecfdf5;color:#065f46}
+    .hint{padding:8px 10px;border-left:4px solid var(--accent);background:#eff6ff;border-radius:6px}
+    .big{font-size:40px;font-weight:700}
+    .center{display:flex;justify-content:center;align-items:center}
+    .timer{font-variant-numeric:tabular-nums}
+    .board{border:1px dashed #ddd;border-radius:12px;padding:10px}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
+    .small{font-size:12px}
+    .ok{color:var(--good)}
+    .no{color:var(--bad)}
+    .flex-between{display:flex;justify-content:space-between;align-items:center}
+    .kbd{padding:1px 6px;border:1px solid #ccc;border-bottom-width:2px;border-radius:6px;background:#fff;font-size:12px}
+    .tree{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+    .node{background:#fafafa;border:1px solid #eee;border-radius:10px;padding:8px 10px;min-width:54px;text-align:center}
+    .col{display:flex;flex-direction:column;gap:8px}
+    .right{text-align:right}
+  </style>
+</head>
+<body>
+  <header class="flex-between">
+    <h1>質因數分解 <span class="pill">教學＋挑戰</span></h1>
+    <div class="toolbar">
+      <button id="tab-teach" class="active">教學模式</button>
+      <button id="tab-challenge">挑戰模式</button>
+    </div>
+  </header>
+  <main>
+    <!-- 教學模式 -->
+    <section id="teach" class="grid two card">
+      <div class="grid">
+        <div class="row">
+          <label style="width:160px">要分解的數：</label>
+          <input id="teachN" type="number" min="2" max="99999" value="90" />
+          <button class="btn" id="startTeach">開始分解</button>
+          <button class="btn ghost" id="resetTeach">重設</button>
+        </div>
+        <div class="row muted">提示：可以一步一步輸入你找到的「質因數」。系統會幫你做短除或樹狀圖。</div>
+        <div class="grid two">
+          <div class="card">
+            <div class="flex-between"><strong>步驟操作</strong><span class="muted small">（除數必須是質數）</span></div>
+            <div class="row" style="margin-top:8px">
+              <input id="primeInput" type="number" placeholder="輸入一個質因數，如 2" />
+              <button class="btn" id="applyPrime">除一下</button>
+              <button class="btn ghost" id="hintPrime">提示</button>
+            </div>
+            <div id="teachStatus" class="row" style="margin-top:10px"></div>
+            <div class="row small muted">鍵盤快速鍵：<span class="kbd">Enter</span> 套用、<span class="kbd">H</span> 提示、<span class="kbd">R</span> 重設</div>
+          </div>
+          <div class="card">
+            <strong>目前的分解</strong>
+            <div class="stack" id="factorChips" style="margin-top:8px"></div>
+            <div class="muted small" id="finalProduct"></div>
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="card">
+            <strong>短除法</strong>
+            <div id="shortDiv" class="board mono" style="margin-top:8px"></div>
+          </div>
+          <div class="card">
+            <strong>樹狀圖</strong>
+            <div id="treeView" class="tree" style="margin-top:8px"></div>
+          </div>
+        </div>
+        <div id="teachCongrats" class="hint" style="display:none"></div>
+      </div>
+      <aside class="card">
+        <strong>教學要點</strong>
+        <ul>
+          <li>從最小的質數開始嘗試：2 → 3 → 5 → 7 → …</li>
+          <li>能夠整除就記下一個質因數，並把被除數更新。</li>
+          <li>當剩下的數本身是質數，就完成了分解。</li>
+        </ul>
+        <div class="hint small">示例：<span class="mono">90 = 2 × 3 × 3 × 5</span></div>
+      </aside>
+    </section>
+
+    <!-- 挑戰模式 -->
+    <section id="challenge" class="card" style="display:none">
+      <div class="row" style="gap:16px;align-items:end">
+        <div>
+          <label>難度</label>
+          <select id="level">
+            <option value="easy">容易（2 位數，包含小質因數）</option>
+            <option value="med" selected>中等（2–3 位數）</option>
+            <option value="hard">困難（3–4 位數，含較大質因數）</option>
+          </select>
+        </div>
+        <div>
+          <label>題數</label>
+          <select id="qCount">
+            <option>5</option><option selected>10</option><option>15</option>
+          </select>
+        </div>
+        <div>
+          <label>計分</label>
+          <select id="scoreRule">
+            <option value="classic">標準：答對 +10，錯誤 0</option>
+            <option value="streak">連擊：+10，連對每題再 +2</option>
+            <option value="speed">速度：+10，20 秒內 +5</option>
+          </select>
+        </div>
+        <button id="startGame" class="btn success">開始挑戰</button>
+        <button id="stopGame" class="btn warning">結束</button>
+        <div class="row" style="margin-left:auto">
+          <div class="big timer" id="clock">00:00</div>
+        </div>
+      </div>
+      <hr/>
+      <div class="grid two">
+        <div class="card">
+          <div class="muted">第 <span id="qi">0</span> / <span id="qn">0</span> 題</div>
+          <div class="big" id="qN">—</div>
+          <div class="row" style="margin-top:10px">
+            <input id="answer" type="text" placeholder="輸入分解，如 2x2x3x5 或 2*2*3*5" />
+            <button class="btn" id="submit">送出</button>
+            <button class="btn ghost" id="skip">跳過</button>
+          </div>
+          <div id="feedback" class="muted" style="margin-top:8px"></div>
+        </div>
+        <div class="card">
+          <div class="flex-between"><strong>成績</strong><div class="muted small">（自動儲存於此頁，不上傳）</div></div>
+          <div class="row" style="margin-top:6px">
+            <div class="node">分數<br><span id="score" class="big">0</span></div>
+            <div class="node">連擊<br><span id="streak" class="big">0</span></div>
+            <div class="node">正確率<br><span id="acc" class="big">—</span></div>
+          </div>
+          <div class="board small mono" id="history" style="margin-top:10px;max-height:220px;overflow:auto"></div>
+          <div class="row" style="margin-top:8px">
+            <button id="exportCSV" class="btn ghost">匯出CSV</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+// ====== 工具函式 ======
+const primesCache = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97];
+function isPrime(n){
+  if(n<2) return false; if(n%2===0) return n===2; if(n%3===0) return n===3;
+  let i=5; while(i*i<=n){ if(n%i===0||n%(i+2)===0) return false; i+=6 } return true;
+}
+function smallestPrimeFactor(n){
+  if(n%2===0) return 2; if(n%3===0) return 3; for(let i=5;i*i<=n;i+=6){ if(n%i===0) return i; if(n%(i+2)===0) return i+2 } return n;
+}
+function primeFactorsArray(n){
+  const arr=[]; let x=n; while(x>1){ const p=smallestPrimeFactor(x); arr.push(p); x=Math.floor(x/p); }
+  return arr; // 已由小到大
+}
+function parseFactorInput(str){
+  if(!str) return [];
+  return str.replace(/×/g,'x').replace(/\*/g,'x').split('x').map(s=>s.trim()).filter(Boolean).map(Number).filter(n=>!Number.isNaN(n));
+}
+function arraysEqual(a,b){ if(a.length!==b.length) return false; for(let i=0;i<a.length;i++){ if(a[i]!==b[i]) return false } return true }
+function fmtTime(sec){ const m=Math.floor(sec/60).toString().padStart(2,'0'); const s=Math.floor(sec%60).toString().padStart(2,'0'); return `${m}:${s}` }
+
+// ====== 分頁切換 ======
+const tabTeach=document.getElementById('tab-teach');
+const tabChal=document.getElementById('tab-challenge');
+const teachSec=document.getElementById('teach');
+const chalSec=document.getElementById('challenge');
+
+function showTeach(){ tabTeach.classList.add('active'); tabChal.classList.remove('active'); teachSec.style.display='grid'; chalSec.style.display='none'; }
+function showChal(){ tabChal.classList.add('active'); tabTeach.classList.remove('active'); teachSec.style.display='none'; chalSec.style.display='block'; }
+
+tabTeach.onclick=showTeach; tabChal.onclick=showChal;
+
+// ====== 教學模式 ======
+const teachN=document.getElementById('teachN');
+const startTeach=document.getElementById('startTeach');
+const resetTeach=document.getElementById('resetTeach');
+const primeInput=document.getElementById('primeInput');
+const applyPrime=document.getElementById('applyPrime');
+const hintPrime=document.getElementById('hintPrime');
+const teachStatus=document.getElementById('teachStatus');
+const factorChips=document.getElementById('factorChips');
+const finalProduct=document.getElementById('finalProduct');
+const shortDiv=document.getElementById('shortDiv');
+const treeView=document.getElementById('treeView');
+const teachCongrats=document.getElementById('teachCongrats');
+
+let tStart=0, tCurrent=0, tFactors=[], tRemain=0, tShort=[], tTree=[];
+
+function renderTeach(){
+  // chips
+  factorChips.innerHTML='';
+  let prod=1; tFactors.forEach(p=>{ const el=document.createElement('span'); el.className='chip prime'; el.textContent=p; factorChips.appendChild(el); prod*=p; });
+  finalProduct.textContent = tFactors.length? `目前：${prod} = ${tFactors.join(' × ')}` : '';
+  // 短除法
+  if(tShort.length){
+    const left = tShort.map(r=>String(r.p).padStart(3,' ')).join('\n');
+    const right = tShort.map(r=>String(r.q).padStart(4,' ')).join('\n');
+    shortDiv.textContent = `${String(tStart).padStart(4,' ')} |\n${left} |${right}`;
+  } else shortDiv.textContent='';
+  // 樹狀圖
+  treeView.innerHTML='';
+  if(tTree.length){
+    const col1=document.createElement('div'); col1.className='col';
+    const col2=document.createElement('div'); col2.className='col';
+    tTree.forEach((step,i)=>{
+      const n1=document.createElement('div'); n1.className='node'; n1.textContent= i? step.parent : tStart; col1.appendChild(n1);
+      const n2=document.createElement('div'); n2.className='node'; n2.textContent= step.p; col2.appendChild(n2);
+      const n3=document.createElement('div'); n3.className='node'; n3.textContent= step.child; col2.appendChild(n3);
+    });
+    treeView.appendChild(col1); treeView.appendChild(col2);
+  }
+  // 完成訊息
+  if(tRemain===1 && tFactors.length){
+    teachCongrats.style.display='block';
+    teachCongrats.innerHTML = `完成！<strong>${tStart}</strong> 的質因數分解是 <strong>${tFactors.join(' × ')}</strong>`;
+  } else { teachCongrats.style.display='none' }
+}
+
+function resetTeachState(){
+  const n = Math.max(2, Math.floor(Number(teachN.value)||90));
+  tStart=n; tRemain=n; tFactors=[]; tShort=[]; tTree=[]; teachStatus.textContent=''; primeInput.value=''; renderTeach();
+}
+
+function stepDivide(p){
+  if(!isPrime(p)) { teachStatus.innerHTML = `<span class='no'>${p} 不是質數</span>`; return }
+  if(tRemain%p!==0){ teachStatus.innerHTML = `<span class='no'>${p} 不能整除 ${tRemain}</span>`; return }
+  tFactors.push(p); const q = tRemain/p; tShort.push({p,q}); tTree.push({parent:tRemain,p,child:q}); tRemain=q; teachStatus.innerHTML = `<span class='ok'>好的！${tRemain===1? '完成' : '剩下 '+tRemain}</span>`; renderTeach();
+}
+
+startTeach.onclick=resetTeachState; resetTeach.onclick=resetTeachState;
+applyPrime.onclick=()=>{ const p = Number(primeInput.value); if(!p) return; stepDivide(p); primeInput.value=''; primeInput.focus() };
+hintPrime.onclick=()=>{ if(tRemain<=1) return; const hint=smallestPrimeFactor(tRemain); teachStatus.innerHTML = `提示：試試 <strong>${hint}</strong>`; primeInput.value=hint; primeInput.focus(); primeInput.select(); };
+
+window.addEventListener('keydown', e=>{
+  if(document.activeElement===answer) return; // 遊戲輸入不影響
+  if(e.key==='Enter') applyPrime.click();
+  if(e.key.toLowerCase()==='h') hintPrime.click();
+  if(e.key.toLowerCase()==='r') resetTeach.click();
+});
+
+resetTeachState();
+
+// ====== 挑戰模式 ======
+const level=document.getElementById('level');
+const qCount=document.getElementById('qCount');
+const scoreRule=document.getElementById('scoreRule');
+const startGame=document.getElementById('startGame');
+const stopGame=document.getElementById('stopGame');
+const qi=document.getElementById('qi');
+const qn=document.getElementById('qn');
+const qN=document.getElementById('qN');
+const answer=document.getElementById('answer');
+const submit=document.getElementById('submit');
+const skip=document.getElementById('skip');
+const feedback=document.getElementById('feedback');
+const scoreEl=document.getElementById('score');
+const streakEl=document.getElementById('streak');
+const accEl=document.getElementById('acc');
+const clock=document.getElementById('clock');
+const historyDiv=document.getElementById('history');
+const exportCSV=document.getElementById('exportCSV');
+
+let game=null, timer=null;
+
+function randInt(a,b){ return Math.floor(a + Math.random()*(b-a+1)) }
+function buildNumberByLevel(lv){
+  // 生成較「好分解」且覆蓋不同質因數的數字
+  const pick=(arr)=>arr[randInt(0,arr.length-1)];
+  let base=1, choices;
+  if(lv==='easy'){ choices=[2,3,5,7]; const len=randInt(2,3); for(let i=0;i<len;i++) base*=pick(choices); }
+  else if(lv==='med'){ choices=[2,2,3,3,5,7,11]; const len=randInt(2,4); for(let i=0;i<len;i++) base*=pick(choices); if(base<20) base*=pick([2,3,5]); }
+  else { choices=[2,2,3,3,5,5,7,11,13,17,19]; const len=randInt(3,5); for(let i=0;i<len;i++) base*=pick(choices); if(base<100) base*=pick([11,13,17]); }
+  return base;
+}
+
+function start(){
+  const total=Number(qCount.value); const lv=level.value; const rule=scoreRule.value;
+  game={i:0,n:total,lv,rule,score:0,streak:0,correct:0,answers:[],startTime:Date.now(),sec:0};
+  qn.textContent=total; scoreEl.textContent='0'; streakEl.textContent='0'; accEl.textContent='—'; historyDiv.textContent='';
+  nextQuestion(); answer.focus();
+  if(timer) clearInterval(timer); timer=setInterval(()=>{ game.sec=(Date.now()-game.startTime)/1000; clock.textContent=fmtTime(game.sec); },200);
+}
+
+function endGame(){ if(!game) return; clearInterval(timer); timer=null; feedback.innerHTML = `<strong>完成！</strong> 分數 ${game.score}，正確 ${game.correct}/${game.n}`; game=null; }
+
+function nextQuestion(){
+  if(!game) return; if(game.i>=game.n){ endGame(); return }
+  game.i++; const N=buildNumberByLevel(game.lv); game.current={N, factors: primeFactorsArray(N)}; qi.textContent=game.i; qN.textContent=N; feedback.textContent=''; answer.value='';
+}
+
+function scoreDelta(correct, usedSec){
+  if(!game) return 0; const rule=game.rule; if(!correct) return 0;
+  if(rule==='classic') return 10;
+  if(rule==='streak') return 10 + Math.max(0, game.streak-1)*2;
+  if(rule==='speed') return 10 + (usedSec<=20?5:0);
+  return 10;
+}
+
+function submitAnswer(skipFlag=false){
+  if(!game) return; const t0=Date.now();
+  const arr = skipFlag? [] : parseFactorInput(answer.value);
+  const norm = [...arr].sort((a,b)=>a-b);
+  const truth = game.current.factors; const ok = arraysEqual(norm, truth);
+  const usedSec = (Date.now()-t0)/1000; // 僅供規則 "speed" 使用（近似）
+  if(ok){
+    game.correct++; game.streak++; const delta = scoreDelta(true, usedSec); game.score+=delta; feedback.innerHTML = `<span class='ok'>正確！</span> ${game.current.N} = ${truth.join(' × ')} ，+${delta}`;
+  } else if(skipFlag){
+    game.streak=0; feedback.innerHTML = `略過。正解：<span class='mono'>${truth.join(' × ')}</span>`;
+  } else {
+    game.streak=0; feedback.innerHTML = `<span class='no'>再想想～</span>（可輸入如 2x3x3x5）`;
+    return; // 讓學生可再改
+  }
+  // 記錄
+  const acc = (game.correct / game.i * 100).toFixed(0)+'%';
+  accEl.textContent=acc; scoreEl.textContent=String(game.score); streakEl.textContent=String(game.streak);
+  game.answers.push({i:game.i,N:game.current.N,ans:arr.join('x'),truth:truth.join('x'),ok, t:fmtTime(game.sec)});
+  historyDiv.textContent += `#${String(game.i).padStart(2,'0')} ${String(game.current.N).padStart(4,' ')} → ${truth.join('x')} ${ok? '✓':'✗'}\n`;
+  nextQuestion();
+}
+
+startGame.onclick=start; stopGame.onclick=endGame; submit.onclick=()=>submitAnswer(false); skip.onclick=()=>submitAnswer(true);
+answer.addEventListener('keydown',e=>{ if(e.key==='Enter') submitAnswer(false) });
+
+exportCSV.onclick=()=>{
+  if(!game && (!historyDiv.textContent.trim())){ alert('目前沒有資料'); return }
+  const rows=['index,N,answer,truth,correct,time'];
+  const arr = (game? game.answers : []).map(r=>`${r.i},${r.N},${r.ans},${r.truth},${r.ok},${r.t}`);
+  rows.push(...arr); const blob=new Blob([rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='prime-factorization-results.csv'; a.click();
+};
+</script>
+
+<!-- 使用說明（教師）
+1. 直接以瀏覽器開啟本檔即可使用；或上傳 GitHub Pages / 校務雲端，即可分享給學生。
+2. 「教學模式」支援逐步短除、樹狀圖與提示（最小質因數）。
+3. 「挑戰模式」可調難度、題數、計分規則（三種：標準 / 連擊 / 速度），支援略過、歷程、CSV 匯出。
+4. 鍵盤：Enter=套用/送出，H=提示，R=重設。
+5. 可配合投影示範：先示範 90、60 等例題，再讓學生進入挑戰模式進行計時賽。
+-->
+</body>
+</html>
