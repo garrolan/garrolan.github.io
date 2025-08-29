@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>七夕・兩段式儀式感行程｜關西</title>
+<style>
+  :root{
+    --bg:#0b0c0f;          /* 深色主題背景 */
+    --card:#101318;        /* 卡片底色 */
+    --muted:#8b91a1;       /* 淺字色 */
+    --text:#e9ecf1;        /* 正文字 */
+    --accent:#ffd166;      /* 重點色（暖黃）*/
+    --accent-2:#72e3c7;    /* 区段A */
+    --accent-3:#9bb8ff;    /* 区段B */
+    --ok:#7ee787;          /* 勾選 */
+    --danger:#ffafcc;      /* 提醒 */
+    --grid:#1b1f2a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    background:radial-gradient(1200px 800px at 70% -10%, #1a1f29 0%, #0b0c0f 40%, #0b0c0f 100%);
+    color:var(--text);
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 16px 80px}
+  header{
+    display:grid;gap:10px;align-items:end;
+    grid-template-columns:1fr auto; margin-bottom:18px
+  }
+  h1{font-size:28px;margin:0;letter-spacing:.5px}
+  .sub{color:var(--muted);font-size:14px}
+  .btns{display:flex;gap:8px;flex-wrap:wrap}
+  button,.chip{
+    background:linear-gradient(180deg,#1b2030,#141822);
+    color:var(--text); border:1px solid #2a3245; border-radius:12px; padding:10px 14px; cursor:pointer;
+  }
+  .chip{font-size:12px; padding:6px 10px; opacity:.9}
+  button:hover{filter:brightness(1.1)}
+
+  /* 卡片 */
+  .card{background:linear-gradient(180deg,#11151d,#0f131a); border:1px solid #1e2636; border-radius:16px; padding:16px; box-shadow:0 20px 40px rgba(0,0,0,.25)}
+  .row{display:grid; grid-template-columns:1.1fr .9fr; gap:16px; align-items:stretch}
+  @media (max-width:920px){.row{grid-template-columns:1fr}}
+
+  /* 時間軸圖表 */
+  .timeline{position:relative; background:#0e1219; border:1px solid #1a2130; border-radius:14px; padding:14px; overflow:hidden}
+  .axis{height:36px; position:relative; border-bottom:1px dashed #2a3245; margin-bottom:10px}
+  .ticks{position:absolute; inset:0; display:flex; justify-content:space-between; align-items:flex-end; font-size:12px; color:#aab2c4}
+  .grid{position:absolute; left:0; right:0; top:36px; bottom:10px; background:
+    repeating-linear-gradient(to right, var(--grid), var(--grid) 1px, transparent 1px, transparent calc(var(--gap)));}
+  .bars{position:relative; height:120px}
+  .bar{position:absolute; top:6px; height:32px; border-radius:10px; display:flex; align-items:center; gap:8px; padding:6px 10px; color:#0b0c0f; font-weight:600; letter-spacing:.3px; box-shadow:0 8px 22px rgba(0,0,0,.25)}
+  .bar small{opacity:.9; font-weight:700}
+  .A{background:linear-gradient(180deg,rgba(114,227,199,.95),rgba(54,206,172,.95));}
+  .B{background:linear-gradient(180deg,rgba(155,184,255,.95),rgba(120,150,240,.95));}
+  .legend{display:flex; gap:10px; align-items:center; margin-top:6px; color:#aab2c4; font-size:13px}
+  .dot{width:10px; height:10px; border-radius:50%}
+  .dot.A{background:var(--accent-2)}
+  .dot.B{background:var(--accent-3)}
+
+  /* 清單 */
+  .list h3{margin:0 0 8px; font-size:16px; letter-spacing:.5px}
+  .todo{display:grid; gap:8px}
+  .todo label{display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid #1e2636; border-radius:12px; background:linear-gradient(180deg,#0e1219,#0b0f15)}
+  .todo input{width:18px;height:18px;margin-top:2px}
+  .todo .hint{color:var(--muted); font-size:13px}
+  .badge{display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#111; background:linear-gradient(180deg,#ffe08a,#ffd166); border-radius:999px; padding:4px 8px; font-weight:700}
+
+  /* 暗號區 */
+  .secret{display:grid; gap:10px; grid-template-columns:1fr auto}
+  .secret input{width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a3245; background:#0a0f16; color:var(--text)}
+
+  /* 備案 */
+  .note{color:#f2bfd4; font-size:13px}
+
+  /* footer */
+  footer{margin-top:20px; color:var(--muted); font-size:12px; display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap}
+  .print{border-color:#3a455a}
+
+  /* 列印樣式 */
+  @media print{
+    body{background:#fff; color:#000}
+    .wrap{padding:0}
+    .card{background:#fff; border:1px solid #000}
+    .timeline{background:#fff}
+    .bar{color:#000}
+    header .btns, .chip.print{display:none}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>七夕・兩段式儀式感行程 <span class="chip">關西</span></h1>
+        <div class="sub" id="datesub">2025-08-29（傍晚→晚餐後，20:00 結束）</div>
+      </div>
+      <div class="btns">
+        <button id="toggleRain">切換：正常 / 遇雨備案</button>
+        <button class="print" onclick="window.print()">列印 / 匯出 PDF</button>
+      </div>
+    </header>
+
+    <div class="row">
+      <!-- 左：時間軸圖表 -->
+      <section class="card timeline">
+        <div class="axis">
+          <div class="ticks" id="ticks"></div>
+          <div class="grid" id="grid"></div>
+        </div>
+        <div class="bars" id="bars" aria-label="時間軸圖表"></div>
+        <div class="legend">
+          <span class="dot A"></span> 黃昏散步（A）
+          <span class="dot B" style="margin-left:14px"></span> 晚餐後（B）
+          <span style="margin-left:auto" class="badge" title="建議攜帶：A4 紙、黑筆、防蚊、雨具、小盒子">攜帶清單</span>
+        </div>
+      </section>
+
+      <!-- 右：待辦清單 -->
+      <section class="card list">
+        <h3>今日小任務</h3>
+        <div class="todo" id="todo"></div>
+        <div style="height:10px"></div>
+        <h3>暗號句</h3>
+        <div class="secret">
+          <input id="secretInput" placeholder="輸入我們的暗號句，例如：今晚月色寄放在橋上" />
+          <button id="saveSecret">儲存</button>
+        </div>
+        <div class="hint" id="secretHint" style="margin-top:6px;color:var(--muted)">已儲存的暗號句會同步出現在時間軸標籤上。</div>
+      </section>
+    </div>
+
+    <div style="height:16px"></div>
+
+    <!-- 區段詳情卡片 -->
+    <section class="card">
+      <div style="display:grid; gap:14px; grid-template-columns:1fr 1fr">
+        <div>
+          <h3 style="margin:0 0 8px">A. 黃昏散步與雙頁詩卡</h3>
+          <ul style="margin:0; padding-left:18px; color:#cfd6e6">
+            <li>15:30–16:10 回家過渡：沖澡、換裝、打包「七夕小包」。</li>
+            <li>16:10–16:30 出發至河堤/牛欄河親水公園。</li>
+            <li>16:30–17:10 同步散步 & 三行詩（十口呼吸 → 三個場景各寫一行）。</li>
+            <li>17:10–17:25 雙頁詩卡與「我們的暗號句」。</li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="margin:0 0 8px">B. 晚餐後・星下小盒與錄音</h3>
+          <ul style="margin:0; padding-left:18px; color:#cfd6e6">
+            <li>17:30–18:30 晚餐：餐桌完成「七個問題卡」。</li>
+            <li>18:30–19:10 夜走：抬頭找織女星、牛郎星，低聲念暗號句。</li>
+            <li>19:10–19:30 七夕小盒封存：詩卡、問題紙條、葉子/小石。</li>
+            <li>19:30–19:50 一分鐘錄音：各錄 60 秒（檔名 <code>Qixi-2025-你的名字.m4a</code>）。</li>
+            <li>19:50–20:00 抱抱呼吸 4-4-6（6 組），說出暗號句前四字。</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note" style="margin:10px 0 0">遇雨備案：改「窗邊七夕」→ 聽雨三行詩、窗邊觀雲；所有手作與錄音照做。</p>
+    </section>
+
+    <footer>
+      <span>© 七夕 2025｜我們的時間是一條溫柔的河</span>
+      <span class="chip print">提示：點「列印 / 匯出 PDF」可保存成實體紀念。</span>
+    </footer>
+  </div>
+
+<script>
+// ===== 資料定義 =====
+const planNormal = {
+  start: "15:30", end: "20:00",
+  blocks: [
+    {s:"15:30", e:"16:10", t:"回家過渡", g:"A", tip:"沖澡、換裝、打包七夕小包"},
+    {s:"16:10", e:"16:30", t:"出發至河堤/牛欄河", g:"A", tip:"走到最安心的一段"},
+    {s:"16:30", e:"17:10", t:"散步 & 三行詩", g:"A", tip:"十口呼吸 → 三個場景各寫一行"},
+    {s:"17:10", e:"17:25", t:"暗號句・雙頁詩卡", g:"A", tip:"對折 A4 成詩卡，寫上地點/時間"},
+
+    {s:"17:30", e:"18:30", t:"晚餐・七個問題卡", g:"B", tip:"餐桌上各寫 1–2 句"},
+    {s:"18:30", e:"19:10", t:"夜走・夏季大三角", g:"B", tip:"找織女星&牛郎星，低聲念暗號句"},
+    {s:"19:10", e:"19:30", t:"七夕小盒封存", g:"B", tip:"詩卡＋紙條＋葉子/小石；封條寫日期地點"},
+    {s:"19:30", e:"19:50", t:"一分鐘錄音", g:"B", tip:"各錄 60 秒，檔名 Qixi-2025-你的名字.m4a"},
+    {s:"19:50", e:"20:00", t:"抱抱呼吸 4-4-6", g:"B", tip:"6 組；說出暗號句前四字"},
+  ]
+};
+
+const planRain = {
+  start: "15:30", end: "20:00",
+  blocks: [
+    {s:"15:30", e:"16:10", t:"回家過渡", g:"A", tip:"沖澡、換裝、窗邊佈置燭/檯燈"},
+    {s:"16:10", e:"16:30", t:"窗邊預備", g:"A", tip:"準備紙筆、熱茶；開窗聽雨"},
+    {s:"16:30", e:"17:10", t:"聽雨三行詩", g:"A", tip:"以雨聲、窗影、燈光寫三行"},
+    {s:"17:10", e:"17:25", t:"暗號句・雙頁詩卡", g:"A", tip:"封面寫上今天的雨字"},
+
+    {s:"17:30", e:"18:30", t:"晚餐・七個問題卡", g:"B", tip:"家中/近處小店；寫 1–2 句"},
+    {s:"18:30", e:"19:10", t:"窗邊觀雲", g:"B", tip:"從雲縫找光；低聲念暗號句"},
+    {s:"19:10", e:"19:30", t:"七夕小盒封存", g:"B", tip:"加入一片窗邊落葉/小紙花"},
+    {s:"19:30", e:"19:50", t:"一分鐘錄音", g:"B", tip:"各錄 60 秒"},
+    {s:"19:50", e:"20:00", t:"抱抱呼吸 4-4-6", g:"B", tip:"6 組；說出暗號句前四字"},
+  ]
+};
+
+// 任務清單（對應兩段式關鍵行為）
+const todos = [
+  {id:'pack', text:'打包「七夕小包」（A4 紙、黑筆、防蚊、雨具、小盒）'},
+  {id:'walk', text:'十口呼吸同步 & 三行詩各 1 行'},
+  {id:'code', text:'完成「暗號句」並寫在詩卡封面'},
+  {id:'dinner', text:'餐桌寫完 7 個問題卡（每題 1–2 句即可）'},
+  {id:'box', text:'封存「七夕小盒」（詩卡＋紙條＋葉/石）'},
+  {id:'audio', text:'各錄 60 秒音檔（檔名規範）'},
+  {id:'breath', text:'睡前抱抱呼吸 4-4-6 × 6 組'},
+];
+
+// ===== 工具函數 =====
+const toMin = (hhmm)=>{const [h,m]=hhmm.split(':').map(Number);return h*60+m};
+const px = (n)=>`${n}px`;
+
+function renderTimeline(plan){
+  const start = toMin(plan.start);
+  const end   = toMin(plan.end);
+  const span  = end - start; // 總分鐘
+  const bars  = document.getElementById('bars'); bars.innerHTML='';
+  const ticks = document.getElementById('ticks'); ticks.innerHTML='';
+  const grid  = document.getElementById('grid');
+
+  // 刻度：每 30 分
+  const labels=[];
+  for(let t=start; t<=end; t+=30){
+    const h=String(Math.floor(t/60)).padStart(2,'0');
+    const m=String(t%60).padStart(2,'0');
+    labels.push(`${h}:${m}`);
+  }
+  ticks.style.gap = '0';
+  ticks.style.justifyContent = 'space-between';
+  labels.forEach(l=>{
+    const d=document.createElement('div'); d.textContent=l; ticks.appendChild(d);
+  });
+
+  // 網格間距（30 分比）
+  const gap = (document.querySelector('.timeline').clientWidth - 28) / (labels.length-1);
+  document.documentElement.style.setProperty('--gap', px(gap));
+
+  // Bars
+  plan.blocks.forEach((b,i)=>{
+    const s = toMin(b.s) - start;
+    const e = toMin(b.e) - start;
+    const left = (s/span)*100; const width = ((e-s)/span)*100;
+    const el = document.createElement('div');
+    el.className = `bar ${b.g}`;
+    el.style.left = left+"%"; el.style.width = width+"%";
+    el.title = `${b.s}–${b.e}｜${b.tip}`;
+    el.innerHTML = `<small>${b.s}–${b.e}</small> ${b.t}`;
+    bars.appendChild(el);
+  });
+}
+
+function renderTodos(){
+  const box = document.getElementById('todo');
+  box.innerHTML='';
+  const keyPrefix = keyBase();
+  todos.forEach(item=>{
+    const id = `${keyPrefix}_${item.id}`;
+    const row = document.createElement('label');
+    const ck  = document.createElement('input'); ck.type='checkbox'; ck.checked = !!localStorage.getItem(id);
+    ck.addEventListener('change',()=>{ ck.checked?localStorage.setItem(id,'1'):localStorage.removeItem(id) });
+    const span= document.createElement('div'); span.innerHTML = `<div>${item.text}</div>`;
+    row.appendChild(ck); row.appendChild(span); box.appendChild(row);
+  });
+}
+
+function keyBase(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day= String(d.getDate()).padStart(2,'0');
+  return `Qixi_${y}${m}${day}`;
+}
+
+function initSecret(){
+  const input = document.getElementById('secretInput');
+  const hint  = document.getElementById('secretHint');
+  const key   = keyBase()+"_secret";
+  const saved = localStorage.getItem(key);
+  if(saved){ input.value = saved; hint.innerHTML = `已載入暗號句：<b>${saved}</b>`; }
+  document.getElementById('saveSecret').onclick = ()=>{
+    const v = input.value.trim();
+    localStorage.setItem(key, v);
+    hint.innerHTML = v?`已儲存暗號句：<b>${v}</b>`:'已清除暗號句';
+  };
+}
+
+// 日期說明
+(function(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day= String(d.getDate()).padStart(2,'0');
+  document.getElementById('datesub').textContent = `${y}-${m}-${day}（傍晚→晚餐後，20:00 結束）`;
+})();
+
+// 初始渲染
+let isRain = false; renderTimeline(planNormal); renderTodos(); initSecret();
+
+// 切換備案
+const btn = document.getElementById('toggleRain');
+btn.addEventListener('click',()=>{ isRain=!isRain; renderTimeline(isRain?planRain:planNormal); btn.textContent = isRain? '切換：遇雨備案 ✓' : '切換：正常 / 遇雨備案'; });
+
+// 視窗調整時更新網格密度
+window.addEventListener('resize',()=>renderTimeline(isRain?planRain:planNormal));
+</script>
+</body>
+</html>
