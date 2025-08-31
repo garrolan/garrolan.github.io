@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Veritas Occulta — 光影密儀 V3</title>
+  <style>
+    :root{
+      --ink:#f4e5c3; --glow:#c58b36; --bg1:#0b0b0b; --bg2:#1e1a1a; --frame:#604e3d; --danger:#e74c3c; --ok:#56d364;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Cinzel",ui-serif,Georgia,serif;color:var(--ink);background:radial-gradient(1200px 800px at 50% 40%, var(--bg2), var(--bg1));overflow:hidden}
+    .hud{position:fixed;inset:0 0 auto 0;display:flex;gap:16px;align-items:center;justify-content:center;padding:10px 14px;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,0));backdrop-filter:blur(2px);z-index:9}
+    .chip{border:1px solid var(--frame);padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.05);display:flex;align-items:center;gap:8px}
+    .timer{font-variant-numeric:tabular-nums}
+    .progress{height:6px;width:120px;border:1px solid var(--frame);border-radius:999px;position:relative;background:rgba(255,255,255,.06)}
+    .progress>i{position:absolute;inset:0;display:block;background:linear-gradient(90deg,var(--glow),#f2d199);width:0;border-radius:999px;box-shadow:0 0 12px var(--glow)}
+
+    .container{height:100vh;display:grid;place-items:center;padding-top:70px}
+    .stage{width:min(1100px,92vw);display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
+
+    .panel{border:1px solid var(--frame);background:rgba(0,0,0,.55);border-radius:12px;padding:16px;box-shadow:0 0 24px rgba(197,139,54,.15) inset}
+    h1{margin:0 0 4px;font-weight:600;text-align:center;text-shadow:0 0 10px var(--glow)}
+    p.lead{opacity:.9;text-align:center;margin:0 0 10px}
+
+    .altar{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+    .item{position:relative;min-height:180px;border:1px solid var(--frame);border-radius:10px;padding:12px;cursor:pointer;background:rgba(255,255,255,.04);transition:.2s}
+    .item:hover{transform:translateY(-2px);box-shadow:0 0 10px rgba(197,139,54,.35)}
+    .item.locked{filter:grayscale(.9) brightness(.6);cursor:not-allowed}
+    .item .title{font-weight:700;letter-spacing:.5px}
+    .item .hint{opacity:.8;font-size:.9rem}
+    .sigil{position:absolute;inset:46px 10px 10px 10px;display:grid;place-items:center;opacity:0;transform:scale(.96);transition:.35s}
+    .item.revealed .sigil{opacity:1;transform:scale(1)}
+    /* 讓星盤 UI 從一開始就可見（即使鎖定，滑桿仍禁用） */
+    .item[data-step="astro"] .sigil{opacity:1;transform:scale(1)}
+
+    .desc{min-height:160px;margin-top:12px;border:1px dashed var(--frame);border-radius:10px;padding:14px;line-height:1.45;background:rgba(0,0,0,.4)}
+
+    .right{display:grid;gap:14px}
+    .candleBar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .btn{border:1px solid var(--frame);background:rgba(255,255,255,.06);color:var(--ink);padding:8px 12px;border-radius:10px;cursor:pointer;transition:.2s}
+    .btn:hover{box-shadow:0 0 10px rgba(197,139,54,.35)}
+    .btn.primary{background:rgba(197,139,54,.18)}
+    .btn.danger{border-color:var(--danger);color:#ffd6d0}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+
+    .candle{width:58px;height:120px;position:relative;user-select:none}
+    .candle .wax{position:absolute;bottom:0;left:8px;right:8px;height:90px;background:linear-gradient(#ffe9c6,#d9b896);border-radius:8px 8px 10px 10px;box-shadow:inset 0 -10px 20px rgba(0,0,0,.2)}
+    .candle .flame{position:absolute;left:50%;bottom:92px;width:20px;height:28px;transform:translateX(-50%);background:radial-gradient(9px 13px at 50% 60%, #fff6ce, #f4b95a 60%, transparent 61%);filter:drop-shadow(0 0 10px #f4b95a);border-radius:50%}
+    .candle.dragging{filter:drop-shadow(0 0 14px #f4b95a)}
+
+    .dragArea{position:fixed;inset:auto auto 20px 20px;display:flex;align-items:center;gap:10px;z-index:8}
+    .carry{border:1px dashed var(--frame);padding:8px 10px;border-radius:10px;opacity:.9}
+
+    .droptarget{outline:2px dashed rgba(197,139,54,.0)}
+    .item.highlight{outline:2px dashed rgba(197,139,54,.9)}
+
+    /* Astrolabe UI */
+    .astroWrap{display:grid;gap:10px;place-items:center}
+    .disc{width:240px;height:240px;border:1px solid var(--frame);border-radius:50%;position:relative;background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.08), rgba(0,0,0,.25) 65%), repeating-conic-gradient(from 0deg, rgba(197,139,54,.12) 0deg 6deg, rgba(0,0,0,.0) 6deg 12deg)}
+    .disc .arm{position:absolute;inset:50% auto auto 50%;width:2px;height:44%;background:#e6c186;transform-origin:top left;box-shadow:0 0 6px rgba(197,139,54,.6)}
+    .disc .target{position:absolute;left:50%;top:50%;width:10px;height:10px;background:var(--ok);border-radius:50%;box-shadow:0 0 8px rgba(86,211,100,.6);transform:translate(-50%,-50%) rotate(0deg) translate(98px)}
+    .tick{position:absolute;inset:auto 0 6px 0;text-align:center;font-size:.85rem;opacity:.85}
+    .slider{width:260px}
+    .astroStatus{font-weight:700}
+
+    /* Overlay when unlocked */
+    .overlay{position:fixed;inset:0;background:radial-gradient(800px 600px at 50% 40%, rgba(0,0,0,.2), rgba(0,0,0,.9));display:none;place-items:center;z-index:20}
+    .overlay .card{width:min(680px,92vw);border:1px solid var(--frame);border-radius:14px;background:rgba(0,0,0,.75);padding:18px;box-shadow:0 0 30px rgba(197,139,54,.25)}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;letter-spacing:.4px}
+
+    /* fail flash */
+    .dangerFlash{animation:flash .6s infinite alternate}
+    @keyframes flash{from{box-shadow:0 0 0 rgba(231,76,60,.0)}to{box-shadow:0 0 18px rgba(231,76,60,.55)}}
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="chip"><strong>儀式</strong>：光影密儀</div>
+    <div class="chip">⏳ <span class="timer" id="timer">03:00</span></div>
+    <div class="chip" style="gap:10px">進度
+      <div class="progress"><i id="bar"></i></div>
+      <span id="stepsText">0 / 3</span>
+    </div>
+    <button id="startBtn" class="btn primary">開始儀式</button>
+    <button id="resetBtn" class="btn" style="display:none">重來</button>
+  </div>
+
+  <div class="container">
+    <div class="stage">
+      <div class="panel">
+        <h1>Veritas Occulta</h1>
+        <p class="lead">在這間光影交錯的密室裡，用蠟燭、星盤與密符解開順序之謎。錯誤與遲疑，會讓黑影逼近……</p>
+        <div class="altar">
+          <div class="item droptarget locked" id="book" data-step="book">
+            <div class="title">《光之祕儀》殘卷</div>
+            <div class="hint">以燭火溫熱書頁，顯影隱墨（拖曳/攜帶蠟燭到此，或點擊使用）。</div>
+            <div class="sigil"><span style="font-size:28px">📜</span></div>
+          </div>
+          <div class="item droptarget locked" id="astro" data-step="astro">
+            <div class="title">星圖自鳴儀</div>
+            <div class="hint">轉動星盤，令金星與太陽成一線（需先破譯書頁）。</div>
+            <div class="sigil">
+              <div class="astroWrap">
+                <div class="disc" id="disc">
+                  <div class="arm" id="arm"></div>
+                  <div class="target" id="target"></div>
+                  <div class="tick">角度：<span id="deg">0</span>°（目標 <span id="goal">118</span>°）</div>
+                </div>
+                <input id="angle" class="slider" type="range" min="-180" max="180" step="1" value="0" disabled />
+                <div class="astroStatus" id="astroStatus">未對準</div>
+              </div>
+            </div>
+          </div>
+          <div class="item droptarget locked" id="sigil" data-step="sigil">
+            <div class="title">赫密斯密符</div>
+            <div class="hint">以燭火照耀，讓銅面回應星象（需先對準星盤）。</div>
+            <div class="sigil"><span style="font-size:28px">☉</span></div>
+          </div>
+        </div>
+        <div class="desc" id="desc">⸺ 儀式尚未開始。先按「開始儀式」。第一步：把蠟燭用在《光之祕儀》殘卷。</div>
+      </div>
+
+      <div class="right">
+        <div class="panel">
+          <div class="candleBar">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div id="candle" class="candle" draggable="true" aria-label="candle">
+                <div class="flame"></div>
+                <div class="wax"></div>
+              </div>
+              <div class="carry">攜燭模式：<b id="carryState">關</b></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn" id="toggleCarry">拿起/放下 蠟燭</button>
+              <button class="btn" id="useHere">使用蠟燭於焦點</button>
+            </div>
+          </div>
+          <div class="panel" style="margin-top:14px">
+            <div style="font-size:.95rem;opacity:.9">提示：</div>
+            <ul style="margin:8px 0 0 18px;line-height:1.5">
+              <li>步驟順序：<b>書頁 → 星盤 → 密符</b></li>
+              <li>可拖曳蠟燭到物品上，或開啟「攜燭模式」後點擊物品。</li>
+              <li>星盤滑桿旋到 <b>118° ±5°</b>；目標位置以綠點標示。</li>
+              <li>三步完成後將自動顯示祕密圖層。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dragArea"><span class="chip">將蠟燭拖到物品上，或用「使用蠟燭於焦點」。</span></div>
+
+  <div class="overlay" id="win">
+    <div class="card">
+      <h2 style="margin:0 0 6px;text-align:center">門已開啟 —— <span class="mono">Veritas Occulta</span></h2>
+      <p style="text-align:center;margin:0 0 12px">Caritas ardens est lux veritatis.</p>
+      <div class="mono" style="white-space:pre-wrap;background:rgba(255,255,255,.04);border:1px solid var(--frame);padding:12px;border-radius:10px">📜 地圖片段（聖彼得圓頂之心）
+┌───────────────────────────────┐
+│   ◯  圓頂子午線                     │
+│      │                              │
+│  西──┼──東      隱室：<V.O.>         │
+│      │                              │
+│   ●  銅符定位點（☉ 對準）            │
+└───────────────────────────────┘
+      </div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:12px">
+        <button class="btn" id="closeWin">收起</button>
+        <button class="btn primary" id="restart">重啟儀式</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      started:false, carrying:false, time:180, timerId:null,
+      steps:{book:false, astro:false, sigil:false},
+      targetAngle:118, tol:5
+    };
+
+    const byId = id => document.getElementById(id);
+    const desc = byId('desc');
+    const timerEl = byId('timer');
+    const bar = byId('bar');
+    const stepsText = byId('stepsText');
+    const startBtn = byId('startBtn');
+    const resetBtn = byId('resetBtn');
+    const candle = byId('candle');
+    const carryState = byId('carryState');
+    const toggleCarry = byId('toggleCarry');
+    const useHere = byId('useHere');
+    const book = byId('book');
+    const astro = byId('astro');
+    const sigil = byId('sigil');
+    const angle = byId('angle');
+    const disc = byId('disc');
+    const arm = byId('arm');
+    const target = byId('target');
+    const degText = byId('deg');
+    const goalText = byId('goal');
+    const astroStatus = byId('astroStatus');
+    const win = byId('win');
+
+    function fmt(n){const m=Math.max(0,n);const mm=String(Math.floor(m/60)).padStart(2,'0');const ss=String(m%60).padStart(2,'0');return mm+":"+ss}
+    function setTimerUI(){timerEl.textContent=fmt(state.time);if(state.time<=20){timerEl.parentElement.classList.add('dangerFlash')} else {timerEl.parentElement.classList.remove('dangerFlash')}}
+    function tick(){state.time--;setTimerUI();if(state.time<=0){clearInterval(state.timerId);fail()}}
+    function start(){if(state.started) return; state.started=true; startBtn.style.display='none'; resetBtn.style.display='inline-block'; enable(book,true); desc.textContent='🕯️ 將蠟燭移到《光之祕儀》殘卷上，顯影隱墨。'; state.timerId=setInterval(tick,1000);}
+
+    function reset(){location.reload()}
+
+    function updateProgress(){const n = Object.values(state.steps).filter(Boolean).length; stepsText.textContent = n+' / 3'; bar.style.width = Math.round(n/3*100)+'%'; if(n===3){setTimeout(()=>{win.style.display='grid'},600)}}
+
+    function enable(el, on){ if(on){el.classList.remove('locked')} else {el.classList.add('locked')} }
+
+    function carry(on){state.carrying=on; carryState.textContent= on ? '開' : '關'; document.body.classList.toggle('carry', on)}
+
+    // Drag and drop candle
+    candle.addEventListener('dragstart', e=>{candle.classList.add('dragging'); e.dataTransfer.setData('text/plain','candle')});
+    candle.addEventListener('dragend', ()=>candle.classList.remove('dragging'));
+    document.querySelectorAll('.droptarget').forEach(el=>{
+      el.addEventListener('dragover', e=>{e.preventDefault(); if(el.classList.contains('locked')) return; el.classList.add('highlight')});
+      el.addEventListener('dragleave', ()=>el.classList.remove('highlight'));
+      el.addEventListener('drop', e=>{e.preventDefault(); el.classList.remove('highlight'); const data=e.dataTransfer.getData('text/plain'); if(data==='candle'){useCandle(el.id)}});
+    });
+
+    // Carry mode and click fallback
+    toggleCarry.addEventListener('click',()=>carry(!state.carrying));
+    ;[book, sigil].forEach(el=>{el.addEventListener('click',()=>{ if(state.carrying) useCandle(el.id); else {desc.textContent='（需要蠟燭）請先按「拿起/放下 蠟燭」，或拖曳蠟燭到物品上。'} })});
+    useHere.addEventListener('click',()=>{
+      const focus = document.activeElement;
+      if(focus && (focus.id==='book' || focus.id==='sigil')){useCandle(focus.id)}
+      else desc.textContent='請先點一下想要使用蠟燭的物品卡片，再按此鍵。';
+    });
+
+    function flash(el){el.animate([{boxShadow:'0 0 0 rgba(197,139,54,0)'},{boxShadow:'0 0 18px rgba(197,139,54,.7)'}],{duration:480,iterations:1})}
+
+    function useCandle(target){ if(!state.started){start();}
+      if(target==='book'){
+        if(book.classList.contains('locked')){desc.textContent='順序錯誤。請先於《光之祕儀》進行。'; return;}
+        revealBook();
+      }
+      if(target==='sigil'){
+        if(!state.steps.astro){desc.textContent='還未對準星盤。請先完成星盤對準。'; flash(astro); return;}
+        revealSigil();
+      }
+    }
+
+    function revealBook(){ if(state.steps.book) {desc.innerHTML='書頁上的隱墨依然閃爍。'; return;}
+      book.classList.add('revealed'); state.steps.book=true; enable(astro,true); angle.disabled=false; desc.innerHTML='📜 隱墨顯現：<i>"Caritas ardens est lux veritatis."</i><br>轉向星盤，讓金星與太陽成一線（轉到綠點所在角度）。'; updateProgress();
+    }
+
+    // Astrolabe logic
+    function setTarget(a){ goalText.textContent=a; target.style.transform = `translate(-50%,-50%) rotate(${a}deg) translate(98px)` }
+    setTarget(state.targetAngle);
+
+    angle.addEventListener('input',()=>{
+      if(!state.started) start();
+      const v = parseInt(angle.value,10);
+      degText.textContent=v;
+      arm.style.transform = `rotate(${v}deg)`;
+      disc.style.transform = `rotate(${(v/2)}deg)`;
+      if(Math.abs(v - state.targetAngle) <= state.tol){ astroAligned(); }
+      else { astroStatus.textContent='未對準'; astroStatus.style.color=''; }
+    });
+
+    function astroAligned(){ if(state.steps.astro) return; state.steps.astro=true; astro.classList.add('revealed'); enable(sigil,true); desc.innerHTML='✶ 星盤低鳴：已對準 <b>'+state.targetAngle+'°</b>（±'+state.tol+'°）。<br>以燭光照耀赫密斯密符。'; astroStatus.textContent='已對準'; astroStatus.style.color='var(--ok)'; updateProgress(); }
+
+    function revealSigil(){ if(state.steps.sigil) {desc.textContent='密符已回應你的光。'; return;} sigil.classList.add('revealed'); state.steps.sigil=true; desc.innerHTML='☉ 密符回應星象：<i>"Caritas ignea, arcana reserat."</i><br>三步已成，真理之門將開。'; updateProgress(); }
+
+    function fail(){ desc.innerHTML='⛓️ 時間已盡。黑影合攏，密室歸於寂滅。請按「重來」。'; [book,astro,sigil].forEach(x=>x.classList.add('locked')); startBtn.style.display='none'; resetBtn.style.display='inline-block'; }
+
+    startBtn.addEventListener('click',start);
+    resetBtn.addEventListener('click',reset);
+    byId('closeWin').addEventListener('click',()=>win.style.display='none');
+    byId('restart').addEventListener('click',reset);
+
+    // 初始狀態
+    setTimerUI(); enable(book,false); enable(astro,false); enable(sigil,false);
+    // 鍵盤可聚焦
+    [book,astro,sigil].forEach(el=>el.tabIndex=0);
+  </script>
+</body>
+</html>
