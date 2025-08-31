@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AURICULA·PULMO·LARYNX — 三合一小實驗（V2）</title>
+<style>
+:root{--ink:#f4e5c3;--glow:#c58b36;--bg1:#0b0b0b;--bg2:#1e1a1a;--frame:#604e3d;--ok:#56d364;--warn:#e9b96e;--danger:#e74c3c}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font-family:"Cinzel",ui-serif,Georgia,serif;background:radial-gradient(1200px 900px at 50% 35%,var(--bg2),var(--bg1));min-height:100vh}
+.hud{position:fixed;inset:0 0 auto 0;display:flex;gap:14px;justify-content:center;align-items:center;padding:10px;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,0));z-index:9}
+.chip{border:1px solid var(--frame);border-radius:999px;padding:6px 12px;background:rgba(255,255,255,.05);display:flex;align-items:center;gap:8px}
+.progress{height:6px;width:140px;border:1px solid var(--frame);border-radius:999px;position:relative;background:rgba(255,255,255,.06)}
+.progress>i{position:absolute;inset:0;display:block;background:linear-gradient(90deg,var(--glow),#f2d199);width:0;border-radius:999px;box-shadow:0 0 12px var(--glow)}
+.container{padding:74px 16px 24px;max-width:1200px;margin:0 auto}
+.header{text-align:center;margin-bottom:10px}
+.header h1{margin:0 0 6px;text-shadow:0 0 10px var(--glow)}
+.grid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px}
+.panel{border:1px solid var(--frame);background:rgba(0,0,0,.55);border-radius:14px;padding:14px;box-shadow:0 0 24px rgba(197,139,54,.15) inset}
+.tabs{display:flex;gap:8px;justify-content:center;margin-bottom:10px}
+.tab{border:1px solid var(--frame);background:rgba(255,255,255,.06);color:var(--ink);padding:8px 12px;border-radius:10px;cursor:pointer}
+.tab.active{background:rgba(197,139,54,.2)}
+.section{display:none}
+.section.active{display:block}
+.locked{filter:grayscale(.8) brightness(.75);pointer-events:none}
+.btn{border:1px solid var(--frame);border-radius:10px;background:rgba(255,255,255,.06);color:var(--ink);padding:8px 12px;cursor:pointer}
+.btn.primary{background:rgba(197,139,54,.18)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.small{font-size:.92rem;opacity:.92}
+.mono{font-family:ui-monospace,monospace}
+
+/* ===== AURICULA (耳) ===== */
+#aurWrap{display:grid;gap:10px}
+#aurSvg{width:100%;height:320px;border:1px dashed var(--frame);border-radius:10px;background:radial-gradient(600px 260px at 50% 50%, rgba(255,255,255,.06), rgba(0,0,0,.2))}
+.point{fill:#f4e5c3;stroke:#c58b36;stroke-width:2}
+.ear{fill:#e9b96e}
+#clarity{font-weight:700}
+.inputRow{display:flex;gap:8px;align-items:center}
+
+/* ===== PULMO (肺) ===== */
+#pulWrap{display:grid;gap:10px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.gate{width:230px}
+#water{height:160px;border:1px dashed var(--frame);border-radius:10px;display:grid;align-items:end;justify-items:center;position:relative;overflow:hidden}
+.drop{width:6px;height:10px;background:#9fd3ff;border-radius:3px}
+#stability{height:8px;background:rgba(255,255,255,.08);border:1px solid var(--frame);border-radius:999px;overflow:hidden}
+#stability>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ok),#f2d199)}
+.pulseWrap{display:flex;align-items:center;gap:8px}
+.pulse{width:14px;height:14px;border-radius:50%;border:1px solid var(--frame);background:rgba(197,139,54,.15);box-shadow:0 0 6px rgba(197,139,54,.35);transform:scale(1)}
+.pulse.in{animation:pulseIn 1s infinite}
+.pulse.out{animation:pulseOut 1s infinite}
+@keyframes pulseIn{0%{transform:scale(1)}50%{transform:scale(1.35)}100%{transform:scale(1)}}
+@keyframes pulseOut{0%{transform:scale(1.35)}50%{transform:scale(1)}100%{transform:scale(1.35)}}
+.okTag{border-color:var(--ok);color:var(--ok)}
+
+/* ===== LARYNX (喉) ===== */
+#larWrap{display:grid;gap:10px}
+.meter{height:10px;background:rgba(255,255,255,.08);border:1px solid var(--frame);border-radius:999px;overflow:hidden}
+.meter>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--glow),#f2d199)}
+#beats{display:flex;gap:8px;justify-content:center}
+.beat{width:12px;height:12px;border-radius:50%;border:1px solid var(--frame);background:rgba(255,255,255,.06)}
+.beat.on{background:rgba(197,139,54,.8)}
+
+/* overlay */
+.overlay{position:fixed;inset:0;background:radial-gradient(800px 600px at 50% 40%, rgba(0,0,0,.2), rgba(0,0,0,.9));display:none;place-items:center;z-index:20}
+.overlay .card{width:min(720px,92vw);border:1px solid var(--frame);border-radius:14px;background:rgba(0,0,0,.78);padding:18px;box-shadow:0 0 30px rgba(197,139,54,.25)}
+</style>
+</head>
+<body>
+  <div class="hud">
+    <div class="chip"><strong>三合一密儀</strong>：AURICULA · PULMO · LARYNX</div>
+    <div class="chip">進度
+      <div class="progress"><i id="bar"></i></div>
+      <span id="steps">0 / 3</span>
+    </div>
+    <button id="reset" class="btn">重置</button>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>Veritas Occulta — 聽覺·呼吸·誓言 小實驗（V2）</h1>
+      <p class="small">依序完成：<b>耳（橢圓低語）→ 肺（風壓水鐘）→ 喉（焦點誓詞）</b></p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-t="aur">AURICULA｜耳</button>
+      <button class="tab locked" data-t="pul">PULMO｜肺</button>
+      <button class="tab locked" data-t="lar">LARYNX｜喉</button>
+    </div>
+
+    <!-- 左：互動區 -->
+    <div class="grid">
+      <div class="panel">
+        <div id="aur" class="section active">
+          <div id="aurWrap">
+            <svg id="aurSvg" viewBox="0 0 600 320">
+              <!-- ellipse path -->
+              <ellipse cx="300" cy="160" rx="250" ry="120" fill="none" stroke="#c58b36" stroke-width="1.2"/>
+              <!-- foci -->
+              <circle id="f1" class="point" cx="300-120" cy="160" r="6"/>
+              <circle id="f2" class="point" cx="300+120" cy="160" r="6"/>
+              <!-- ears (draggable) -->
+              <circle id="earA" class="ear" cx="160" cy="160" r="10"/>
+              <circle id="earB" class="ear" cx="440" cy="160" r="10"/>
+              <!-- guidance labels -->
+              <text x="150" y="148" font-size="12">妳</text>
+              <text x="448" y="148" font-size="12">我</text>
+            </svg>
+            <div class="small">把兩個「耳」拖到各自焦點（兩側小點）。對準後清晰度會提升。</div>
+            <div class="inputRow">
+              <label class="mono">耳語：</label>
+              <select id="phrase">
+                <option>LUX</option>
+                <option>IN TENEBRIS</option>
+                <option>LUCET</option>
+              </select>
+              <button id="whisper" class="btn">低語</button>
+              <span>清晰度：<b id="clarity">0%</b></span>
+            </div>
+            <div class="panel small" style="margin:0;padding:10px" id="aurLog">⸺ 等待對準兩焦點…</div>
+          </div>
+        </div>
+
+        <div id="pul" class="section">
+          <div id="pulWrap">
+            <div class="small">把風閘滑到綠區，右側出現 <span class="mono">✅ 可開始</span> 後，跟著閃爍節拍：<b>按住＝吸氣 / 放開＝吐氣</b>。連續 <b>6</b> 次命中即可。</div>
+            <div class="row">
+              <span class="mono">風閘：</span><input id="gate" class="gate" type="range" min="0" max="100" value="62"/>
+              <span id="gateOK" class="chip">風閘：未就緒</span>
+              <span class="pulseWrap"><div id="pulse" class="pulse"></div><span id="phaseLbl" class="small">等待</span></span>
+            </div>
+            <div id="water">
+              <div id="pool" style="position:absolute;inset:auto 0 0 0;height:6px;background:#2b6;opacity:.5"></div>
+              <div id="drops"></div>
+              <div id="zone" style="position:absolute;left:0;right:0;top:0;height:100%;background:repeating-linear-gradient(180deg, rgba(86,211,100,.08) 0 18px, rgba(0,0,0,0) 18px 36px);pointer-events:none"></div>
+            </div>
+            <div class="row">
+              <button id="breathBtn" class="btn primary">按住＝吸 / 放開＝吐</button>
+              <div class="chip">命中：<span class="mono" id="hits">0</span> / <span class="mono" id="req">6</span></div>
+            </div>
+            <div class="small">穩定度：</div>
+            <div id="stability"><i id="stabBar"></i></div>
+            <div id="pulLog" class="panel small" style="margin:0;padding:10px">⸺ 對準風閘綠區後，跟著閃爍吸／吐。</div>
+          </div>
+        </div>
+
+        <div id="lar" class="section">
+          <div id="larWrap">
+            <div class="small">允許麥克風（可選）。跟著四拍朗誦誓詞；即使不開麥，也可用鍵盤 <b>1-2-3-4</b> 在拍點上敲擊。</div>
+            <div class="row"><button id="micBtn" class="btn">啟用麥克風（可選）</button><span id="micState" class="chip">麥克風：未啟用</span></div>
+            <div class="row"><div>殿堂回聲：</div><div class="meter" style="width:220px"><i id="reverbLvl"></i></div></div>
+            <div id="beats"></div>
+            <div class="panel small" style="margin:0 0 8px;padding:10px">誓詞：<b>Caritas | ardens | est lux | veritatis</b>（四拍）</div>
+            <div class="row" style="justify-content:center;gap:8px"><button id="speakBtn" class="btn primary">跟著四拍說 / 或用 1-2-3-4</button><div class="chip">命中：<span class="mono" id="lhits">0</span> / 6</div></div>
+            <div id="larLog" class="panel small" style="margin:8px 0 0;padding:10px">⸺ 等待拍點開始…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：說明與狀態 -->
+      <div class="panel">
+        <h3 style="margin:0 0 8px;text-align:center">說明與狀態</h3>
+        <div id="log" style="min-height:360px;border:1px dashed var(--frame);border-radius:10px;padding:10px;line-height:1.5">⸺ 依序完成三關。從耳開始。</div>
+        <div style="display:flex;justify-content:center;gap:10px;margin-top:8px">
+          <button id="hint" class="btn">提示</button>
+          <button id="sfx" class="btn">音效：關</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="win">
+    <div class="card">
+      <h2 style="margin:0 0 6px;text-align:center">三環既成 —— <span class="mono">Vox caritatis veritatem parit</span></h2>
+      <p style="text-align:center;margin:0 0 12px">愛的聲音，使真理誕生。</p>
+      <div class="mono" style="white-space:pre-wrap;background:rgba(255,255,255,.04);border:1px solid var(--frame);padding:12px;border-radius:10px">🎁 卷匣：
+MDCLXVI 次第完成。
+你在耳裡聽見光，在肺裡共享節律，在喉間說出誓詞。
+—— Caritas ardens est lux veritatis.
+      </div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:12px">
+        <button class="btn" id="closeWin">收起</button>
+        <button class="btn primary" id="restart">重來</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// core state
+const state={step:0, sfx:false, aur:{ok:false}, pul:{ok:false,hits:0, req:6}, lar:{ok:false,hits:0, mic:false}};
+const $=id=>document.getElementById(id); const log=$('log'); function logLine(t){log.innerHTML+='<div>• '+t+'</div>'; log.scrollTop=log.scrollHeight}
+const bar=$('bar'); const steps=$('steps'); function updateProgress(){const n=['aur','pul','lar'].filter(k=>state[k]?.ok).length; steps.textContent=n+' / 3'; bar.style.width=Math.round(n/3*100)+'%'; if(n===3){ setTimeout(()=>$('win').style.display='grid',600) }}
+$('reset').addEventListener('click',()=>location.reload());
+$('hint').addEventListener('click',()=>alert('順序：耳→肺→喉。\n耳：把兩個耳拖到兩個焦點（橢圓小點），再依序低語 LUX / IN TENEBRIS / LUCET。\n肺：風閘調到綠區（顯示 ✅ 可開始），跟著閃爍按住/放開，連續 6 次命中。\n喉：可開麥，跟四拍說四段誓詞，或按鍵 1-2-3-4 在拍點上。'))
+$('sfx').addEventListener('click',e=>{state.sfx=!state.sfx; e.target.textContent='音效：'+(state.sfx?'開':'關')});
+
+// tab switching
+Array.from(document.querySelectorAll('.tab')).forEach(t=>t.addEventListener('click',()=>{
+  if(t.classList.contains('locked')) return; Array.from(document.querySelectorAll('.tab')).forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  Array.from(document.querySelectorAll('.section')).forEach(s=>s.classList.remove('active')); document.getElementById(t.dataset.t).classList.add('active');
+}));
+function unlockTab(key){const btn=document.querySelector('.tab[data-t="'+key+'"]'); btn.classList.remove('locked');}
+
+// ===== AURICULA ===== //
+const aurSvg=$('aurSvg'); const f1=$('f1'); const f2=$('f2'); const earA=$('earA'); const earB=$('earB'); const clarityEl=$('clarity'); const aurLog=$('aurLog');
+// set focus coords explicitly
+const F1={x:180,y:160}; const F2={x:420,y:160}; f1.setAttribute('cx',F1.x); f1.setAttribute('cy',F1.y); f2.setAttribute('cx',F2.x); f2.setAttribute('cy',F2.y);
+let A={x:160,y:160}, B={x:440,y:160}; function setEar(el,p){el.setAttribute('cx',p.x); el.setAttribute('cy',p.y)}; setEar(earA,A); setEar(earB,B);
+function drag(el, onmove){ let dragging=false; aurSvg.addEventListener('pointerdown',e=>{ if(e.target===el){ dragging=true; el.setPointerCapture(e.pointerId);} });
+  aurSvg.addEventListener('pointermove',e=>{ if(!dragging) return; const pt=svgPoint(e); onmove(pt) });
+  aurSvg.addEventListener('pointerup',()=>dragging=false) }
+function svgPoint(e){ const r=aurSvg.getBoundingClientRect(); return {x:(e.clientX-r.left)/r.width*600, y:(e.clientY-r.top)/r.height*320} }
+drag(earA,p=>{A=p; setEar(earA,A); updateClarity()}); drag(earB,p=>{B=p; setEar(earB,B); updateClarity()});
+function dist(p,q){return Math.hypot(p.x-q.x,p.y-q.y)}
+function updateClarity(){ const dA=dist(A,F1); const dB=dist(B,F2); const score=Math.max(0,100- (Math.abs(dA)+Math.abs(dB)) / 2 ); const cl=Math.min(100, Math.round(score)); clarityEl.textContent=cl+'%'; if(cl>92){ aurLog.textContent='焦點對準。耳語將清晰合字。'; } else { aurLog.textContent='⸺ 對準中……靠近兩側小點以提升清晰度。' } return cl }
+function degrade(text,cl){ if(cl>=92) return text; const keep=Math.max(2, Math.round(text.length*cl/100)); let out=''; for(let i=0;i<text.length;i++){ if(i<keep || /\s/.test(text[i])) out+=text[i]; else out+= (i%2? '·' : '') } return out }
+const phraseSel=$('phrase'); $('whisper').addEventListener('click',()=>{ const cl=updateClarity(); const ph=phraseSel.value; const heard=degrade(ph,cl); aurLog.innerHTML+='<div>你低語：<b>'+ph+'</b> → 長廊在我耳邊回成：<b>'+heard+'</b></div>'; aurLog.scrollTop=aurLog.scrollHeight; checkAurProgress(ph, cl) })
+let aurSeq=0; function checkAurProgress(ph,cl){ const seq=['LUX','IN TENEBRIS','LUCET']; if(cl<92){ return } if(ph===seq[aurSeq]){ aurSeq++; if(aurSeq===3){ state.aur.ok=true; logLine('✔ 耳：兩焦點低語完成。'); unlockTab('pul'); updateProgress(); document.querySelector('.tab[data-t="pul"]').click(); } else { logLine('很好。下一句：'+seq[aurSeq]) } } else { logLine('順序不對，請依序：LUX → IN TENEBRIS → LUCET') } }
+
+// ===== PULMO ===== //
+const gate=$('gate'); const gateOK=$('gateOK'); const pulse=$('pulse'); const phaseLbl=$('phaseLbl'); const water=$('water'); const drops=$('drops'); const breathBtn=$('breathBtn'); const hitsEl=$('hits'); const reqEl=$('req'); const stabBar=$('stabBar'); const pulLog=$('pulLog');
+let T=8000; let lastDrop=performance.now(); let intervals=[]; const GOOD_MIN=56, GOOD_MAX=68; const TOL=0.15; // 寬鬆許可窗
+reqEl.textContent=state.pul.req;
+function updateGate(){ const v=Number(gate.value); const ok=(v>=GOOD_MIN && v<=GOOD_MAX); gateOK.textContent= ok? '✅ 可開始' : '風閘：未就緒'; gateOK.classList.toggle('okTag', ok); return ok }
+updateGate(); gate.addEventListener('input',updateGate);
+function addDrop(){ const d=document.createElement('div'); d.className='drop'; d.style.transform=`translateY(-140px)`; d.style.opacity='0.9'; drops.appendChild(d); const x=300+ (Math.random()*40-20); d.style.position='absolute'; d.style.left=x+'px'; d.animate([{transform:'translateY(-140px)'},{transform:'translateY(0)'}],{duration:1200, easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>{d.remove(); const pool=$('pool'); pool.style.height=Math.min(40, parseInt(pool.style.height)||6 + 0.8)+'px' } }
+function variance(a){ if(a.length<2) return 1e6; const m=a.reduce((x,y)=>x+y,0)/a.length; return a.reduce((s,v)=>s+(v-m)*(v-m),0)/a.length }
+function phase(t){ return ((t%T)/T) }
+function pulTick(){ const now=performance.now(); const base= 900 + (1000 - gate.value*6); if(now-lastDrop>base){ addDrop(); intervals.push(now-lastDrop); if(intervals.length>16) intervals.shift(); lastDrop=now; const v=variance(intervals); const stab = Math.max(0, Math.min(1, 1 - (v/40000))); stabBar.style.width=(stab*100)+'%'; }
+  // phase visual
+  const ph=phase(now); const inhale = ph<0.5; pulse.classList.toggle('in', inhale); pulse.classList.toggle('out', !inhale); phaseLbl.textContent = inhale? '吸氣（按住）' : '吐氣（放開）';
+  requestAnimationFrame(pulTick)
+}
+requestAnimationFrame(pulTick)
+function checkHit(expect){ if(!updateGate()){ pulLog.textContent='風閘未就緒，先滑到綠區（顯示 ✅ 可開始）。'; return } const t=performance.now(); const ph=phase(t); const target = expect==='inhale'?0:0.5; const d = Math.min(Math.abs(ph-target), 1-Math.abs(ph-target)); if(d<TOL){ state.pul.hits++; hitsEl.textContent=state.pul.hits; pulLog.textContent='命中節拍 '+state.pul.hits+'/'+state.pul.req; if(state.pul.hits>=state.pul.req){ state.pul.ok=true; logLine('✔ 肺：風壓與呼吸同頻。'); unlockTab('lar'); updateProgress(); document.querySelector('.tab[data-t="lar"]').click(); } } else { state.pul.hits=Math.max(0,state.pul.hits-1); hitsEl.textContent=state.pul.hits; pulLog.textContent='偏離拍點，跟著閃爍同步即可。' } }
+
+breathBtn.addEventListener('mousedown',()=>{ checkHit('inhale') }); breathBtn.addEventListener('mouseup',()=>{ checkHit('exhale') })
+
+// ===== LARYNX ===== //
+const micBtn=$('micBtn'); const micState=$('micState'); const reverbLvl=$('reverbLvl'); const lhits=$('lhits'); const speakBtn=$('speakBtn'); const larLog=$('larLog');
+let ctx=null, src=null, convolver=null, analyser=null; let beatIdx=0, beatTimer=null; const beats=$('beats');
+function makeBeats(){ beats.innerHTML=''; for(let i=0;i<4;i++){ const b=document.createElement('div'); b.className='beat'; beats.appendChild(b) } }
+makeBeats();
+function setBeat(i){ Array.from(beats.children).forEach((b,idx)=>{ b.classList.toggle('on', idx===i) }) }
+function startBeat(){ if(beatTimer) return; beatIdx=0; setBeat(beatIdx); larLog.textContent='跟著四拍朗誦或按 1-2-3-4。'; beatTimer=setInterval(()=>{ beatIdx=(beatIdx+1)%4; setBeat(beatIdx) }, 1000) }
+function stopBeat(){ clearInterval(beatTimer); beatTimer=null }
+function rmsFromAnalyser(){ if(!analyser) return 0; const arr=new Uint8Array(analyser.fftSize); analyser.getByteTimeDomainData(arr); let sum=0; for(let i=0;i<arr.length;i++){ const v=(arr[i]-128)/128; sum+=v*v } return Math.sqrt(sum/arr.length) }
+function setupAudio(stream){ ctx=new (window.AudioContext||window.webkitAudioContext)(); src=ctx.createMediaStreamSource(stream); convolver=ctx.createConvolver(); analyser=ctx.createAnalyser(); analyser.fftSize=2048; convolver.buffer=makeImpulse(ctx); const gain=ctx.createGain(); gain.gain.value=0.8; src.connect(convolver); convolver.connect(gain); gain.connect(analyser); analyser.connect(ctx.destination); state.lar.mic=true; micState.textContent='麥克風：已啟用';
+  function loop(){ const v=rmsFromAnalyser(); reverbLvl.style.width=Math.min(100, Math.round(v*200))+'%'; requestAnimationFrame(loop) } requestAnimationFrame(loop)
+}
+function makeImpulse(ctx){ const len=ctx.sampleRate*1.2; const buf=ctx.createBuffer(2,len,ctx.sampleRate); for(let ch=0; ch<2; ch++){ const data=buf.getChannelData(ch); for(let i=0;i<len;i++){ data[i]+= (Math.random()*2-1)*Math.pow(1-i/len,2)*0.02 }
+    [0.05,0.12,0.24,0.42,0.78].forEach((t,idx)=>{ const p=Math.floor(t*ctx.sampleRate); for(let k=0;k<400;k++){ const j=p+k; if(j<len) data[j]+= (0.28/(idx+1))*Math.exp(-k/400) } })
+  }
+  return buf }
+micBtn.addEventListener('click',async()=>{ try{ const stream=await navigator.mediaDevices.getUserMedia({audio:true}); setupAudio(stream); logLine('麥克風就緒：你的聲音將被穹頂回聲放大。'); }catch(e){ logLine('未授權麥克風，改用鍵盤節拍模式也可通關。') } });
+
+function scoreHit(){ state.lar.hits++; lhits.textContent=state.lar.hits; if(state.lar.hits>=6){ state.lar.ok=true; logLine('✔ 喉：誓詞被穹頂放大。'); updateProgress(); } }
+function onBeatAction(){ if(!beatTimer) startBeat(); scoreHit(); if(state.lar.ok){ setTimeout(()=>$('win').style.display='grid',600) } }
+window.addEventListener('keydown',e=>{ if(['1','2','3','4'].includes(e.key)){ onBeatAction() } });
+
+speakBtn.addEventListener('click',()=>{ if(!beatTimer) startBeat(); larLog.textContent='跟著 1-2-3-4 四拍說四段；或按 1-2-3-4。' })
+
+// init
+logLine('開始於「耳」。把兩個耳拖到焦點，再依序低語三句。');
+
+$('closeWin').addEventListener('click',()=>$('win').style.display='none');
+$('restart').addEventListener('click',()=>location.reload());
+</script>
+</body>
+</html>
