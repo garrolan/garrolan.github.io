@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Veritas Occulta — LUX·ORDO·CARITAS</title>
+<style>
+  :root{--ink:#f4e5c3;--glow:#c58b36;--bg1:#0b0b0b;--bg2:#1e1a1a;--frame:#604e3d;--ok:#56d364;--warn:#e9b96e;--danger:#e74c3c}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:"Cinzel",ui-serif,Georgia,serif;background:radial-gradient(1200px 900px at 50% 35%,var(--bg2),var(--bg1));min-height:100vh}
+  .hud{position:fixed;inset:0 0 auto 0;display:flex;gap:14px;justify-content:center;align-items:center;padding:10px;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,0));z-index:9}
+  .chip{border:1px solid var(--frame);border-radius:999px;padding:6px 12px;background:rgba(255,255,255,.05);display:flex;align-items:center;gap:8px}
+  .timer{font-variant-numeric:tabular-nums}
+  .progress{height:6px;width:130px;border:1px solid var(--frame);border-radius:999px;position:relative;background:rgba(255,255,255,.06)}
+  .progress>i{position:absolute;inset:0;display:block;background:linear-gradient(90deg,var(--glow),#f2d199);width:0;border-radius:999px;box-shadow:0 0 12px var(--glow)}
+  .container{padding:80px 18px 24px;max-width:1200px;margin:0 auto}
+  h1{margin:0 0 6px;text-align:center;text-shadow:0 0 10px var(--glow)}
+  p.lead{opacity:.9;text-align:center;margin:0 0 16px}
+  .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+  .panel{border:1px solid var(--frame);background:rgba(0,0,0,.55);border-radius:14px;padding:14px;box-shadow:0 0 24px rgba(197,139,54,.15) inset}
+  .sec{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .card{border:1px solid var(--frame);background:rgba(255,255,255,.04);border-radius:12px;padding:12px;position:relative}
+  .card.locked{filter:grayscale(.8) brightness(.7);pointer-events:none}
+  .card h3{margin:0 0 6px;text-align:center}
+  .hint{opacity:.85;font-size:.95rem;text-align:center;margin:-4px 0 8px}
+  .glow{box-shadow:0 0 14px rgba(197,139,54,.45)}
+  .ok{color:var(--ok)}
+  .btn{border:1px solid var(--frame);border-radius:10px;background:rgba(255,255,255,.06);color:var(--ink);padding:8px 12px;cursor:pointer}
+  .btn.primary{background:rgba(197,139,54,.18)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+
+  /* LUX (optics) */
+  #luxWrap{display:grid;gap:10px}
+  #luxSvg{width:100%;height:260px;border:1px dashed var(--frame);border-radius:10px;background:radial-gradient(600px 260px at 10% 10%, rgba(255,255,255,.06), rgba(0,0,0,.2))}
+  .slider{width:100%}
+  .row{display:flex;align-items:center;gap:10px}
+
+  /* ORDO (cipher) */
+  #ordoWrap{display:grid;gap:10px}
+  .wheel{width:260px;height:260px;margin:0 auto;border:1px solid var(--frame);border-radius:50%;position:relative;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.04),rgba(0,0,0,.3))}
+  .wheel button{position:absolute;transform:translate(-50%,-50%);border:1px solid var(--frame);background:rgba(197,139,54,.12);color:var(--ink);border-radius:10px;padding:6px 10px;cursor:pointer}
+  .textplate{min-height:84px;border:1px dashed var(--frame);border-radius:10px;padding:10px;text-align:center;letter-spacing:.12rem}
+  .seq{font-family:ui-monospace,monospace}
+
+  /* CARITAS (sync) */
+  #caritasWrap{display:grid;gap:10px}
+  .hands{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .hand{border:1px solid var(--frame);border-radius:10px;padding:10px;text-align:center}
+  .bar{height:8px;background:rgba(255,255,255,.08);border:1px solid var(--frame);border-radius:999px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--glow),#f2d199);box-shadow:0 0 12px var(--glow)}
+  .ring{width:240px;height:240px;margin:0 auto;border:1px solid var(--frame);border-radius:50%;display:grid;place-items:center;position:relative;background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.04), rgba(0,0,0,.25))}
+  .ring .guide{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 18px rgba(197,139,54,.3) inset}
+  .ring .dot{width:16px;height:16px;border-radius:50%;background:var(--warn);box-shadow:0 0 10px var(--warn)}
+  .centerRow{display:flex;justify-content:center;gap:10px}
+  .mono{font-family:ui-monospace,monospace}
+
+  /* Overlay */
+  .overlay{position:fixed;inset:0;background:radial-gradient(800px 600px at 50% 40%, rgba(0,0,0,.2), rgba(0,0,0,.9));display:none;place-items:center;z-index:20}
+  .overlay .card{width:min(720px,92vw);border:1px solid var(--frame);border-radius:14px;background:rgba(0,0,0,.78);padding:18px;box-shadow:0 0 30px rgba(197,139,54,.25)}
+</style>
+</head>
+<body>
+  <div class="hud">
+    <div class="chip"><strong>儀式</strong>：LUX · ORDO · CARITAS</div>
+    <div class="chip">⏳ <span id="timer" class="timer">04:00</span></div>
+    <div class="chip" style="gap:10px">進度
+      <div class="progress"><i id="bar"></i></div>
+      <span id="stepsTxt">0 / 3</span>
+    </div>
+    <button id="startBtn" class="btn primary">開始儀式</button>
+    <button id="resetBtn" class="btn" style="display:none">重來</button>
+  </div>
+
+  <div class="container">
+    <h1>Veritas Occulta — 地心密儀</h1>
+    <p class="lead">以光校正、以序抽字、以愛同頻。完成三環，真理之門將再度開啟。</p>
+    <div class="grid">
+      <div class="panel">
+        <div class="sec">
+          <!-- LUX -->
+          <div id="luxCard" class="card">
+            <h3>LUX · 光</h3>
+            <div class="hint">旋轉鏡面，讓入射光反射後穿過銅孔（綠圈）。</div>
+            <div id="luxWrap">
+              <svg id="luxSvg" viewBox="0 0 400 260">
+                <!-- aperture -->
+                <circle id="aperture" cx="360" cy="200" r="12" fill="#193" stroke="#6fdc7d" stroke-width="2"/>
+                <!-- incident source -->
+                <circle cx="40" cy="40" r="6" fill="#f4e5c3"/>
+                <!-- incident ray -->
+                <line id="rayIn" x1="40" y1="40" x2="200" y2="130" stroke="#f4e5c3" stroke-width="2"/>
+                <!-- mirror -->
+                <line id="mirror" x1="160" y1="130" x2="240" y2="130" stroke="#c58b36" stroke-width="4"/>
+                <!-- reflected ray -->
+                <line id="rayOut" x1="200" y1="130" x2="320" y2="210" stroke="#ffd27a" stroke-width="2"/>
+              </svg>
+              <div class="row"><span class="mono">鏡面角度：</span><input id="luxAngle" class="slider" type="range" min="-80" max="80" step="1" value="-10"/></div>
+              <div class="row mono"><span>偏差：</span><span id="luxErr">——</span></div>
+            </div>
+          </div>
+
+          <!-- ORDO -->
+          <div id="ordoCard" class="card locked">
+            <h3>ORDO · 秩序</h3>
+            <div class="hint">按 <b>MDCLXVI</b> 的順序點亮環形按鍵，抽出經文。</div>
+            <div id="ordoWrap">
+              <div class="wheel" id="wheel"></div>
+              <div class="textplate mono" id="ordoText">（等待秩序）</div>
+            </div>
+          </div>
+
+          <!-- CARITAS -->
+          <div id="caritasCard" class="card locked">
+            <h3>CARITAS · 愛</h3>
+            <div class="hint">先以掌心「溫熱」兩板，再以呼吸同頻 4 次。</div>
+            <div id="caritasWrap">
+              <div class="hands">
+                <div class="hand"><div>你的掌</div><div class="bar"><i id="warmA"></i></div><div style="margin-top:6px"><button id="holdA" class="btn">按住加熱</button></div></div>
+                <div class="hand"><div>我的掌</div><div class="bar"><i id="warmB"></i></div><div style="margin-top:6px"><button id="holdB" class="btn">按住加熱</button></div></div>
+              </div>
+              <div id="breathSec" style="display:none">
+                <div class="ring" id="ring">
+                  <div class="guide" id="guide"></div>
+                  <div class="dot" id="dot"></div>
+                </div>
+                <div class="centerRow" style="margin-top:8px">
+                  <button id="breathBtn" class="btn">按住＝吸氣 / 放開＝吐氣</button>
+                  <div class="chip">同步命中：<span class="mono" id="hits">0</span> / 4</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 style="margin:0 0 8px;text-align:center">說明與進度</h3>
+        <div id="log" style="min-height:340px;border:1px dashed var(--frame);border-radius:10px;padding:10px;line-height:1.5">
+          ⸺ 儀式尚未開始。先按上方「開始儀式」。
+        </div>
+        <div style="display:flex;justify-content:center;margin-top:10px;gap:10px">
+          <button id="hintBtn" class="btn">提示</button>
+          <button id="sfxBtn" class="btn">音效：關</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="win">
+    <div class="card">
+      <h2 style="margin:0 0 6px;text-align:center">門再度開啟 —— <span class="mono">Veritas Occulta</span></h2>
+      <p style="text-align:center;margin:0 0 12px">Caritas ardens est lux veritatis.</p>
+      <div class="mono" style="white-space:pre-wrap;background:rgba(255,255,255,.04);border:1px solid var(--frame);padding:12px;border-radius:10px">
+📜 新的卷匣座標：
+AURICULA（耳）— 里奧納多長廊之陰影
+PULMO（肺）— 單殿風孔與水鐘之交
+LARYNX（喉）— 十字臂之上，蜂徽之下
+      </div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:12px">
+        <button class="btn" id="closeWin">收起</button>
+        <button class="btn primary" id="restart">重啟儀式</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ------- Core State -------
+const state = {started:false,time:240,timerId:null,steps:{lux:false,ordo:false,caritas:false},sfx:false,hits:0};
+const byId = id => document.getElementById(id);
+const timerEl = byId('timer');
+const bar = byId('bar');
+const stepsTxt = byId('stepsTxt');
+const log = byId('log');
+function logLine(t){log.innerHTML += "<div>• "+t+"</div>";log.scrollTop = log.scrollHeight}
+function setTimerUI(){const m=Math.max(0,state.time);timerEl.textContent=String(Math.floor(m/60)).padStart(2,'0')+":"+String(m%60).padStart(2,'0')}
+function tick(){state.time--;setTimerUI(); if(state.time<=0){clearInterval(state.timerId);fail()}}
+function start(){ if(state.started) return; state.started=true; byId('startBtn').style.display='none'; byId('resetBtn').style.display='inline-block'; state.timerId=setInterval(tick,1000); log.innerHTML='🕯️ 儀式啟動。先完成 LUX。'; enableCard('luxCard',true) }
+function reset(){location.reload()}
+function updateProgress(){const n=Object.values(state.steps).filter(Boolean).length; stepsTxt.textContent = n+' / 3'; bar.style.width = Math.round(n/3*100)+'%'; if(n===3){ setTimeout(()=>byId('win').style.display='grid',500) }}
+function enableCard(id,on){const el=byId(id); if(on){el.classList.remove('locked'); el.classList.add('glow')} else {el.classList.add('locked'); el.classList.remove('glow')}}
+function fail(){logLine('⛓️ 時間已盡。密儀沉睡。按「重來」。'); ['luxCard','ordoCard','caritasCard'].forEach(id=>enableCard(id,false))}
+byId('startBtn').addEventListener('click',start); byId('resetBtn').addEventListener('click',reset)
+byId('closeWin').addEventListener('click',()=>byId('win').style.display='none'); byId('restart').addEventListener('click',reset)
+byId('hintBtn').addEventListener('click',()=>alert('順序：LUX→ORDO→CARITAS。\nLUX：把反射光對準綠圈。\nORDO：依 MDCLXVI 點環形按鍵。\nCARITAS：兩掌各加熱 3 秒，再跟著節拍吸吐 4 次。'))
+
+// ------- SFX (beeps) -------
+let audioCtx=null; function beep(freq,ms){ if(!state.sfx) return; if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.frequency.value=freq; o.type='sine'; o.connect(g); g.connect(audioCtx.destination); o.start(); g.gain.setValueAtTime(.08,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+ms/1000); o.stop(audioCtx.currentTime+ms/1000) }
+byId('sfxBtn').addEventListener('click',e=>{state.sfx=!state.sfx; e.target.textContent='音效：'+(state.sfx?'開':'關')})
+
+// ------- LUX (optics) -------
+const luxSvg = byId('luxSvg'); const mirror = byId('mirror'); const rayOut = byId('rayOut'); const luxAngle = byId('luxAngle'); const luxErr = byId('luxErr');
+const pivot = {x:200,y:130}; const source = {x:40,y:40}; const aperture = {x:360,y:200,r:12};
+function unit(v){const L=Math.hypot(v.x,v.y); return {x:v.x/L,y:v.y/L}}
+function drawMirror(theta){ // theta in degrees
+  const rad = theta*Math.PI/180; const u={x:Math.cos(rad),y:Math.sin(rad)}; const len=40; mirror.setAttribute('x1',pivot.x-u.x*len); mirror.setAttribute('y1',pivot.y-u.y*len); mirror.setAttribute('x2',pivot.x+u.x*len); mirror.setAttribute('y2',pivot.y+u.y*len); return u }
+function reflect(vi, u){ // u=mirror direction unit, normal n=perp(u)
+  const n={x:-u.y,y:u.x}; const dot = vi.x*n.x+vi.y*n.y; return {x:vi.x-2*dot*n.x, y:vi.y-2*dot*n.y}
+}
+function setLux(theta){ const u=drawMirror(theta); const vi=unit({x:pivot.x-source.x,y:pivot.y-source.y}); const vr=unit(reflect(vi,u)); const end={x:pivot.x+vr.x*1000, y:pivot.y+vr.y*1000}; rayOut.setAttribute('x1',pivot.x); rayOut.setAttribute('y1',pivot.y); rayOut.setAttribute('x2',end.x); rayOut.setAttribute('y2',end.y);
+  // distance from ray to aperture center
+  const w={x:aperture.x-pivot.x,y:aperture.y-pivot.y}; const t=w.x*vr.x + w.y*vr.y; const proj={x:pivot.x+vr.x*t, y:pivot.y+vr.y*t}; const dist=Math.hypot(proj.x-aperture.x, proj.y-aperture.y);
+  luxErr.textContent = dist<1e6 ? dist.toFixed(1)+' px' : '∞'; if(t>0 && dist<=aperture.r){ completeLux() }
+}
+function completeLux(){ if(state.steps.lux) return; state.steps.lux=true; enableCard('luxCard',false); enableCard('ordoCard',true); logLine('✔ 光已對準：上方的十字被攝入地心。進入 ORDO。'); updateProgress(); beep(660,120) }
+luxAngle.addEventListener('input',e=>{ if(!state.started) start(); setLux(parseFloat(e.target.value)) });
+// init
+setLux(parseFloat(luxAngle.value));
+
+// ------- ORDO (cipher MDCLXVI) -------
+const order=['M','D','C','L','X','V','I']; let idx=0; const wheel=byId('wheel'); const ordoText=byId('ordoText');
+function polar(cx,cy,r,deg){const a=deg*Math.PI/180; return {left:cx+r*Math.cos(a)+'px', top:cy+r*Math.sin(a)+'px'} }
+function buildWheel(){ const cx=130, cy=130, r=100; const letters=['M','D','C','L','X','V','I']; const base= -90; letters.forEach((ch,i)=>{ const b=document.createElement('button'); b.textContent=ch; const p=polar(cx,cy,r, base + i*(360/letters.length)); b.style.left=p.left; b.style.top=p.top; b.addEventListener('click',()=>clickLetter(ch,b)); wheel.appendChild(b) }) }
+function clickLetter(ch,btn){ if(!state.started) start(); if(!state.steps.lux){ logLine('（先完成 LUX）'); return } if(ch===order[idx]){ idx++; btn.style.background='rgba(86,211,100,.25)'; btn.style.borderColor='var(--ok)'; beep(520+idx*40,90); if(idx===order.length){ completeOrdo() } else { ordoText.innerHTML = '序列 <span class="seq">'+order.slice(0,idx).join('')+'</span> ／ 目標 MDCLXVI' } } else { // reset
+  idx=0; [...wheel.querySelectorAll('button')].forEach(b=>{b.style.background='rgba(197,139,54,.12)'; b.style.borderColor='var(--frame)'}); ordoText.textContent='（順序錯誤，重新開始）'; beep(180,200)
+} }
+function completeOrdo(){ state.steps.ordo=true; enableCard('ordoCard',false); enableCard('caritasCard',true); ordoText.innerHTML = '<b>LUX IN TENEBRIS LUCET</b>'; logLine('✔ 秩序確立：經文自海中浮出。進入 CARITAS。'); updateProgress(); beep(720,140) }
+buildWheel();
+
+// ------- CARITAS (warm & breathe sync) -------
+const warmA = byId('warmA'); const warmB = byId('warmB'); const holdA = byId('holdA'); const holdB = byId('holdB'); const breathSec = byId('breathSec'); const ring = byId('ring'); const dot = byId('dot'); const guide = byId('guide'); const breathBtn = byId('breathBtn'); const hitsEl = byId('hits');
+let heatA=0, heatB=0, heatIntA=null, heatIntB=null;
+function warm(el,dir){ const inc=dir?1:-1; const id=setInterval(()=>{ if(!state.started) start(); if((dir && el.v>=100) || (!dir && el.v<=0)){clearInterval(id);return} el.v= (el.v||0) + inc; el.style.width=el.v+'%'; },20); return id }
+holdA.addEventListener('mousedown',()=>{ if(!state.steps.ordo) return; heatIntA=warm(warmA,true) });
+holdA.addEventListener('mouseup',()=>clearInterval(heatIntA));
+holdB.addEventListener('mousedown',()=>{ if(!state.steps.ordo) return; heatIntB=warm(warmB,true) });
+holdB.addEventListener('mouseup',()=>clearInterval(heatIntB));
+setInterval(()=>{ if(warmA.v>=100 && warmB.v>=100 && breathSec.style.display==='none'){ breathSec.style.display='block'; logLine('掌溫就緒。以 8 秒一循環的節拍：按住＝吸，放開＝吐。連續命中 4 次。') } },200)
+
+// breathing sync
+const T=8000; // period ms
+let pressing=false; function phase(t){ return ((t%T)/T) } // 0..1
+function updateBreath(){ const t=performance.now(); const ph=phase(t);
+  // guide ring pulsate via scale
+  const s = 0.78 + 0.18*(1-Math.cos(2*Math.PI*ph))/2; ring.style.transform=`scale(${s})`;
+  // dot: show current intended state boundary at 0 and .5; place dot at angle for flavor
+  dot.style.transform = `translateY(${Math.sin(2*Math.PI*ph)*40}px)`
+  requestAnimationFrame(updateBreath)
+}
+requestAnimationFrame(updateBreath)
+function checkHit(expect){ const t=performance.now(); const ph=phase(t); const target = expect==="inhale"?0:0.5; const d = Math.min(Math.abs(ph-target), 1-Math.abs(ph-target)); if(d<0.08){ state.hits++; hitsEl.textContent=state.hits; beep(600+state.hits*60,80); if(state.hits>=4){ completeCaritas() } } else { state.hits=Math.max(0,state.hits-1); hitsEl.textContent=state.hits; beep(200,80) } }
+breathBtn.addEventListener('mousedown',()=>{ if(!state.steps.ordo) return; pressing=true; checkHit('inhale') })
+breathBtn.addEventListener('mouseup',()=>{ if(!state.steps.ordo) return; pressing=false; checkHit('exhale') })
+function completeCaritas(){ if(state.steps.caritas) return; state.steps.caritas=true; enableCard('caritasCard',false); logLine('✔ 同頻完成：Ubi caritas, ibi Deus est.'); updateProgress(); beep(880,160) }
+
+// init end
+setTimerUI();
+</script>
+</body>
+</html>
