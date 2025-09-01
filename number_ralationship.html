@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>數量關係互動組｜和不變・差不變・積不變・商不變・堆疊</title>
+<style>
+  :root{
+    --bg:#0b0c10; --card:#111318; --ink:#eaeef5; --muted:#9aa3af; --accent:#57cc99; --warn:#f59e0b; --err:#ef4444;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans TC,Arial; background:linear-gradient(180deg,#0b0c10,#111318); color:var(--ink)}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px}
+  header{position:sticky;top:0;background:rgba(11,12,16,0.75);backdrop-filter:blur(8px);z-index:10}
+  h1{font-size:24px;margin:8px 0 12px;letter-spacing:1px}
+  nav{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+  .tab{flex:1 1 150px;padding:12px 14px;border-radius:14px;border:1px solid #2a2f39;background:#141821;color:var(--ink);cursor:pointer;text-align:center;font-size:16px}
+  .tab[aria-selected="true"]{background:var(--accent);color:#04130c;border-color:#74d8ad;font-weight:700}
+  .card{background:var(--card);border:1px solid #202532;border-radius:18px;padding:16px;margin:10px 0;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+  .grid{display:grid;gap:14px}
+  @media(min-width:900px){.grid.two{grid-template-columns:1.2fr .9fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+  .controls label{display:block;font-size:14px;color:var(--muted);margin-bottom:4px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  input[type="range"]{width:220px}
+  input[type="number"], select{background:#0f131a;color:var(--ink);border:1px solid #2b3240;border-radius:10px;padding:8px 10px;font-size:16px;min-width:90px}
+  .btn{background:#1b2230;border:1px solid #2c3445;color:var(--ink);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600}
+  .btn.primary{background:var(--accent);color:#06241a;border-color:#79dcb0}
+  .btn.ghost{background:transparent;border-color:#384152}
+  .big{font-size:22px;font-weight:800}
+  .kv{display:flex;gap:18px;flex-wrap:wrap}
+  .pill{padding:8px 12px;border-radius:999px;border:1px solid #2d3546;background:#0f141b}
+  .pill.good{background:#0e201a;border-color:#2c624e}
+  .pill.warn{background:#221a0e;border-color:#7a5d11}
+  .pill.err{background:#2a1212;border-color:#7b2323}
+  canvas{width:100%;height:400px;background:#0a0c11;border:1px solid #232a36;border-radius:14px}
+  .barstrip{position:relative;height:24px;background:#0d1118;border:1px solid #2a3140;border-radius:12px;overflow:hidden}
+  .barA{position:absolute;left:0;top:0;bottom:0;background:#fbbf24}
+  .barB{position:absolute;right:0;top:0;bottom:0;background:#ef4444}
+  .numline{position:relative;height:14px;background:#0d1118;border:1px solid #2a3140;border-radius:10px;margin:12px 0}
+  .tick{position:absolute;top:-6px;width:2px;height:26px;background:#2a3140}
+  .handle{position:absolute;top:-6px;width:12px;height:26px;background:#57cc99;border:2px solid #79dcb0;border-radius:6px;transform:translateX(-6px)}
+  .note{color:var(--muted);font-size:13px}
+  .foot{margin-top:14px;color:#9aa3af;font-size:12px}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1>數量關係互動組（五頁）</h1>
+  <nav id="tabs"></nav>
+</header>
+<main class="wrap">
+  <!-- Panels -->
+  <section id="panel-sum" class="panel" hidden>
+    <div class="card grid two">
+      <div>
+        <h2>和不變｜圓餅圖</h2>
+        <div class="controls">
+          <div class="row" style="gap:16px">
+            <label>模式</label>
+            <select id="sumMode">
+              <option value="24h">24 小時（黑/白）</option>
+              <option value="custom">自訂總數（黃/紅）</option>
+            </select>
+            <label>總數</label>
+            <input id="sumTotal" type="number" value="24" min="1" max="360" step="1" />
+            <label>圓心角（A 部分）</label>
+            <input id="sumAngle" type="range" min="0" max="360" step="1" value="12"/>
+          </div>
+        </div>
+        <canvas id="sumPie"></canvas>
+      </div>
+      <div>
+        <div class="card">
+          <div class="big">即時數值</div>
+          <div class="kv" id="sumKVs"></div>
+          <div class="foot note">固定 12 點方向為一個半徑，拖動圓心角改變 A、B；所有數值四捨五入為整數，A+B 永遠等於總數。</div>
+        </div>
+        <div class="card">
+          <h3>和不變｜水平拉條</h3>
+          <div class="controls">
+            <div class="row">
+              <label>總數</label>
+              <input id="sumBarTotal" type="number" value="100" min="1" max="1000" step="1" />
+              <label>A 值</label>
+              <input id="sumBarA" type="range" min="0" max="100" step="1" value="30" />
+            </div>
+          </div>
+          <div class="barstrip" id="sumStrip">
+            <div class="barA"></div>
+            <div class="barB"></div>
+          </div>
+          <div class="kv" id="sumBarKVs"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-diff" class="panel" hidden>
+    <div class="card grid two">
+      <div>
+        <h2>差不變｜雙點數線</h2>
+        <div class="controls">
+          <div class="row">
+            <label>數線範圍</label>
+            <input id="diffMax" type="number" value="100" min="10" max="1000" step="10" />
+            <label>固定差 D</label>
+            <input id="diffD" type="number" value="20" min="-500" max="500" step="1" />
+          </div>
+          <div class="row">
+            <label>平移整組</label>
+            <input id="diffShift" type="range" min="0" max="100" step="1" value="40" />
+          </div>
+        </div>
+        <div class="numline" id="diffLine"></div>
+        <canvas id="diffCanvas"></canvas>
+      </div>
+      <div>
+        <div class="card">
+          <div class="big">即時數值</div>
+          <div class="kv" id="diffKVs"></div>
+          <div class="foot note">兩點間距（差）以雙箭頭高亮顯示；拖動「平移整組」可同向移動 A 與 B，保持差不變。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-prod" class="panel" hidden>
+    <div class="card grid two">
+      <div>
+        <h2>積不變｜等面積長方形</h2>
+        <div class="controls">
+          <div class="row">
+            <label>模式</label>
+            <select id="prodMode">
+              <option value="lock">鎖定面積</option>
+              <option value="free">自由探索</option>
+            </select>
+            <label>面積 K</label>
+            <input id="prodArea" type="number" value="60" min="1" max="10000" step="1" />
+          </div>
+          <div class="row" id="prodLockRow">
+            <label>因數對</label>
+            <select id="prodPairs"></select>
+          </div>
+          <div class="row" id="prodFreeRow" hidden>
+            <label>寬 A</label>
+            <input id="prodA" type="range" min="1" max="60" step="1" value="6" />
+            <label>高 B</label>
+            <input id="prodB" type="range" min="1" max="60" step="1" value="10" />
+          </div>
+        </div>
+        <canvas id="prodCanvas"></canvas>
+      </div>
+      <div>
+        <div class="card">
+          <div class="big">即時數值</div>
+          <div class="kv" id="prodKVs"></div>
+          <div class="foot note">鎖定模式下，僅允許整數因數對 (A,B) 使 A×B＝K；自由模式下可任意調整，面積即時更新。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-quot" class="panel" hidden>
+    <div class="card grid two">
+      <div>
+        <h2>商不變｜座標直線 y = kx</h2>
+        <div class="controls">
+          <div class="row">
+            <label>斜率／商 k</label>
+            <input id="quotK" type="number" value="3" min="1" max="12" step="1" />
+            <label>x 值</label>
+            <input id="quotX" type="range" min="1" max="30" step="1" value="5" />
+            <button class="btn ghost" id="quotSnap">點列表</button>
+          </div>
+        </div>
+        <canvas id="quotCanvas"></canvas>
+      </div>
+      <div>
+        <div class="card">
+          <div class="big">即時數值</div>
+          <div class="kv" id="quotKVs"></div>
+          <div class="foot note">所有 (x,y) 使 y/x＝k 的點排成一條通過原點的直線；改變 k 會改變斜率，但「商」恆等於 k。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-stack" class="panel" hidden>
+    <div class="card grid two">
+      <div>
+        <h2>堆疊關係｜累積條形圖</h2>
+        <div class="controls">
+          <div class="row">
+            <button class="btn" id="addLayer">新增一層</button>
+            <button class="btn ghost" id="clearLayer">清空</button>
+            <label>目標總量</label>
+            <input id="stackTarget" type="number" value="120" min="0" max="100000" step="1" />
+          </div>
+        </div>
+        <canvas id="stackCanvas"></canvas>
+      </div>
+      <div>
+        <div class="card" id="stackListCard">
+          <div class="big">各層設定</div>
+          <div id="stackList"></div>
+          <div class="kv" id="stackKVs" style="margin-top:8px"></div>
+          <div class="foot note">每層整數高度；可增刪層與調整高度。總量即時更新，並顯示目標差距。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+// ====== 工具：DOM ======
+const $ = (sel, el=document) => el.querySelector(sel);
+const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+// ====== 分頁 ======
+const pages = [
+  {id:'sum',  name:'和不變'},
+  {id:'diff', name:'差不變'},
+  {id:'prod', name:'積不變'},
+  {id:'quot', name:'商不變'},
+  {id:'stack',name:'堆疊'}
+];
+const tabbar = $('#tabs');
+pages.forEach((p,i)=>{
+  const b = document.createElement('button');
+  b.className='tab'; b.textContent=p.name; b.setAttribute('role','tab');
+  b.dataset.target = 'panel-'+p.id; b.ariaSelected = i===0? 'true':'false';
+  b.addEventListener('click',()=>{
+    $$('.panel').forEach(x=>x.hidden=true);
+    $$('nav .tab').forEach(x=>x.ariaSelected='false');
+    $('#'+b.dataset.target).hidden=false; b.ariaSelected='true';
+    // 重新繪圖以對齊像素比
+    if(p.id==='sum') drawSum();
+    if(p.id==='diff') drawDiff();
+    if(p.id==='prod') drawProd();
+    if(p.id==='quot') drawQuot();
+    if(p.id==='stack') drawStack();
+  });
+  tabbar.appendChild(b);
+});
+$('#panel-sum').hidden=false; // 預設顯示第一頁
+
+// 高 DPI canvas 實用函式
+function fitCanvas(c){
+  const dpr = Math.max(window.devicePixelRatio||1, 1);
+  const rect = c.getBoundingClientRect();
+  const w = Math.max(300, rect.width|0), h = Math.max(260, rect.height|0);
+  if(c.width!==w*dpr||c.height!==h*dpr){ c.width=w*dpr; c.height=h*dpr; }
+  const ctx = c.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0, w, h);
+  return {ctx,w,h};
+}
+function roundInt(x){ return Math.round(x); }
+
+// ====== 和不變 ======
+const sumMode=$('#sumMode'), sumTotal=$('#sumTotal'), sumAngle=$('#sumAngle');
+const sumPie=$('#sumPie'), sumKVs=$('#sumKVs');
+const sumBarTotal=$('#sumBarTotal'), sumBarA=$('#sumBarA'), sumStrip=$('#sumStrip'), sumBarKVs=$('#sumBarKVs');
+
+function updateSumControls(){
+  const mode = sumMode.value;
+  if(mode==='24h'){ sumTotal.value=24; sumTotal.disabled=true; }
+  else { sumTotal.disabled=false; }
+}
+function drawSum(){
+  const {ctx,w,h} = fitCanvas(sumPie);
+  const mode=sumMode.value; const T=parseInt(sumTotal.value||24,10);
+  const angDeg=parseInt(sumAngle.value||0,10); const ang = (Math.PI/180)*angDeg;
+  // 計算 A, B
+  let A = roundInt(T * (angDeg/360)); if(A<0)A=0; if(A>T)A=T; const B=T-A;
+  sumKVs.innerHTML = `
+    <span class="pill good">總數 T＝<b>${T}</b></span>
+    <span class="pill">A＝<b>${A}</b></span>
+    <span class="pill">B＝<b>${B}</b></span>
+    <span class="pill">A+B＝<b>${A+B}</b></span>
+  `;
+  // 圓餅
+  const cx=w/2, cy=h/2, R=Math.min(w,h)*0.35;
+  // 背景圓
+  ctx.fillStyle = '#10141c'; ctx.beginPath(); ctx.arc(cx,cy,R+8,0,Math.PI*2); ctx.fill();
+  // 12點方向固定半徑
+  const baseAng = -Math.PI/2; // 12 o'clock
+  // 扇形 A
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R, baseAng, baseAng+ang, ang>0); ctx.closePath();
+  if(mode==='24h'){ ctx.fillStyle = '#e6e6e6'; } else { ctx.fillStyle='#fbbf24'; }
+  ctx.fill();
+  // 扇形 B
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R, baseAng+ang, baseAng+Math.PI*2, ang<Math.PI*2);
+  ctx.closePath(); ctx.fillStyle = (mode==='24h')? '#0a0a0a' : '#ef4444'; ctx.fill();
+  // 邊界與半徑線
+  ctx.lineWidth=2; ctx.strokeStyle='#2a3140'; ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+  // 畫兩條半徑
+  ctx.strokeStyle='#79dcb0';
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx,cy-R); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx + R*Math.cos(baseAng+ang), cy + R*Math.sin(baseAng+ang)); ctx.stroke();
+  // 標籤
+  ctx.fillStyle='#cbd5e1'; ctx.font='16px system-ui'; ctx.textAlign='center';
+  ctx.fillText(`A：${A}`, cx + (R*0.55)*Math.cos(baseAng+ang/2), cy + (R*0.55)*Math.sin(baseAng+ang/2));
+  ctx.fillText(`B：${B}`, cx + (R*0.55)*Math.cos(baseAng+ang/2+Math.PI), cy + (R*0.55)*Math.sin(baseAng+ang/2+Math.PI));
+
+  // 水平拉條
+  const Tbar = parseInt(sumBarTotal.value||100,10);
+  let Aval = parseInt(sumBarA.value||30,10);
+  if(Aval<0) Aval=0; if(Aval>Tbar) Aval=Tbar;
+  const Bval = Tbar - Aval;
+  const stripW = sumStrip.clientWidth||300; const barA = $('.barA', sumStrip), barB=$('.barB', sumStrip);
+  barA.style.width = `${(Aval/Tbar)*100}%`; barB.style.width=`${(Bval/Tbar)*100}%`;
+  sumBarKVs.innerHTML = `
+    <span class="pill good">總數 T＝<b>${Tbar}</b></span>
+    <span class="pill">A＝<b>${Aval}</b></span>
+    <span class="pill">B＝<b>${Bval}</b></span>
+  `;
+}
+
+[sumMode,sumTotal,sumAngle,sumBarTotal,sumBarA].forEach(el=> el.addEventListener('input', ()=>{ updateSumControls(); drawSum(); }));
+updateSumControls();
+
+// ====== 差不變 ======
+const diffMax=$('#diffMax'), diffD=$('#diffD'), diffShift=$('#diffShift');
+const diffCanvas=$('#diffCanvas'), diffLine=$('#diffLine'), diffKVs=$('#diffKVs');
+
+function clamp(v,min,max){return Math.max(min, Math.min(max,v));}
+function drawNumlineTicks(){
+  diffLine.innerHTML='';
+  const max = parseInt(diffMax.value||100,10);
+  for(let i=0;i<=10;i++){
+    const t = document.createElement('div'); t.className='tick'; t.style.left=(i*10)+'%'; diffLine.appendChild(t);
+  }
+}
+function drawDiff(){
+  const max = parseInt(diffMax.value||100,10);
+  let D = parseInt(diffD.value||20,10);
+  // 用 shift 控制 B 的位置，A=B+D；確保皆在 [0,max]
+  let B = Math.round((parseInt(diffShift.value,10)/100) * max);
+  let A = B + D;
+  // 若超界，做修正
+  if(A>max){ A=max; B=A-D; }
+  if(B<0){ B=0; A=B+D; }
+  if(A<0){ A=0; B=A-D; }
+  if(B>max){ B=max; A=B+D; }
+  A = clamp(A,0,max); B = clamp(B,0,max);
+
+  // 畫數據
+  diffKVs.innerHTML = `
+    <span class="pill">A＝<b>${A}</b></span>
+    <span class="pill">B＝<b>${B}</b></span>
+    <span class="pill good">差 D＝<b>${A-B}</b></span>
+  `;
+
+  // 畫圖
+  const {ctx,w,h} = fitCanvas(diffCanvas);
+  // 基底數線
+  ctx.strokeStyle='#334155'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(40,h-40); ctx.lineTo(w-20,h-40); ctx.stroke();
+  // 刻度與數字
+  const maxTick=10; const unit = (w-60)/maxTick; ctx.fillStyle='#94a3b8'; ctx.font='12px system-ui'; ctx.textAlign='center';
+  for(let i=0;i<=maxTick;i++){
+    const x=40+i*unit; ctx.beginPath(); ctx.moveTo(x,h-46); ctx.lineTo(x,h-34); ctx.strokeStyle='#334155'; ctx.stroke();
+    const val = Math.round((i/maxTick)*max);
+    ctx.fillText(val.toString(), x, h-12);
+  }
+  // 位置轉換
+  const xA = 40 + (A/max)*(w-60);
+  const xB = 40 + (B/max)*(w-60);
+  // 兩個點
+  function drawHandle(x,y,label,color){
+    ctx.fillStyle=color; ctx.strokeStyle='#0b0f15'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(x-12,y-22,24,44,6); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#04130c'; ctx.font='14px system-ui'; ctx.textAlign='center'; ctx.fillText(label,x,y+5);
+  }
+  drawHandle(xA,h-40,'A','#57cc99');
+  drawHandle(xB,h-40,'B','#f59e0b');
+  // 差距雙箭頭
+  ctx.strokeStyle='#79dcb0'; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(xB,h-70); ctx.lineTo(xA,h-70); ctx.stroke(); ctx.setLineDash([]);
+  // 箭頭頭
+  ctx.fillStyle='#79dcb0';
+  ctx.beginPath(); ctx.moveTo(xB,h-70-4); ctx.lineTo(xB+8,h-70); ctx.lineTo(xB,h-70+4); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(xA,h-70-4); ctx.lineTo(xA-8,h-70); ctx.lineTo(xA,h-70+4); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#cbd5e1'; ctx.font='14px system-ui'; ctx.textAlign='center';
+  ctx.fillText(`差 = ${A-B}`, (xA+xB)/2, h-80);
+}
+[diffMax,diffD,diffShift].forEach(el=> el.addEventListener('input', ()=>{ drawNumlineTicks(); drawDiff(); }));
+
+// ====== 積不變 ======
+const prodMode=$('#prodMode'), prodArea=$('#prodArea');
+const prodPairs=$('#prodPairs'), prodA=$('#prodA'), prodB=$('#prodB');
+const prodCanvas=$('#prodCanvas'), prodKVs=$('#prodKVs');
+
+function factorPairs(n){
+  const res=[]; const lim=Math.floor(Math.sqrt(n));
+  for(let a=1;a<=lim;a++) if(n%a===0){ res.push([a, n/a]); }
+  return res; // 遞增 by a
+}
+function rebuildPairs(){
+  const K=parseInt(prodArea.value||60,10);
+  const pairs = factorPairs(K);
+  prodPairs.innerHTML='';
+  pairs.forEach(([a,b],i)=>{
+    const opt=document.createElement('option');
+    opt.value=`${a}x${b}`; opt.textContent=`A=${a}，B=${b}`; prodPairs.appendChild(opt);
+  });
+  if(pairs.length){ prodPairs.selectedIndex=0; }
+}
+function drawProd(){
+  const mode=prodMode.value; const K=parseInt(prodArea.value||60,10);
+  let A,B;
+  if(mode==='lock'){
+    const sel = prodPairs.value || (factorPairs(K)[0] ? `${factorPairs(K)[0][0]}x${factorPairs(K)[0][1]}`:'1x'+K);
+    const [aStr,bStr]=sel.split('x'); A=parseInt(aStr,10); B=parseInt(bStr,10);
+  }else{
+    A=parseInt(prodA.value,10); B=parseInt(prodB.value,10);
+  }
+  const area = A*B;
+  prodKVs.innerHTML = `
+    <span class="pill ${mode==='lock'?'good':''}">目標 K＝<b>${K}</b></span>
+    <span class="pill">A＝<b>${A}</b></span>
+    <span class="pill">B＝<b>${B}</b></span>
+    <span class="pill ${mode==='lock'&&area!==K?'err':''}">A×B＝<b>${area}</b>${mode==='lock'?'（應等於 K）':''}</span>
+  `;
+  // 畫網格矩形
+  const {ctx,w,h} = fitCanvas(prodCanvas);
+  const pad=40; const W=w-2*pad, H=h-2*pad;
+  // 決定每格像素大小，以容納 A by B
+  const cellSize = Math.max(6, Math.min(Math.floor(W/A), Math.floor(H/B)));
+  const rw = cellSize*A, rh = cellSize*B; const ox = pad + (W-rw)/2, oy = pad + (H-rh)/2;
+  // 外框
+  ctx.fillStyle='#0a0f14'; ctx.fillRect(ox-8,oy-8,rw+16,rh+16);
+  ctx.strokeStyle='#3a475a'; ctx.lineWidth=2; ctx.strokeRect(ox,oy,rw,rh);
+  // 內網格
+  ctx.strokeStyle='#233043'; ctx.lineWidth=1;
+  for(let i=1;i<A;i++){ const x=ox+i*cellSize; ctx.beginPath(); ctx.moveTo(x,oy); ctx.lineTo(x,oy+rh); ctx.stroke(); }
+  for(let j=1;j<B;j++){ const y=oy+j*cellSize; ctx.beginPath(); ctx.moveTo(ox,y); ctx.lineTo(ox+rw,y); ctx.stroke(); }
+  // 標籤
+  ctx.fillStyle='#cbd5e1'; ctx.font='14px system-ui'; ctx.textAlign='center';
+  ctx.fillText(`寬 A=${A}`, ox+rw/2, oy-14);
+  ctx.save(); ctx.translate(ox-16, oy+rh/2); ctx.rotate(-Math.PI/2); ctx.fillText(`高 B=${B}`,0,0); ctx.restore();
+  ctx.font='18px system-ui'; ctx.fillText(`A×B＝${area}` , ox+rw/2, oy+rh/2+6);
+}
+
+prodMode.addEventListener('change',()=>{
+  const lock = prodMode.value==='lock';
+  $('#prodLockRow').hidden = !lock; $('#prodFreeRow').hidden = lock;
+  if(lock){ rebuildPairs(); }
+  drawProd();
+});
+prodArea.addEventListener('input',()=>{ rebuildPairs(); if(prodMode.value==='free'){ prodA.max=prodArea.value; prodB.max=prodArea.value; } drawProd(); });
+prodPairs.addEventListener('input', drawProd);
+[prodA,prodB].forEach(el=> el.addEventListener('input', drawProd));
+rebuildPairs();
+
+// ====== 商不變 ======
+const quotK=$('#quotK'), quotX=$('#quotX'), quotCanvas=$('#quotCanvas'), quotKVs=$('#quotKVs'), quotSnap=$('#quotSnap');
+function drawAxes(ctx,w,h){
+  const pad=40; ctx.strokeStyle='#334155'; ctx.lineWidth=2;
+  // x-axis
+  ctx.beginPath(); ctx.moveTo(pad,h-pad); ctx.lineTo(w-pad,h-pad); ctx.stroke();
+  // y-axis
+  ctx.beginPath(); ctx.moveTo(pad,h-pad); ctx.lineTo(pad,pad); ctx.stroke();
+  // ticks
+  ctx.fillStyle='#94a3b8'; ctx.font='12px system-ui'; ctx.textAlign='center';
+  for(let i=1;i<=10;i++){ const x=pad+i*((w-2*pad)/10); ctx.beginPath(); ctx.moveTo(x,h-pad-5); ctx.lineTo(x,h-pad+5); ctx.strokeStyle='#334155'; ctx.stroke(); ctx.fillText(i, x, h-pad+18); }
+  ctx.textAlign='right';
+  for(let j=1;j<=10;j++){ const y=h-pad-j*((h-2*pad)/10); ctx.beginPath(); ctx.moveTo(pad-5,y); ctx.lineTo(pad+5,y); ctx.strokeStyle='#334155'; ctx.stroke(); ctx.fillText(j, pad-8, y+4); }
+  return pad;
+}
+function drawQuot(){
+  const {ctx,w,h} = fitCanvas(quotCanvas); const pad = 40; const K = parseInt(quotK.value||1,10);
+  // 範圍固定 10x10，y=kx 可能超界，剪裁到視窗
+  // 坐標軸
+  drawAxes(ctx,w,h);
+  // 直線
+  ctx.save();
+  ctx.beginPath();
+  const toXY = (x,y)=>[ pad + x*((w-2*pad)/10), h-pad - y*((h-2*pad)/10) ];
+  ctx.strokeStyle='#79dcb0'; ctx.lineWidth=2;
+  // 取兩端點 (0,0) 與 (10, min(10, 10*K))，但需按比例
+  const p0 = toXY(0,0); const p1 = toXY(10, Math.min(10, 10*K));
+  ctx.moveTo(...p0); ctx.lineTo(...p1); ctx.stroke();
+  ctx.restore();
+  // 可動點
+  let x = parseInt(quotX.value||1,10); if(x<0)x=0; if(x>10)x=10; let y = K*x; if(y>10) y=10; // 裁切
+  const [px,py] = toXY(x,y);
+  ctx.fillStyle='#57cc99'; ctx.beginPath(); ctx.arc(px,py,6,0,Math.PI*2); ctx.fill();
+  // 導引垂線
+  ctx.setLineDash([4,6]); ctx.strokeStyle='#475569'; ctx.beginPath(); ctx.moveTo(px, h-pad); ctx.lineTo(px, py); ctx.moveTo(pad, py); ctx.lineTo(px, py); ctx.stroke(); ctx.setLineDash([]);
+  // 顯示 k 與點
+  quotKVs.innerHTML = `
+    <span class="pill good">k＝<b>${K}</b></span>
+    <span class="pill">x＝<b>${x}</b></span>
+    <span class="pill">y＝<b>${Math.round(K*x)}</b></span>
+    <span class="pill">y/x＝<b>${K}</b></span>
+  `;
+}
+[quotK,quotX].forEach(el=> el.addEventListener('input', drawQuot));
+quotSnap.addEventListener('click',()=>{
+  const K=parseInt(quotK.value||1,10);
+  const pts = [];
+  for(let x=1;x<=10;x++){ const y=K*x; if(y<=10) pts.push(`(${x},${y})`); }
+  alert(`在 10×10 視窗內的整數點：\n` + (pts.length? pts.join('、') : '（斜率太大，沒有整數點落在視窗內）'));
+});
+
+// ====== 堆疊 ======
+const stackCanvas=$('#stackCanvas'), stackList=$('#stackList'), stackKVs=$('#stackKVs'), addLayer=$('#addLayer'), clearLayer=$('#clearLayer'), stackTarget=$('#stackTarget');
+let layers = [24, 18, 12];
+function rebuildLayerUI(){
+  stackList.innerHTML='';
+  layers.forEach((h,idx)=>{
+    const row=document.createElement('div'); row.className='row'; row.style.margin='8px 0';
+    const lab=document.createElement('span'); lab.textContent=`第 ${idx+1} 層`;
+    const num=document.createElement('input'); num.type='number'; num.min='0'; num.max='10000'; num.step='1'; num.value=h; num.addEventListener('input',()=>{ layers[idx]=parseInt(num.value||0,10); drawStack(); });
+    const del=document.createElement('button'); del.className='btn'; del.textContent='刪除'; del.addEventListener('click',()=>{ layers.splice(idx,1); rebuildLayerUI(); drawStack(); });
+    row.append(lab,num,del); stackList.appendChild(row);
+  });
+}
+function drawStack(){
+  const {ctx,w,h} = fitCanvas(stackCanvas);
+  const pad=50; const W=w-2*pad, H=h-2*pad; const total = layers.reduce((a,b)=>a+b,0);
+  const target = parseInt(stackTarget.value||0,10);
+  // 比例
+  const maxVal = Math.max(total, target, 10);
+  const unit = (H-10)/maxVal;
+  // 座標框
+  ctx.strokeStyle='#334155'; ctx.lineWidth=2; ctx.strokeRect(pad, pad, W*0.4, H);
+  // 繪堆疊條
+  const x = pad; let y = pad + H;
+  const colors = ['#60a5fa','#a78bfa','#f472b6','#facc15','#34d399','#fb7185','#38bdf8','#f97316'];
+  layers.forEach((v,i)=>{
+    const hpx = v*unit; y -= hpx; ctx.fillStyle=colors[i%colors.length]; ctx.fillRect(x, y, W*0.4, hpx);
+  });
+  // 目標線
+  ctx.strokeStyle='#f59e0b'; ctx.setLineDash([8,6]); const yTarget = pad + H - target*unit; ctx.beginPath(); ctx.moveTo(pad-6, yTarget); ctx.lineTo(pad+W*0.4+6, yTarget); ctx.stroke(); ctx.setLineDash([]);
+  // 標籤
+  ctx.fillStyle='#cbd5e1'; ctx.font='14px system-ui'; ctx.textAlign='left';
+  ctx.fillText(`總量：${total}`, pad+W*0.45, pad+24);
+  ctx.fillText(`目標：${target}`, pad+W*0.45, pad+48);
+  ctx.fillText(`差距：${target-total}`, pad+W*0.45, pad+72);
+  // 刻度
+  ctx.textAlign='right';
+  for(let i=0;i<=10;i++){
+    const yy = pad + H - i*(H/10); ctx.strokeStyle='#2a3140'; ctx.beginPath(); ctx.moveTo(pad+W*0.4, yy); ctx.lineTo(pad+W*0.4+8, yy); ctx.stroke(); ctx.fillText(Math.round(i*(maxVal/10)), pad-6, yy+4);
+  }
+  stackKVs.innerHTML = `
+    <span class="pill">層數＝<b>${layers.length}</b></span>
+    <span class="pill">總量＝<b>${total}</b></span>
+    <span class="pill ${total===target?'good':(total>target?'warn':'')}">與目標差距＝<b>${target-total}</b></span>
+  `;
+}
+addLayer.addEventListener('click',()=>{ layers.push(10); rebuildLayerUI(); drawStack(); });
+clearLayer.addEventListener('click',()=>{ layers=[]; rebuildLayerUI(); drawStack(); });
+stackTarget.addEventListener('input', drawStack);
+
+// ====== 初始繪製 ======
+window.addEventListener('resize', ()=>{ drawSum(); drawDiff(); drawProd(); drawQuot(); drawStack(); });
+
+// Kickoff
+drawNumlineTicks();
+drawSum(); drawDiff(); drawProd(); drawQuot(); rebuildLayerUI(); drawStack();
+</script>
+</body>
+</html>
