@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互動式數學網頁</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .canvas-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .canvas-labels {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            color: #333;
+        }
+        .slider-track {
+            width: 100%;
+            height: 16px;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+        }
+        .slider-fill {
+            height: 100%;
+            background-color: #3b82f6;
+            border-top-left-radius: 9999px;
+            border-bottom-left-radius: 9999px;
+        }
+        .slider-handle {
+            width: 24px;
+            height: 24px;
+            background-color: #fff;
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: grab;
+        }
+        .slider-handle:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-start min-h-screen p-8">
+
+    <!-- Navigation -->
+    <nav class="w-full max-w-2xl bg-white p-4 rounded-xl shadow-lg mb-8">
+        <ul class="flex justify-around items-center space-x-4">
+            <li><a href="#" class="text-blue-600 font-semibold hover:underline" onclick="showPage('page-clock')">24小時時鐘</a></li>
+            <li><a href="#" class="text-blue-600 font-semibold hover:underline" onclick="showPage('page-circle')">自訂總數圓盤</a></li>
+            <li><a href="#" class="text-blue-600 font-semibold hover:underline" onclick="showPage('page-slider')">自訂總數長條</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container grid md:grid-cols-1 gap-8">
+
+        <!-- 24小時時鐘圓盤 -->
+        <div id="page-clock" class="page bg-white p-6 rounded-2xl shadow-lg flex flex-col items-center">
+            <h2 class="text-2xl font-bold mb-4">24小時時鐘圓盤</h2>
+            <div class="canvas-container">
+                <canvas id="clockCanvas" width="250" height="250"></canvas>
+                <div class="canvas-labels">
+                    <p class="text-sm text-gray-500">白天與黑夜</p>
+                    <p id="clockLabels" class="text-xl font-semibold text-gray-700"></p>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">拖動滑鼠來分割白天和黑夜</p>
+        </div>
+
+        <!-- 自訂總和的圓盤 -->
+        <div id="page-circle" class="page hidden bg-white p-6 rounded-2xl shadow-lg flex flex-col items-center">
+            <h2 class="text-2xl font-bold mb-4">自訂總數圓盤</h2>
+            <div class="flex items-center mb-4 w-full justify-center">
+                <label for="circleSumInput" class="mr-2">總數:</label>
+                <input type="number" id="circleSumInput" value="100" class="w-24 border rounded-lg p-2 text-center" />
+            </div>
+            <div class="canvas-container">
+                <canvas id="circleSumCanvas" width="250" height="250"></canvas>
+                <div class="canvas-labels">
+                    <p class="text-sm text-gray-500">A 與 B 的總和</p>
+                    <p id="circleSumLabels" class="text-xl font-semibold text-gray-700"></p>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">拖動滑鼠來分割 A 和 B</p>
+        </div>
+
+        <!-- 自訂總和的長條 -->
+        <div id="page-slider" class="page hidden bg-white p-6 rounded-2xl shadow-lg flex flex-col items-center">
+            <h2 class="text-2xl font-bold mb-4">自訂總數長條</h2>
+            <div class="flex items-center mb-4 w-full justify-center">
+                <label for="sliderSumInput" class="mr-2">總數:</label>
+                <input type="number" id="sliderSumInput" value="100" class="w-24 border rounded-lg p-2 text-center" />
+            </div>
+            <div class="w-full flex flex-col items-center px-4">
+                <div id="sliderTrack" class="slider-track mt-4">
+                    <div id="sliderFill" class="slider-fill"></div>
+                    <div id="sliderHandle" class="slider-handle"></div>
+                </div>
+            </div>
+            <p id="sliderLabels" class="text-xl font-semibold text-gray-700 mt-4"></p>
+            <p class="text-sm text-gray-500 mt-2">拖動長條來分割 A 和 B</p>
+        </div>
+
+    </div>
+
+    <script>
+        // 切換頁面的函數
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        // 初始載入時顯示第一個頁面
+        document.addEventListener('DOMContentLoaded', () => {
+            showPage('page-clock');
+        });
+        
+        // 設定所有畫布和長條的總數
+        const TOTAL_HOURS = 24;
+        const fixedAngle = -Math.PI / 2; // 12點鐘方向
+
+        // ----- 24小時時鐘圓盤邏輯 -----
+        const clockCanvas = document.getElementById('clockCanvas');
+        const clockCtx = clockCanvas.getContext('2d');
+        const clockLabels = document.getElementById('clockLabels');
+        const clockCenter = { x: clockCanvas.width / 2, y: clockCanvas.height / 2 };
+        const clockRadius = Math.min(clockCenter.x, clockCenter.y) - 10;
+        let isClockDragging = false;
+        let clockCurrentAngle = 0;
+
+        function drawClock() {
+            clockCtx.clearRect(0, 0, clockCanvas.width, clockCanvas.height);
+
+            // 計算正規化後（0到2π）的角度
+            let normalizedAngle = (clockCurrentAngle - fixedAngle);
+            if (normalizedAngle < 0) {
+                normalizedAngle += 2 * Math.PI;
+            }
+            const dayAngle = normalizedAngle;
+            const nightAngle = 2 * Math.PI - dayAngle;
+
+            // 繪製白天部分 (白色)
+            clockCtx.beginPath();
+            clockCtx.moveTo(clockCenter.x, clockCenter.y);
+            clockCtx.arc(clockCenter.x, clockCenter.y, clockRadius, fixedAngle, fixedAngle + dayAngle);
+            clockCtx.closePath();
+            clockCtx.fillStyle = '#ffffff'; // 白色
+            clockCtx.fill();
+
+            // 繪製黑夜部分 (黑色)
+            clockCtx.beginPath();
+            clockCtx.moveTo(clockCenter.x, clockCenter.y);
+            clockCtx.arc(clockCenter.x, clockCenter.y, clockRadius, fixedAngle + dayAngle, fixedAngle + dayAngle + nightAngle);
+            clockCtx.closePath();
+            clockCtx.fillStyle = '#000000'; // 黑色
+            clockCtx.fill();
+            
+            // 繪製圓形邊框
+            clockCtx.beginPath();
+            clockCtx.arc(clockCenter.x, clockCenter.y, clockRadius, 0, 2 * Math.PI);
+            clockCtx.strokeStyle = '#6b7280';
+            clockCtx.lineWidth = 2;
+            clockCtx.stroke();
+
+            // 計算並顯示時間 (取整數)
+            const dayFraction = dayAngle / (2 * Math.PI);
+            const nightFraction = 1 - dayFraction;
+            const dayHours = Math.round(dayFraction * TOTAL_HOURS);
+            const nightHours = Math.round(nightFraction * TOTAL_HOURS);
+            clockLabels.innerHTML = `白天: ${dayHours} hr<br>黑夜: ${nightHours} hr`;
+        }
+
+        // 處理滑鼠事件
+        function getClockAngle(e) {
+            const rect = clockCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left - clockCenter.x;
+            const y = e.clientY - rect.top - clockCenter.y;
+            return Math.atan2(y, x);
+        }
+
+        clockCanvas.addEventListener('mousedown', (e) => {
+            isClockDragging = true;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isClockDragging) {
+                clockCurrentAngle = getClockAngle(e);
+                drawClock();
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isClockDragging = false;
+        });
+
+        drawClock();
+
+        // ----- 自訂總和的圓盤邏輯 -----
+        const circleSumCanvas = document.getElementById('circleSumCanvas');
+        const circleSumCtx = circleSumCanvas.getContext('2d');
+        const circleSumInput = document.getElementById('circleSumInput');
+        const circleSumLabels = document.getElementById('circleSumLabels');
+        const circleSumCenter = { x: circleSumCanvas.width / 2, y: circleSumCanvas.height / 2 };
+        const circleSumRadius = Math.min(circleSumCenter.x, circleSumCenter.y) - 10;
+        let isCircleSumDragging = false;
+        let circleSumCurrentAngle = 0;
+
+        function drawCircleSum() {
+            const totalSum = parseFloat(circleSumInput.value);
+            if (isNaN(totalSum) || totalSum <= 0) {
+                circleSumLabels.innerHTML = `請輸入有效總數`;
+                return;
+            }
+
+            circleSumCtx.clearRect(0, 0, circleSumCanvas.width, circleSumCanvas.height);
+
+            // 計算正規化後（0到2π）的角度
+            let normalizedAngle = (circleSumCurrentAngle - fixedAngle);
+            if (normalizedAngle < 0) {
+                normalizedAngle += 2 * Math.PI;
+            }
+            const aAngle = normalizedAngle;
+            const bAngle = 2 * Math.PI - aAngle;
+
+            // 繪製A部分 (黃色)
+            circleSumCtx.beginPath();
+            circleSumCtx.moveTo(circleSumCenter.x, circleSumCenter.y);
+            circleSumCtx.arc(circleSumCenter.x, circleSumCenter.y, circleSumRadius, fixedAngle, fixedAngle + aAngle);
+            circleSumCtx.closePath();
+            circleSumCtx.fillStyle = '#facc15'; // 黃色
+            circleSumCtx.fill();
+
+            // 繪製B部分 (紅色)
+            circleSumCtx.beginPath();
+            circleSumCtx.moveTo(circleSumCenter.x, circleSumCenter.y);
+            circleSumCtx.arc(circleSumCenter.x, circleSumCenter.y, circleSumRadius, fixedAngle + aAngle, fixedAngle + aAngle + bAngle);
+            circleSumCtx.closePath();
+            circleSumCtx.fillStyle = '#ef4444'; // 紅色
+            circleSumCtx.fill();
+
+            // 繪製圓形邊框
+            circleSumCtx.beginPath();
+            circleSumCtx.arc(circleSumCenter.x, circleSumCenter.y, circleSumRadius, 0, 2 * Math.PI);
+            circleSumCtx.strokeStyle = '#6b7280';
+            circleSumCtx.lineWidth = 2;
+            circleSumCtx.stroke();
+
+
+            // 計算並顯示數值 (取整數)
+            const aFraction = aAngle / (2 * Math.PI);
+            const bFraction = 1 - aFraction;
+            const valueA = Math.round(aFraction * totalSum);
+            const valueB = Math.round(bFraction * totalSum);
+            circleSumLabels.innerHTML = `A: ${valueA}<br>B: ${valueB}<br>總和: ${totalSum}`;
+        }
+
+        function getCircleSumAngle(e) {
+            const rect = circleSumCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left - circleSumCenter.x;
+            const y = e.clientY - rect.top - circleSumCenter.y;
+            return Math.atan2(y, x);
+        }
+
+        circleSumCanvas.addEventListener('mousedown', (e) => {
+            isCircleSumDragging = true;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isCircleSumDragging) {
+                circleSumCurrentAngle = getCircleSumAngle(e);
+                drawCircleSum();
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isCircleSumDragging = false;
+        });
+
+        circleSumInput.addEventListener('input', drawCircleSum);
+        drawCircleSum();
+
+        // ----- 自訂總和的長條邏輯 -----
+        const sliderTrack = document.getElementById('sliderTrack');
+        const sliderFill = document.getElementById('sliderFill');
+        const sliderHandle = document.getElementById('sliderHandle');
+        const sliderSumInput = document.getElementById('sliderSumInput');
+        const sliderLabels = document.getElementById('sliderLabels');
+        let isSliderDragging = false;
+
+        function updateSlider(e) {
+            const totalSum = parseFloat(sliderSumInput.value);
+            if (isNaN(totalSum) || totalSum <= 0) {
+                sliderLabels.innerHTML = `請輸入有效總數`;
+                return;
+            }
+
+            const rect = sliderTrack.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+
+            const percentage = x / rect.width;
+            const valueA = Math.round(percentage * totalSum);
+            const valueB = Math.round(totalSum - valueA);
+
+            // 更新填滿和手柄位置
+            sliderFill.style.width = `${percentage * 100}%`;
+            sliderHandle.style.left = `${percentage * 100}%`;
+            sliderLabels.innerHTML = `A: ${valueA} &nbsp; B: ${valueB} &nbsp; 總和: ${totalSum}`;
+        }
+
+        sliderHandle.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isSliderDragging = true;
+            sliderHandle.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isSliderDragging) {
+                updateSlider(e);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isSliderDragging = false;
+            sliderHandle.style.cursor = 'grab';
+        });
+
+        sliderTrack.addEventListener('mousedown', (e) => {
+            updateSlider(e);
+        });
+
+        sliderSumInput.addEventListener('input', () => {
+            const event = new MouseEvent('mousemove', {
+                clientX: sliderHandle.getBoundingClientRect().left,
+            });
+            updateSlider(event);
+        });
+
+        // 初始繪製
+        const initialEvent = new MouseEvent('mousemove', {
+            clientX: sliderTrack.getBoundingClientRect().left + (sliderTrack.getBoundingClientRect().width / 2),
+        });
+        updateSlider(initialEvent);
+
+    </script>
+</body>
+</html>
