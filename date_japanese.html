@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>戀愛日語課｜互動式閃卡（文意・單字・句型）</title>
+<style>
+  :root {
+    --bg: #0f172a;      /* slate-900 */
+    --panel: #111827;   /* gray-900 */
+    --card: #1f2937;    /* gray-800 */
+    --muted: #9ca3af;   /* gray-400 */
+    --text: #f8fafc;    /* slate-50 */
+    --accent: #60a5fa;  /* blue-400 */
+    --good: #34d399;    /* emerald-400 */
+    --bad: #f87171;     /* red-400 */
+    --warn: #fbbf24;    /* amber-400 */
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, "Helvetica Neue", Arial; background: var(--bg); color: var(--text); }
+  .wrap { max-width: 980px; margin: 24px auto; padding: 16px; }
+  header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+  .title { font-size: clamp(20px, 3vw, 28px); font-weight: 800; letter-spacing: .5px; }
+  .subtitle { color: var(--muted); font-size: 14px; }
+  .panel { background: linear-gradient(180deg, rgba(31,41,55,.9), rgba(17,24,39,.9)); border: 1px solid rgba(148,163,184,.15); padding: 16px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .row { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+  .row > * { flex: 1 1 auto; }
+  .select, .btn, .chip { background: var(--card); border:1px solid rgba(148,163,184,.2); color: var(--text); padding: 10px 14px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+  .select { min-width: 180px; }
+  .btn { transition: transform .05s ease, background .2s; user-select:none; }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: linear-gradient(180deg, rgba(96,165,250,.2), rgba(96,165,250,.05)); border-color: rgba(96,165,250,.5); }
+  .btn.good { background: linear-gradient(180deg, rgba(52,211,153,.2), rgba(52,211,153,.05)); border-color: rgba(52,211,153,.5); }
+  .btn.bad { background: linear-gradient(180deg, rgba(248,113,113,.2), rgba(248,113,113,.05)); border-color: rgba(248,113,113,.5); }
+  .btn.ghost { background: transparent; border-color: rgba(148,163,184,.15); color: var(--muted); }
+  .meter { height: 10px; width: 100%; background: rgba(148,163,184,.15); border-radius: 999px; overflow: hidden; }
+  .meter > span { display:block; height: 100%; background: linear-gradient(90deg, var(--good), var(--accent)); width: 0%; transition: width .3s ease; }
+
+  /* Card */
+  .card { position: relative; margin-top: 14px; perspective: 1200px; }
+  .face { background: var(--card); border:1px solid rgba(148,163,184,.2); border-radius: 16px; padding: 22px 20px; min-height: 180px; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+  .flip {
+    position: relative; transform-style: preserve-3d; transition: transform .5s ease; min-height: 220px;
+  }
+  .flip.show .front { transform: rotateY(180deg); }
+  .flip.show .back { transform: rotateY(0deg); }
+  .front, .back { position:absolute; inset:0; backface-visibility: hidden; border-radius: 14px; }
+  .front { transform: rotateY(0deg); }
+  .back { transform: rotateY(180deg); }
+  .q { font-size: clamp(18px, 2.6vw, 22px); line-height: 1.6; }
+  .meta { margin-top: 8px; color: var(--muted); font-size: 13px; }
+  .choices { margin-top: 14px; display:grid; gap:10px; }
+  .choice { background: rgba(2,6,23,.35); border:1px solid rgba(148,163,184,.2); padding: 10px 12px; border-radius: 12px; cursor:pointer; }
+  .choice:hover{ border-color: var(--accent); }
+  .choice.correct { border-color: var(--good); background: rgba(52,211,153,.12); }
+  .choice.wrong { border-color: var(--bad); background: rgba(248,113,113,.12); }
+  .a { font-size: clamp(17px, 2.4vw, 20px); white-space: pre-wrap; line-height: 1.7; }
+  .hint { color: var(--warn); font-size: 13px; margin-top: 6px; }
+  .toolbar { display:flex; flex-wrap: wrap; gap:10px; justify-content: space-between; margin-top: 12px; }
+  .toolbar .left, .toolbar .right { display:flex; gap:10px; }
+  details { margin-top: 14px; }
+  summary { cursor: pointer; color: var(--accent); }
+  code.inline { background: rgba(148,163,184,.15); padding: 2px 6px; border-radius: 6px; }
+  .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: rgba(148,163,184,.15); padding: 2px 6px; border-radius: 6px; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="title">戀愛日語課｜互動式閃卡</div>
+        <div class="subtitle">模式：文意 / 單字 / 句型．支援鍵盤（<span class="kbd">Space</span> 翻面、<span class="kbd">←/→</span> 上一/下一題、<span class="kbd">1-4</span> 選項）</div>
+      </div>
+      <button id="shuffleAll" class="btn">🔀 全題隨機</button>
+    </header>
+
+    <div class="panel">
+      <div class="row" style="margin-bottom:8px">
+        <select id="mode" class="select" title="選擇模式">
+          <option value="meaning">文意（閱讀理解）</option>
+          <option value="vocab">單字（詞彙）</option>
+          <option value="pattern">句型（文法）</option>
+        </select>
+        <select id="difficulty" class="select" title="選擇難度">
+          <option value="all">全部難度</option>
+          <option value="easy">入門</option>
+          <option value="mid">一般</option>
+          <option value="hard">挑戰</option>
+        </select>
+        <button id="resetProgress" class="btn ghost">↺ 重置紀錄</button>
+      </div>
+
+      <div class="meter" aria-label="進度">
+        <span id="progressBar"></span>
+      </div>
+
+      <div class="card">
+        <div id="flip" class="flip">
+          <div class="front face">
+            <div class="meta" id="meta"></div>
+            <div class="q" id="question">—</div>
+            <div class="choices" id="choices"></div>
+            <div class="hint" id="hint"></div>
+          </div>
+          <div class="back face">
+            <div class="meta" id="answerMeta"></div>
+            <div class="a" id="answer">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="left">
+          <button id="prev" class="btn">← 上一題</button>
+          <button id="flipBtn" class="btn primary">⤾ 顯示答案</button>
+          <button id="next" class="btn">下一題 →</button>
+        </div>
+        <div class="right">
+          <button id="markGood" class="btn good">✔ 我會了</button>
+          <button id="markBad" class="btn bad">✖ 還不熟</button>
+        </div>
+      </div>
+
+      <details>
+        <summary>展開：原始對話參考（點我）</summary>
+        <pre style="white-space:pre-wrap; color: var(--muted); margin-top:8px;">
+映画を見る？それともカフェでゆっくり話す？
+んー、映画よりもカフェの方がいいかな。今日は静かに過ごしたい。
+わかった。じゃあ、あの駅前のカフェにしようか。あそこのケーキ、美味しいんだよ。
+甘いもの、また食べたいの？
+うん、小金鳳と一緒なら何でも甘く感じるから。
+…そんなこと言って。
+本当だよ。じゃあ、待ち合わせは駅の改札でどう？
+いいよ。何時にする？
+六時半。少し早めに会いたいから。
+ふふ、わかった。じゃあ急いで準備しないと。
+無理しないでね。君が来てくれるだけで嬉しいから。
+じゃあ、着いたらメッセージ送るね。
+うん、待ってる。小金鳳に会えると思うと、もうドキドキしてるよ。
+まだ会ってないのに？
+会う前から甘えたくなるんだ。
+        </pre>
+      </details>
+    </div>
+
+    <p style="margin-top:14px; color: var(--muted); font-size:13px;">提示：按 <span class="kbd">Space</span> 可快速翻面；支援本地進度記錄（僅此瀏覽器）。</p>
+  </div>
+
+<script>
+// ===== 題庫（根據上方對話） =====
+const QA = {
+  meaning: [
+    {
+      q: "二人はどこで待ち合わせすることにした？",
+      choices: ["カフェの前", "駅の改札", "公園"], ans: 1,
+      exp: "台詞『待ち合わせは駅の改札でどう？』→『いいよ。』",
+      level: "easy"
+    },
+    {
+      q: "小金鳳が『映画よりもカフェの方がいい』と言った理由は？",
+      choices: ["今日は静かに過ごしたいから", "お金を節約したいから", "雨が降っているから"], ans: 0,
+      exp: "『今日は静かに過ごしたい。』と明示。",
+      level: "easy"
+    },
+    {
+      q: "千彰がカフェを提案した主な理由は？",
+      choices: ["店員が親切", "ケーキが美味しい", "席が空いている"], ans: 1,
+      exp: "『あそこのケーキ、美味しいんだよ。』",
+      level: "easy"
+    },
+    {
+      q: "待ち合わせ時間は？",
+      choices: ["六時", "六時半", "七時"], ans: 1,
+      exp: "『六時半。少し早めに会いたいから。』",
+      level: "easy"
+    },
+    {
+      q: "『無理しないでね。君が来てくれるだけで嬉しいから。』この発話の意図は？",
+      choices: ["予定を延期したい", "相手の負担を軽くしたい", "もっと早く来てほしい"], ans: 1,
+      exp: "“無理しないで”は配慮表現。",
+      level: "mid"
+    },
+    {
+      q: "『ドキドキしてる』はどんな気持ち？",
+      choices: ["緊張/ときめき", "怒り", "落ち込み"], ans: 0,
+      exp: "恋愛文脈では主に『ときめき』。",
+      level: "mid"
+    },
+    {
+      q: "二人の合意形成の流れとして最も近いものは？",
+      choices: ["提案→拒否→解散", "提案→条件提示→同意", "決定→反対→再決定"], ans: 1,
+      exp: "映画 or カフェ→『静かに』の条件→駅前カフェで合意。",
+      level: "hard"
+    }
+  ],
+  vocab: [
+    { q: "会いたい（あいたい）", choices: ["想見", "想睡", "想吃"], ans: 0, exp: "動詞『会う』＋たい形＝想要見面。", level: "easy" },
+    { q: "甘える（あまえる）", choices: ["撒嬌、依賴", "道歉", "告白"], ans: 0, exp: "恋人/家人に対する依存的な可愛い行為。", level: "easy" },
+    { q: "改札（かいさつ）", choices: ["月台", "售票口/檢票口", "站務室"], ans: 1, exp: "駅の『改札口』で待ち合わせが定番。", level: "easy" },
+    { q: "駅前（えきまえ）", choices: ["車站前", "車站後", "車站內"], ans: 0, exp: "地理的指示。", level: "easy" },
+    { q: "ドキドキ", choices: ["心跳加速", "生氣", "冷靜"], ans: 0, exp: "擬態語：緊張/心動。", level: "mid" },
+    { q: "無理しないで", choices: ["別勉強", "別勉強しないで", "別勉強の意味ではない"], ans: 2, exp: "直譯非『不要讀書』；語用＝別勉強/逞強。", level: "mid" },
+    { q: "準備（じゅんび）", choices: ["集合", "準備", "遲到"], ans: 1, exp: "名詞/サ変動詞。", level: "easy" },
+    { q: "ケーキ", choices: ["咖啡", "蛋糕", "麵包"], ans: 1, exp: "外來語。", level: "easy" }
+  ],
+  pattern: [
+    { q: "AよりBの方がC：『映画よりもカフェの方がいい』の機能は？", choices:["比較：B較A更～", "讓步：即使A也～", "假定：如果A那就B"], ans:0, exp:"より…の方が＝比較句型。", level:"easy" },
+    { q: "～だけで：『君が来てくれるだけで嬉しい』の含意は？", choices:["原因・理由", "限定・充分條件", "轉折"], ans:1, exp:"『～だけで』＝只要…就…（充分條件/限定）。", level:"mid" },
+    { q: "～てもいい：『子どもでもいいよ』の文法は？", choices:["逆接讓步『就算…也可以』", "禁止『不可以…』", "推測『大概…吧』"], ans:0, exp:"名詞＋でもいい＝即使…也好/可以。", level:"mid" },
+    { q: "～しようか：勧誘用法として正しいものは？", choices:["命令", "邀約/提議", "可能"], ans:1, exp:"『…にしようか』＝要不要…？（提議）。", level:"easy" },
+    { q: "疑問の『の？』：『また食べたいの？』の語用は？", choices:["強い断定", "柔らかい疑問・確認", "感嘆"], ans:1, exp:"終助詞『の』で柔らかいニュアンス。", level:"mid" },
+    { q: "～たい：『会いたい』の活用", choices:["形容詞活用", "動詞連用形＋たい（希望）", "名詞＋たい"], ans:1, exp:"動詞連用形＋たい＝願望。", level:"easy" }
+  ]
+};
+
+// ===== 狀態 =====
+let state = {
+  mode: localStorage.getItem('mode') || 'meaning',
+  difficulty: localStorage.getItem('difficulty') || 'all',
+  idx: parseInt(localStorage.getItem('idx') || '0', 10),
+  flipped: false,
+  order: []
+};
+
+const els = {
+  mode: document.getElementById('mode'),
+  difficulty: document.getElementById('difficulty'),
+  progressBar: document.getElementById('progressBar'),
+  meta: document.getElementById('meta'),
+  question: document.getElementById('question'),
+  choices: document.getElementById('choices'),
+  hint: document.getElementById('hint'),
+  answer: document.getElementById('answer'),
+  answerMeta: document.getElementById('answerMeta'),
+  flip: document.getElementById('flip'),
+  flipBtn: document.getElementById('flipBtn'),
+  prev: document.getElementById('prev'),
+  next: document.getElementById('next'),
+  markGood: document.getElementById('markGood'),
+  markBad: document.getElementById('markBad'),
+  shuffleAll: document.getElementById('shuffleAll'),
+  resetProgress: document.getElementById('resetProgress')
+};
+
+function pool() {
+  let list = QA[state.mode].slice();
+  if (state.difficulty !== 'all') list = list.filter(x => x.level === state.difficulty);
+  return list;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function ensureOrder() {
+  const list = pool();
+  if (!state.order.length || state.order.length !== list.length) {
+    state.order = list.map((_, i) => i);
+  }
+  state.idx = Math.min(state.idx, state.order.length - 1);
+}
+
+function saveState() {
+  localStorage.setItem('mode', state.mode);
+  localStorage.setItem('difficulty', state.difficulty);
+  localStorage.setItem('idx', String(state.idx));
+}
+
+function render() {
+  const list = pool();
+  if (!list.length) {
+    els.meta.textContent = '沒有符合此難度的題目。';
+    els.question.textContent = '—';
+    els.choices.innerHTML = '';
+    els.answerMeta.textContent = '';
+    els.answer.textContent = '';
+    els.progressBar.style.width = '0%';
+    return;
+  }
+  const item = list[state.order[state.idx]];
+  els.meta.textContent = `模式：${labelOf(state.mode)}　難度：${labelLevel(item.level)}　題號：${state.idx+1}/${list.length}`;
+  els.question.textContent = item.q;
+  els.hint.textContent = '';
+  els.choices.innerHTML = '';
+  if (item.choices) {
+    item.choices.forEach((c, i) => {
+      const div = document.createElement('div');
+      div.className = 'choice';
+      div.textContent = `${i+1}. ${c}`;
+      div.addEventListener('click', () => choose(i, item));
+      els.choices.appendChild(div);
+    });
+    els.hint.textContent = '提示：可按鍵 1-4 選擇';
+  }
+  els.answerMeta.textContent = '解析';
+  const ansText = item.choices ? `正解：${item.choices[item.ans]}\n\n${item.exp || ''}` : (item.exp || '');
+  els.answer.textContent = ansText;
+  els.flip.classList.toggle('show', state.flipped);
+  els.progressBar.style.width = `${((state.idx+1)/list.length)*100}%`;
+  saveState();
+}
+
+function labelOf(mode){
+  return mode === 'meaning' ? '文意' : mode === 'vocab' ? '單字' : '句型';
+}
+function labelLevel(l){
+  return l==='easy'?'入門':l==='mid'?'一般':'挑戰';
+}
+
+function choose(i, item){
+  const nodes = els.choices.querySelectorAll('.choice');
+  nodes.forEach(n => n.classList.remove('correct','wrong'));
+  if (i === item.ans) {
+    nodes[i].classList.add('correct');
+  } else {
+    nodes[i].classList.add('wrong');
+    if (typeof item.ans === 'number' && nodes[item.ans]) nodes[item.ans].classList.add('correct');
+  }
+}
+
+function flip(){ state.flipped = !state.flipped; render(); }
+function next(){ const list = pool(); if (!list.length) return; state.idx = (state.idx + 1) % list.length; state.flipped = false; render(); }
+function prev(){ const list = pool(); if (!list.length) return; state.idx = (state.idx - 1 + list.length) % list.length; state.flipped = false; render(); }
+
+// spaced repetition-ish: just mark counts
+function mark(which){
+  const key = `stats_${state.mode}`;
+  const stats = JSON.parse(localStorage.getItem(key) || '{}');
+  const id = pool()[state.order[state.idx]].q;
+  stats[id] = stats[id] || { good:0, bad:0 };
+  stats[id][which]++;
+  localStorage.setItem(key, JSON.stringify(stats));
+  next();
+}
+
+// ===== 綁定 =====
+els.mode.value = state.mode;
+els.difficulty.value = state.difficulty;
+
+function refreshOrder(){ ensureOrder(); render(); }
+
+els.mode.addEventListener('change', () => { state.mode = els.mode.value; state.idx = 0; state.flipped = false; state.order = []; refreshOrder(); });
+els.difficulty.addEventListener('change', () => { state.difficulty = els.difficulty.value; state.idx = 0; state.flipped = false; state.order = []; refreshOrder(); });
+els.flipBtn.addEventListener('click', flip);
+els.next.addEventListener('click', next);
+els.prev.addEventListener('click', prev);
+els.markGood.addEventListener('click', () => mark('good'));
+els.markBad.addEventListener('click', () => mark('bad'));
+els.shuffleAll.addEventListener('click', () => { state.order = shuffle(pool().map((_,i)=>i)); state.idx = 0; state.flipped = false; render(); });
+els.resetProgress.addEventListener('click', () => { localStorage.removeItem('stats_meaning'); localStorage.removeItem('stats_vocab'); localStorage.removeItem('stats_pattern'); alert('已清除本地練習紀錄。'); });
+
+// 鍵盤快捷
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); flip(); }
+  if (e.key === 'ArrowRight') next();
+  if (e.key === 'ArrowLeft') prev();
+  const n = parseInt(e.key,10);
+  if (n>=1 && n<=4) {
+    const list = pool(); if (!list.length) return; const item = list[state.order[state.idx]];
+    if (item.choices) choose(n-1, item);
+  }
+});
+
+// 初始化
+ensureOrder();
+render();
+</script>
+</body>
+</html>
