@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>戰後臺灣民主進程｜拖拉配對互動</title>
+  <style>
+    :root{
+      --bg:#fafafa;--ink:#222;--muted:#666;--ok:#1b9e77;--no:#d95f02;--accent:#3b82f6;
+      --card:#fff;--drop:#eef2ff;--chip:#f1f5f9;
+    }
+    html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans",sans-serif;}
+    .wrap{max-width:1200px;margin:24px auto;padding:0 16px 64px;}
+    h1{font-size:clamp(22px,2.6vw,32px);margin:8px 0 4px}
+    .subtitle{color:var(--muted);margin:0 0 16px}
+    .grid{display:grid;grid-template-columns:1.2fr .9fr .9fr;gap:16px}
+    @media (max-width: 980px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border-radius:16px;box-shadow:0 6px 16px rgba(0,0,0,.06);padding:14px}
+    .years{display:grid;gap:12px}
+    .year-card{background:var(--drop);border:2px dashed #c7d2fe;border-radius:14px;padding:12px;display:grid;gap:8px}
+    .year-head{display:flex;align-items:center;justify-content:space-between}
+    .year{font-weight:700;font-size:18px}
+    .mini{font-size:12px;color:var(--muted)}
+    .dropzone{min-height:42px;border-radius:10px;background:#fff;display:flex;align-items:center;gap:8px;padding:8px}
+    .dropzone[data-filled="true"]{outline:2px solid var(--ok)}
+    .dz-label{font-size:12px;color:var(--muted);margin-right:6px}
+    .chip{user-select:none;cursor:grab;display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--chip);border:1px solid #e2e8f0}
+    .chip[data-type="event"]{--dot:#334155}
+    .chip[data-type="impact"]{--dot:#0891b2}
+    .chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--dot)}
+    .banks{display:grid;gap:10px}
+    .bank{display:flex;flex-wrap:wrap;gap:8px}
+    .tag{font-size:12px;color:#475569;background:#e2e8f0;padding:2px 8px;border-radius:8px;margin-right:8px}
+    .figure{display:none;margin-top:8px;border-left:4px solid #c7d2fe;padding-left:10px}
+    .figure img{max-width:100%;border-radius:10px;display:block}
+    .figure figcaption{font-size:12px;color:var(--muted);margin-top:4px}
+    .figure a{color:#475569}
+    .done .figure{display:block}
+    .done .year-card{border-color:#86efac;background:#f0fdf4}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+    button{cursor:pointer;border:none;border-radius:10px;padding:8px 12px;background:var(--accent);color:white;font-weight:600}
+    button.secondary{background:#e5e7eb;color:#111}
+    .legend{font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>戰後臺灣民主進程｜拖拉配對互動</h1>
+    <p class="subtitle">把「事件名稱」與「影響」拖到正確年份。兩者皆正確後，會顯示一張對應圖片與說明，幫助理解事件的意義。</p>
+
+    <div class="toolbar">
+      <button id="btnReset" title="清空作答並重新開始">重新開始</button>
+      <button id="btnReveal" class="secondary" title="顯示答案（示範或帶讀時使用）">顯示答案</button>
+      <span class="legend">提示：拖拉失敗會抖動提醒；放到錯誤年份會回到原位。</span>
+    </div>
+
+    <div class="grid">
+      <!-- 年份與投放區 -->
+      <section class="card years" id="years"></section>
+
+      <!-- 事件名稱題庫 -->
+      <section class="card">
+        <div class="tag">事件名稱（拖曳至相符年份）</div>
+        <div class="bank" id="bank-events"></div>
+      </section>
+
+      <!-- 影響敘述題庫 -->
+      <section class="card">
+        <div class="tag">影響（拖曳至相符年份）</div>
+        <div class="bank" id="bank-impacts"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // ====== 題庫資料（可自由替換圖片與說明） ======
+    const ITEMS = [
+      {
+        year: 1945,
+        roc: 34,
+        event: "戰後接收（中華民國接收臺澎）",
+        impact: "殖民統治結束，社會對平等與自由的期待高漲，但治理磨合引發矛盾。",
+        img: {
+          src: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Taiwan_Administrative_Divisions_1945.svg/640px-Taiwan_Administrative_Divisions_1945.svg.png",
+          caption: "戰後初期行政區示意（示意圖）",
+          credit: "來源：Wikimedia Commons"
+        }
+      },
+      {
+        year: 1947,
+        roc: 36,
+        event: "二二八事件",
+        impact: "政府武力鎮壓造成傷亡，民眾對政府信任受創，成為民主發展的歷史傷痛。",
+        img: {
+          src: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/228_Peace_Memorial_Park_Monument_20190202.jpg/640px-228_Peace_Memorial_Park_Monument_20190202.jpg",
+          caption: "臺北二二八和平紀念公園紀念碑",
+          credit: "來源：Wikimedia Commons"
+        }
+      },
+      {
+        year: 1949,
+        roc: 38,
+        event: "實施戒嚴",
+        impact: "長期限制言論、出版與集會，人民參政權受壓抑，民主倒退。",
+        img: {
+          src: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Green_Island_White_Terror_Memorial_Park_20100723.jpg/640px-Green_Island_White_Terror_Memorial_Park_20100723.jpg",
+          caption: "白色恐怖綠島人權文化園區（示意）",
+          credit: "來源：Wikimedia Commons"
+        }
+      },
+      {
+        year: 1979,
+        roc: 68,
+        event: "美麗島事件",
+        impact: "民主運動遭鎮壓與審判，卻擴大社會對人權與自由的關注，成為改革轉捩點。",
+        img: {
+          src: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Formosa_Magazine.jpg/480px-Formosa_Magazine.jpg",
+          caption: "《美麗島》雜誌封面（示意）",
+          credit: "來源：Wikimedia Commons"
+        }
+      },
+      {
+        year: 1987,
+        roc: 76,
+        event: "解除戒嚴",
+        impact: "政黨、報社與電視臺紛紛成立，言論更自由，政治民主化加速。",
+        img: {
+          src: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/1987_End_of_Martial_Law_Taiwan_protest.jpg/640px-1987_End_of_Martial_Law_Taiwan_protest.jpg",
+          caption: "解嚴前後的街頭訴求（示意）",
+          credit: "來源：Wikimedia Commons"
+        }
+      },
+      {
+        year: 1996,
+        roc: 85,
+        event: "首次總統直選",
+        impact: "人民以選票直接選出總統與副總統，民主里程碑。",
+        img: {
+          src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Taiwan_1996_Presidential_Election_Ballot.jpg/640px-Taiwan_1996_Presidential_Election_Ballot.jpg",
+          caption: "1996 年總統選舉選票（示意）",
+          credit: "來源：Wikimedia Commons"
+        }
+      },
+      {
+        year: 2016,
+        roc: 105,
+        event: "首位女性總統",
+        impact: "民主制度不受性別設限，展現性別平等價值。",
+        img: {
+          src: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/2016_Tsai_Ing-wen_inauguration.jpg/640px-2016_Tsai_Ing-wen_inauguration.jpg",
+          caption: "2016 年就職典禮（示意）",
+          credit: "來源：Wikimedia Commons"
+        }
+      }
+    ];
+
+    // ====== 工具 ======
+    const $ = (sel, el=document) => el.querySelector(sel);
+    const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+    // ====== 產生年份卡 ======
+    const yearsEl = $('#years');
+    ITEMS.forEach((it, idx)=>{
+      const card = document.createElement('div');
+      card.className = 'year-card';
+      card.dataset.year = it.year;
+      card.innerHTML = `
+        <div class="year-head">
+          <div>
+            <div class="year">${it.year} 年（民國 ${it.roc} 年）</div>
+            <div class="mini">請拖入：事件名稱 + 影響</div>
+          </div>
+        </div>
+        <div class="dropzone" data-slot="event" aria-label="事件名稱投放區"><span class="dz-label">事件：</span></div>
+        <div class="dropzone" data-slot="impact" aria-label="影響投放區"><span class="dz-label">影響：</span></div>
+        <figure class="figure">
+          <img alt="${it.event} 圖片" loading="lazy" />
+          <figcaption></figcaption>
+        </figure>
+      `;
+      yearsEl.appendChild(card);
+    });
+
+    // ====== 建立拖曳題庫 ======
+    const evBank = $('#bank-events');
+    const imBank = $('#bank-impacts');
+
+    const shuffle = (arr) => arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
+    const events = shuffle(ITEMS).map(it=>({id:`e-${it.year}`, year:it.year, text:it.event, type:'event'}));
+    const impacts = shuffle(ITEMS).map(it=>({id:`i-${it.year}`, year:it.year, text:it.impact, type:'impact'}));
+
+    function makeChip(obj){
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.draggable = true;
+      chip.textContent = obj.text;
+      chip.dataset.id = obj.id;
+      chip.dataset.year = obj.year;
+      chip.dataset.type = obj.type;
+      chip.setAttribute('aria-grabbed', 'false');
+      chip.addEventListener('dragstart', (e)=>{
+        e.dataTransfer.setData('text/plain', JSON.stringify(obj));
+        chip.style.opacity = .6;
+        chip.setAttribute('aria-grabbed','true');
+      });
+      chip.addEventListener('dragend', ()=>{
+        chip.style.opacity = 1;
+        chip.setAttribute('aria-grabbed','false');
+      });
+      return chip;
+    }
+
+    events.forEach(o=>evBank.appendChild(makeChip(o)));
+    impacts.forEach(o=>imBank.appendChild(makeChip(o)));
+
+    // ====== Drop 行為 ======
+    $$('.dropzone').forEach(dz=>{
+      dz.addEventListener('dragover', (e)=>{ e.preventDefault(); dz.style.outline='2px solid #93c5fd'; });
+      dz.addEventListener('dragleave', ()=>{ dz.style.outline='none'; });
+      dz.addEventListener('drop', (e)=>{
+        e.preventDefault(); dz.style.outline='none';
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const hostYear = +dz.closest('.year-card').dataset.year;
+        const wantType = dz.dataset.slot; // event or impact
+        if(data.year !== hostYear || data.type !== wantType){
+          // 錯誤：抖動並歸位
+          dz.animate([{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}], {duration:260});
+          return;
+        }
+        // 正確：填入並標記
+        if(dz.dataset.filled === 'true') return; // 已填
+        const chip = document.querySelector(`.chip[data-id='${data.id}']`);
+        dz.appendChild(chip);
+        dz.dataset.filled = 'true';
+        dz.closest('.year-card').classList.toggle('done', isCardDone(dz.closest('.year-card')));
+        if(dz.closest('.year-card').classList.contains('done')) revealFigure(dz.closest('.year-card'));
+      });
+    });
+
+    function isCardDone(card){
+      const slots = $$('.dropzone', card);
+      return slots.every(s=>s.dataset.filled==='true');
+    }
+
+    function revealFigure(card){
+      const y = +card.dataset.year;
+      const it = ITEMS.find(v=>v.year===y);
+      const fig = $('.figure', card);
+      $('img', fig).src = it.img.src;
+      $('figcaption', fig).innerHTML = `${it.img.caption}｜<span>${it.event}</span>｜<em>${it.img.credit}</em>`;
+    }
+
+    // ====== 控制列 ======
+    $('#btnReset').addEventListener('click', ()=>{
+      // 重置所有欄位
+      $$('.dropzone').forEach(z=>{ z.dataset.filled='false'; z.innerHTML = `<span class="dz-label">${z.dataset.slot==='event'?'事件':'影響'}：</span>`; });
+      $$('.year-card').forEach(c=>c.classList.remove('done'));
+      // 回收所有 chip
+      [...$$('.chip')].forEach(ch=>{
+        if(ch.dataset.type==='event') evBank.appendChild(ch); else imBank.appendChild(ch);
+      });
+    });
+
+    $('#btnReveal').addEventListener('click', ()=>{
+      // 自動填滿正確答案（示範用）
+      $$('.dropzone').forEach(z=>{ z.dataset.filled='true'; });
+      ITEMS.forEach(it=>{
+        const card = $(`.year-card[data-year='${it.year}']`);
+        const chipE = $(`.chip[data-id='e-${it.year}']`);
+        const chipI = $(`.chip[data-id='i-${it.year}']`);
+        $(`.dropzone[data-slot='event']`, card).appendChild(chipE);
+        $(`.dropzone[data-slot='impact']`, card).appendChild(chipI);
+        card.classList.add('done');
+        revealFigure(card);
+      });
+    });
+  </script>
+</body>
+</html>
