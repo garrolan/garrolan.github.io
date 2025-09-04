@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>戰後臺灣民主進程｜拖拉配對（無圖精簡＋易拖曳）</title>
+  <style>
+    :root{
+      --bg:#fafafa;--ink:#1f2937;--muted:#6b7280;--ok:#16a34a;--accent:#2563eb;--card:#fff;--drop:#eef2ff;--chip:#f8fafc;
+    }
+    html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans TC",sans-serif}
+    .wrap{max-width:1200px;margin:20px auto;padding:0 14px 56px}
+    h1{font-size:clamp(22px,2.6vw,32px);margin:4px 0}
+    .subtitle{color:var(--muted);margin:6px 0 14px}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+    .toolbar button, .toolbar .toggle{cursor:pointer;border:none;border-radius:10px;padding:8px 12px;background:var(--accent);color:#fff;font-weight:600}
+    .toolbar .secondary{background:#e5e7eb;color:#111}
+    .legend{font-size:12px;color:var(--muted)}
+
+    .grid{display:grid;grid-template-columns:1.15fr .85fr .85fr;gap:14px}
+    @media (max-width: 980px){.grid{grid-template-columns:1fr}}
+
+    .card{background:var(--card);border-radius:14px;box-shadow:0 6px 16px rgba(0,0,0,.06);padding:12px}
+
+    /* 左側年份：固定高度可滾動，右側題庫 sticky，便於拖曳 */
+    .years{display:grid;gap:10px;max-height:72vh;overflow:auto;padding-right:6px;scroll-behavior:smooth}
+    .years::-webkit-scrollbar{width:10px}
+    .years::-webkit-scrollbar-thumb{background:#c7d2fe;border-radius:10px}
+
+    .sticky{position:sticky;top:8px;align-self:start}
+
+    .year-card{background:var(--drop);border:2px dashed #c7d2fe;border-radius:12px;padding:10px;display:grid;gap:8px}
+    .year-head{display:flex;justify-content:space-between;align-items:center}
+    .year{font-weight:800}
+    .mini{font-size:12px;color:var(--muted)}
+    .dropzone{min-height:40px;border-radius:10px;background:#fff;display:flex;align-items:center;gap:8px;padding:6px 8px}
+    .dropzone[data-filled="true"]{outline:2px solid var(--ok)}
+    .dz-label{font-size:12px;color:var(--muted)}
+
+    .bank{display:flex;flex-wrap:wrap;gap:8px}
+    .tag{font-size:12px;color:#475569;background:#e2e8f0;padding:2px 8px;border-radius:8px;margin:0 0 6px 0}
+
+    .chip{user-select:none;cursor:grab;display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--chip);border:1px solid #e2e8f0}
+    .chip[data-type="event"]{--dot:#334155}
+    .chip[data-type="impact"]{--dot:#0891b2}
+    .chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--dot)}
+
+    .done .year-head{opacity:.9}
+    .collapsed .dropzone{display:none}
+
+    .nav-years{display:flex;flex-wrap:wrap;gap:6px}
+    .nav-years button{background:#eef2ff;color:#111;border:1px solid #c7d2fe}
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>戰後臺灣民主進程｜拖拉配對（無圖版）</h1>
+    <p class="subtitle">把「事件名稱」與「影響」拖到正確年份。左欄可滾動、右欄題庫固定，拖曳更輕鬆。</p>
+
+    <div class="toolbar">
+      <button id="btnReset" title="清空作答並重新開始">重新開始</button>
+      <button id="btnReveal" class="secondary" title="顯示答案（示範或帶讀時使用）">顯示答案</button>
+      <button id="btnCollapse" class="secondary" title="收合已完成卡片，縮短列表">收合已完成</button>
+      <span class="legend">提示：放到錯誤年份會回原位；正確配對會自動跳到下一個年份。</span>
+    </div>
+
+    <div class="card" style="margin-bottom:10px">
+      <div class="tag">快速跳年</div>
+      <div class="nav-years" id="navYears"></div>
+    </div>
+
+    <div class="grid">
+      <!-- 年份與投放區（可滾動） -->
+      <section class="card years" id="years"></section>
+
+      <!-- 事件名稱題庫（sticky） -->
+      <section class="card sticky">
+        <div class="tag">事件名稱（拖曳至相符年份）</div>
+        <div class="bank" id="bank-events"></div>
+      </section>
+
+      <!-- 影響敘述題庫（sticky） -->
+      <section class="card sticky">
+        <div class="tag">影響（拖曳至相符年份）</div>
+        <div class="bank" id="bank-impacts"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // ====== 題庫資料（無圖） ======
+    const ITEMS = [
+      { year:1945, roc:34, event:"戰後接收（中華民國接收臺澎）", impact:"殖民統治結束，社會對平等與自由的期待高漲，但治理磨合引發矛盾。" },
+      { year:1947, roc:36, event:"二二八事件", impact:"政府武力鎮壓造成傷亡，民眾對政府信任受創，成為民主發展的歷史傷痛。" },
+      { year:1949, roc:38, event:"實施戒嚴", impact:"長期限制言論、出版與集會，人民參政權受壓抑，民主倒退。" },
+      { year:1979, roc:68, event:"美麗島事件", impact:"民主運動遭鎮壓與審判，卻擴大社會對人權與自由的關注，成為改革轉捩點。" },
+      { year:1987, roc:76, event:"解除戒嚴", impact:"政黨、報社與電視臺紛紛成立，言論更自由，政治民主化加速。" },
+      { year:1996, roc:85, event:"首次總統直選", impact:"人民以選票直接選出總統與副總統，民主里程碑。" },
+      { year:2016, roc:105, event:"首位女性總統", impact:"民主制度不受性別設限，展現性別平等價值。" }
+    ];
+
+    // ====== 工具 ======
+    const $ = (sel, el=document) => el.querySelector(sel);
+    const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+    const yearsEl = $('#years');
+    const yearsNav = $('#navYears');
+
+    // 產生年份卡
+    ITEMS.forEach((it)=>{
+      const card = document.createElement('div');
+      card.className = 'year-card';
+      card.dataset.year = it.year;
+      card.innerHTML = `
+        <div class="year-head">
+          <div>
+            <div class="year">${it.year} 年（民國 ${it.roc} 年）</div>
+            <div class="mini">請拖入：事件名稱 + 影響</div>
+          </div>
+          <button class="toggle secondary" data-action="collapse" style="padding:4px 8px">收合</button>
+        </div>
+        <div class="dropzone" data-slot="event" aria-label="事件名稱投放區"><span class="dz-label">事件：</span></div>
+        <div class="dropzone" data-slot="impact" aria-label="影響投放區"><span class="dz-label">影響：</span></div>
+      `;
+      yearsEl.appendChild(card);
+
+      const b = document.createElement('button');
+      b.textContent = it.year;
+      b.className = 'secondary';
+      b.addEventListener('click', ()=> card.scrollIntoView({behavior:'smooth', block:'start'}));
+      yearsNav.appendChild(b);
+    });
+
+    // 題庫 chips
+    const evBank = $('#bank-events');
+    const imBank = $('#bank-impacts');
+    const shuffle = (arr) => arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
+    const events = shuffle(ITEMS).map(it=>({id:`e-${it.year}`, year:it.year, text:it.event, type:'event'}));
+    const impacts = shuffle(ITEMS).map(it=>({id:`i-${it.year}`, year:it.year, text:it.impact, type:'impact'}));
+
+    function makeChip(obj){
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.draggable = true;
+      chip.textContent = obj.text;
+      chip.dataset.id = obj.id;
+      chip.dataset.year = obj.year;
+      chip.dataset.type = obj.type;
+      chip.setAttribute('aria-grabbed','false');
+      chip.addEventListener('dragstart',(e)=>{
+        e.dataTransfer.setData('text/plain', JSON.stringify(obj));
+        chip.style.opacity=.6; chip.setAttribute('aria-grabbed','true');
+      });
+      chip.addEventListener('dragend',()=>{ chip.style.opacity=1; chip.setAttribute('aria-grabbed','false'); });
+      // 亦支援「點一下→自動放置」：若目前有 focus 的年份，就嘗試放入
+      chip.addEventListener('click',()=>{
+        const focusCard = $('.year-card.focus') || $$('.year-card').find(c=>!isCardDone(c));
+        if(!focusCard) return;
+        quickPlace(chip, focusCard);
+      });
+      return chip;
+    }
+
+    events.forEach(o=>evBank.appendChild(makeChip(o)));
+    impacts.forEach(o=>imBank.appendChild(makeChip(o)));
+
+    // Drop 行為
+    function attachDZ(dz){
+      dz.addEventListener('dragover', (e)=>{ e.preventDefault(); dz.style.outline='2px solid #93c5fd'; autoScroll(e);});
+      dz.addEventListener('dragleave', ()=>{ dz.style.outline='none'; });
+      dz.addEventListener('drop', (e)=>{
+        e.preventDefault(); dz.style.outline='none';
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        placeData(data, dz);
+      });
+    }
+    $$('.dropzone').forEach(attachDZ);
+
+    function placeData(data, dz){
+      const card = dz.closest('.year-card');
+      const hostYear = +card.dataset.year;
+      const wantType = dz.dataset.slot; // event/impact
+      if(data.year !== hostYear || data.type !== wantType){
+        dz.animate([{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}], {duration:260});
+        return;
+      }
+      if(dz.dataset.filled==='true') return;
+      const chip = document.querySelector(`.chip[data-id='${data.id}']`);
+      dz.appendChild(chip);
+      dz.dataset.filled='true';
+      card.classList.toggle('done', isCardDone(card));
+      if(isCardDone(card)) scrollToNext(card);
+    }
+
+    function isCardDone(card){
+      return $$('.dropzone', card).every(s=>s.dataset.filled==='true');
+    }
+
+    // 點按快速放置（支援鍵盤/點擊操作）
+    function quickPlace(chip, card){
+      const type = chip.dataset.type;
+      const slot = $(`.dropzone[data-slot='${type}']`, card);
+      const correctYear = +chip.dataset.year === +card.dataset.year;
+      if(!slot || slot.dataset.filled==='true') return;
+      if(!correctYear){
+        slot.animate([{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}], {duration:260});
+        return;
+      }
+      slot.appendChild(chip);
+      slot.dataset.filled='true';
+      card.classList.toggle('done', isCardDone(card));
+      if(isCardDone(card)) scrollToNext(card);
+    }
+
+    // 年份卡聚焦（點一下卡片，方便點按快速放置）
+    $$('.year-card').forEach(c=>{
+      c.addEventListener('click',()=>{
+        $$('.year-card').forEach(x=>x.classList.remove('focus'));
+        c.classList.add('focus');
+      });
+      // 個別收合
+      const btn = c.querySelector('.toggle');
+      btn.addEventListener('click',()=> c.classList.toggle('collapsed'));
+    });
+
+    // 拖曳時自動滾動左欄（解決清單太長）
+    function autoScroll(e){
+      const cont = yearsEl;
+      const rect = cont.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const edge = 60; // 感應邊界
+      const speed = 12; // 每幀位移
+      if(y < edge) cont.scrollTop -= speed;
+      else if(y > rect.height - edge) cont.scrollTop += speed;
+    }
+
+    // 完成後自動跳到下一張未完成卡
+    function scrollToNext(current){
+      const cards = $$('.year-card');
+      const idx = cards.indexOf(current);
+      const next = cards.slice(idx+1).find(c=>!isCardDone(c));
+      if(next) next.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    // 控制列
+    $('#btnReset').addEventListener('click', ()=>{
+      $$('.dropzone').forEach(z=>{ z.dataset.filled='false'; z.innerHTML = `<span class="dz-label">${z.dataset.slot==='event'?'事件':'影響'}：</span>`; });
+      $$('.year-card').forEach(c=>{ c.classList.remove('done','collapsed','focus'); });
+      [...$$('.chip')].forEach(ch=>{ (ch.dataset.type==='event'?evBank:imBank).appendChild(ch); });
+      yearsEl.scrollTo({top:0, behavior:'smooth'});
+    });
+
+    $('#btnReveal').addEventListener('click', ()=>{
+      $$('.dropzone').forEach(z=>{ z.dataset.filled='true'; });
+      ITEMS.forEach(it=>{
+        const card = $(`.year-card[data-year='${it.year}']`);
+        const chipE = $(`.chip[data-id='e-${it.year}']`);
+        const chipI = $(`.chip[data-id='i-${it.year}']`);
+        $(`.dropzone[data-slot='event']`, card).appendChild(chipE);
+        $(`.dropzone[data-slot='impact']`, card).appendChild(chipI);
+        card.classList.add('done');
+      });
+    });
+
+    // 收合已完成：再按一次取消
+    const btnCol = $('#btnCollapse');
+    let collapsed = false;
+    btnCol.addEventListener('click', ()=>{
+      collapsed = !collapsed;
+      btnCol.textContent = collapsed ? '展開已完成' : '收合已完成';
+      $$('.year-card').forEach(c=>{
+        if(isCardDone(c)) c.classList.toggle('collapsed', collapsed);
+      });
+    });
+
+  </script>
+</body>
+</html>
