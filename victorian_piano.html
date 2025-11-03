@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>維多利亞古宅小鋼琴</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #f5efe6 0, #d9cbb5 55%, #b7a48c 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      letter-spacing: 0.15em;
+      font-size: 1.4rem;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      margin-top: 0;
+      margin-bottom: 1.2rem;
+      font-size: 0.95rem;
+    }
+    .piano {
+      display: flex;
+      gap: 4px;
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.18);
+    }
+    .key {
+      width: 52px;
+      height: 180px;
+      border-radius: 8px;
+      border: 1px solid #b5a48e;
+      background: linear-gradient(to bottom, #fdfdfd, #f1ece4);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.06s ease, box-shadow 0.06s ease,
+        background 0.06s ease;
+      user-select: none;
+    }
+    .key:active {
+      transform: translateY(2px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15) inset;
+      background: linear-gradient(to bottom, #f1ece4, #e0d5c7);
+    }
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid #7d6a55;
+      background: rgba(255, 255, 255, 0.9);
+      cursor: pointer;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: background 0.12s ease, transform 0.08s ease,
+        box-shadow 0.12s ease;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.16);
+    }
+    .btn:hover {
+      background: #f5efe6;
+      transform: translateY(-1px);
+    }
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) inset;
+    }
+    .note-label {
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+      color: #4c3c2a;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>Victorian Parlor Piano</h1>
+    <p>點擊琴鍵發出 A～G 單音，或播放我們的小夜曲〈Pillow Nocturne〉。</p>
+  </div>
+
+  <div class="piano">
+    <button class="key" data-note="C">C</button>
+    <button class="key" data-note="D">D</button>
+    <button class="key" data-note="E">E</button>
+    <button class="key" data-note="F">F</button>
+    <button class="key" data-note="G">G</button>
+    <button class="key" data-note="A">A</button>
+    <button class="key" data-note="B">B</button>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="play-theme">播放 Pillow Nocturne</button>
+    <button class="btn" id="stop-theme">停止播放</button>
+  </div>
+  <div class="note-label" id="note-label">目前音符：—</div>
+
+  <script>
+    // 基本音高（第四八度）
+    const freqs = {
+      C: 261.63,
+      D: 293.66,
+      E: 329.63,
+      F: 349.23,
+      G: 392.0,
+      A: 440.0,
+      B: 493.88,
+    };
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioContext();
+    const label = document.getElementById("note-label");
+
+    let themeTimeouts = [];
+
+    function playNote(note, duration = 0.4) {
+      const freq = freqs[note];
+      if (!freq) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.value = freq;
+
+      const now = ctx.currentTime;
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.exponentialRampToValueAtTime(0.3, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + duration + 0.05);
+
+      label.textContent = "目前音符：" + note;
+    }
+
+    // 讓琴鍵可以點擊發音
+    document.querySelectorAll(".key").forEach((key) => {
+      key.addEventListener("click", () => {
+        const note = key.getAttribute("data-note");
+        playNote(note);
+      });
+    });
+
+    function clearTheme() {
+      themeTimeouts.forEach((t) => clearTimeout(t));
+      themeTimeouts = [];
+    }
+
+    // Pillow Nocturne：非常簡單的單音旋律
+    const theme = [
+      "D",
+      "F",
+      "E",
+      "D",
+      "C",
+      "D",
+      "E",
+      "G",
+      "E",
+      "D",
+      "D",
+      "C",
+      "D",
+      "F",
+      "E",
+      "D",
+    ];
+
+    document.getElementById("play-theme").addEventListener("click", () => {
+      clearTheme();
+      const beat = 550; // 每個音的間距（毫秒）
+
+      theme.forEach((note, index) => {
+        const t = setTimeout(() => {
+          playNote(note, 0.45);
+        }, index * beat);
+        themeTimeouts.push(t);
+      });
+    });
+
+    document.getElementById("stop-theme").addEventListener("click", () => {
+      clearTheme();
+    });
+  </script>
+</body>
+</html>
