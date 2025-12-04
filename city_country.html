@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>城鄉共好：永續決策模擬器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .stat-bar {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center text-gray-800">
+
+    <!-- Game Container -->
+    <div id="game-container" class="w-full max-w-4xl bg-white shadow-2xl rounded-xl overflow-hidden min-h-[600px] flex flex-col relative">
+        
+        <!-- Header -->
+        <header class="bg-teal-700 text-white p-4 flex justify-between items-center z-10">
+            <h1 class="text-xl font-bold"><i class="fas fa-balance-scale mr-2"></i>城鄉共好：永續決策模擬器</h1>
+            <div id="role-display" class="hidden text-sm bg-teal-800 px-3 py-1 rounded-full">
+                角色: <span id="current-role-name">未選擇</span>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-grow p-6 relative bg-gray-50">
+            
+            <!-- SCENE: START MENU -->
+            <div id="scene-start" class="text-center space-y-8 fade-in h-full flex flex-col justify-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">請選擇你的治理區域</h2>
+                    <p class="text-gray-600 max-w-lg mx-auto">
+                        台灣面臨極端的城鄉差距。都市人口過度集中（約80%），鄉村則面臨超高齡化（>20%）。
+                        <br>身為決策者，你將如何平衡發展與永續？
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto w-full">
+                    <!-- City Option -->
+                    <button onclick="startGame('city')" class="group relative bg-white p-6 rounded-xl border-2 border-blue-200 hover:border-blue-500 shadow-md hover:shadow-xl transition-all text-left">
+                        <div class="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-bl-lg rounded-tr-lg text-xs font-bold">人口密集</div>
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-4">
+                                <i class="fas fa-city text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">繁華都市</h3>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2"><strong>現況：</strong>房價高、交通擁擠、缺乏綠地。</p>
+                        <p class="text-xs text-gray-500 bg-gray-100 p-2 rounded">
+                            <i class="fas fa-info-circle mr-1"></i>數據：台灣約 78-80% 人口居住於此，六都資源過度集中。
+                        </p>
+                    </button>
+
+                    <!-- Rural Option -->
+                    <button onclick="startGame('rural')" class="group relative bg-white p-6 rounded-xl border-2 border-green-200 hover:border-green-500 shadow-md hover:shadow-xl transition-all text-left">
+                        <div class="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 rounded-bl-lg rounded-tr-lg text-xs font-bold">高齡化</div>
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 mr-4">
+                                <i class="fas fa-tractor text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">寧靜鄉村</h3>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2"><strong>現況：</strong>人口外移、醫療資源不足、交通不便。</p>
+                        <p class="text-xs text-gray-500 bg-gray-100 p-2 rounded">
+                            <i class="fas fa-info-circle mr-1"></i>數據：嘉義縣老人佔比達 22.3%，邁入超高齡社會。
+                        </p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SCENE: GAMEPLAY -->
+            <div id="scene-game" class="hidden h-full flex flex-col fade-in">
+                <!-- Stats Bar -->
+                <div class="grid grid-cols-3 gap-4 mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="text-center">
+                        <div class="text-xs text-gray-500 mb-1">財政預算</div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1">
+                            <div id="stat-money-bar" class="bg-yellow-500 h-2.5 rounded-full stat-bar" style="width: 50%"></div>
+                        </div>
+                        <span id="stat-money-val" class="font-bold text-sm">50</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs text-gray-500 mb-1">居民滿意度</div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1">
+                            <div id="stat-happy-bar" class="bg-pink-500 h-2.5 rounded-full stat-bar" style="width: 50%"></div>
+                        </div>
+                        <span id="stat-happy-val" class="font-bold text-sm">50</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs text-gray-500 mb-1">永續發展指數</div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1">
+                            <div id="stat-sustain-bar" class="bg-green-500 h-2.5 rounded-full stat-bar" style="width: 50%"></div>
+                        </div>
+                        <span id="stat-sustain-val" class="font-bold text-sm">50</span>
+                    </div>
+                </div>
+
+                <!-- Event Card -->
+                <div class="flex-grow flex items-center justify-center">
+                    <div class="bg-white p-8 rounded-xl shadow-lg border-l-4 border-teal-500 max-w-2xl w-full">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 id="event-title" class="text-2xl font-bold text-gray-800">事件標題</h3>
+                            <span id="progress-indicator" class="text-xs font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded">週次 1/5</span>
+                        </div>
+                        
+                        <!-- Data Context Block -->
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6 border border-blue-100 flex items-start">
+                            <i class="fas fa-chart-line text-blue-500 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="text-xs font-bold text-blue-700 uppercase mb-1">數據背景</h4>
+                                <p id="event-data" class="text-sm text-blue-900 italic">
+                                    這裡會顯示來自檔案的相關數據...
+                                </p>
+                            </div>
+                        </div>
+
+                        <p id="event-desc" class="text-gray-700 text-lg mb-8 leading-relaxed">
+                            事件描述內容...
+                        </p>
+
+                        <div id="choices-container" class="space-y-3">
+                            <!-- Buttons will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCENE: RESULT -->
+            <div id="scene-result" class="hidden h-full flex flex-col items-center justify-center fade-in text-center p-8">
+                <div class="mb-6">
+                    <i id="result-icon" class="fas fa-trophy text-6xl text-yellow-500"></i>
+                </div>
+                <h2 id="result-title" class="text-3xl font-bold mb-4">執政結束</h2>
+                <p id="result-desc" class="text-lg text-gray-600 mb-8 max-w-xl">
+                    結果描述...
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl mb-8">
+                    <div class="bg-white p-4 rounded shadow border border-gray-100">
+                        <div class="text-sm text-gray-500">最終財政</div>
+                        <div id="final-money" class="text-2xl font-bold text-yellow-600">0</div>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow border border-gray-100">
+                        <div class="text-sm text-gray-500">最終滿意度</div>
+                        <div id="final-happy" class="text-2xl font-bold text-pink-600">0</div>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow border border-gray-100">
+                        <div class="text-sm text-gray-500">最終永續度</div>
+                        <div id="final-sustain" class="text-2xl font-bold text-green-600">0</div>
+                    </div>
+                </div>
+
+                <button onclick="location.reload()" class="bg-teal-600 text-white px-8 py-3 rounded-lg hover:bg-teal-700 transition font-bold shadow-lg">
+                    <i class="fas fa-redo mr-2"></i>重新挑戰
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-100 p-3 text-center text-xs text-gray-500 border-t border-gray-200">
+            資料來源：參考檔案《4-3都市與鄉村為什麼需要永續發展？》
+        </footer>
+    </div>
+
+    <!-- Modal for Feedback -->
+    <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full mx-4 transform transition-all scale-100">
+            <h3 id="feedback-title" class="text-xl font-bold mb-2">結果</h3>
+            <p id="feedback-text" class="text-gray-600 mb-4">結果描述</p>
+            <div id="feedback-changes" class="flex gap-2 text-sm font-mono mb-4">
+                <!-- changes -->
+            </div>
+            <button onclick="closeModal()" class="w-full bg-teal-600 text-white py-2 rounded hover:bg-teal-700">繼續</button>
+        </div>
+    </div>
+
+    <script>
+        // --- GAME DATA ---
+        const scenarios = {
+            city: [
+                {
+                    title: "居住正義的兩難",
+                    data: "台北市房價所得比高達 16.1 倍，年輕人買不起房。政府推動「8年20萬戶」社會住宅計畫。",
+                    desc: "市中心有一塊國有地閒置，建商希望開發成高級豪宅區以增加稅收，但民間團體要求興建社會住宅。你該如何決定？",
+                    choices: [
+                        {
+                            text: "興建高級豪宅 (增加稅收)",
+                            impact: { money: 20, happy: -10, sustain: -5 },
+                            feedback: "市庫收入大增！但年輕人抗議這更加劇了貧富差距，且無助於解決居住問題。"
+                        },
+                        {
+                            text: "興建只租不賣的社會住宅",
+                            impact: { money: -10, happy: 15, sustain: 15 },
+                            feedback: "雖然支出增加，但落實了居住正義！採用混居模式（30%弱勢、70%一般戶），有效照顧了年輕人與弱勢。"
+                        },
+                        {
+                            text: "維持現狀，暫不開發",
+                            impact: { money: -2, happy: -5, sustain: 0 },
+                            feedback: "土地閒置浪費了資源，市民覺得政府行政效率低落。"
+                        }
+                    ]
+                },
+                {
+                    title: "水泥叢林 vs 城市綠洲",
+                    data: "台灣都市計畫區僅佔國土13%，卻住了約80%人口。高密度發展導致缺乏綠地與熱島效應。",
+                    desc: "商業區交通壅塞，有提案要將一處老舊平面停車場改建。該蓋成立體停車塔解決停車問題，還是改建為公園？",
+                    choices: [
+                        {
+                            text: "蓋立體停車塔 (解決停車)",
+                            impact: { money: 5, happy: 5, sustain: -10 },
+                            feedback: "停車變方便了，開車的人很開心。但更多車輛進入市中心，空氣變差，這不符合永續城市的「大眾運輸導向」。"
+                        },
+                        {
+                            text: "改建為滯洪池公園",
+                            impact: { money: -5, happy: 10, sustain: 20 },
+                            feedback: "雖然停車位變少，但城市變涼爽了，且滯洪池能在颱風時保護城市，提升了氣候韌性！"
+                        }
+                    ]
+                },
+                {
+                    title: "貧民窟還是新地標？",
+                    data: "社會住宅強調「混居模式」與「機能結合」，如荷蘭案例，避免標籤化。",
+                    desc: "新的社會住宅即將完工，周邊豪宅居民抗議，擔心房價下跌。你決定在社宅低樓層引入什麼設施？",
+                    choices: [
+                        {
+                            text: "單純的行政辦公室",
+                            impact: { money: 0, happy: -5, sustain: 0 },
+                            feedback: "周邊居民覺得冷冰冰的，並沒有促進社區融合，抗議聲浪依舊。"
+                        },
+                        {
+                            text: "結合托嬰中心與長照據點",
+                            impact: { money: -5, happy: 20, sustain: 15 },
+                            feedback: "太棒了！周邊居民也需要托育與長照服務，社宅反而成了社區受歡迎的核心，消除了「鄰避效應」。"
+                        }
+                    ]
+                }
+            ],
+            rural: [
+                {
+                    title: "超高齡社會的挑戰",
+                    data: "嘉義縣老年人口佔比約 22.3%，全台最高。每5人就有1個老人，且年輕人外流。",
+                    desc: "村裡的年輕人都去城市工作了，留下的獨居長輩無人照顧。衛生所經費有限，該優先投入哪個項目？",
+                    choices: [
+                        {
+                            text: "發放重陽節敬老禮金",
+                            impact: { money: -10, happy: 5, sustain: -10 },
+                            feedback: "長輩拿到錢很開心，但生病時還是沒人照顧，且一次性發現金對長遠財政是個負擔。"
+                        },
+                        {
+                            text: "設立社區關懷據點 (共餐/健康促進)",
+                            impact: { money: -10, happy: 15, sustain: 20 },
+                            feedback: "長輩們走出家門一起吃飯、運動，延緩了失能，落實了「在地老化」的目標！"
+                        }
+                    ]
+                },
+                {
+                    title: "偏鄉交通斷點",
+                    data: "交通部推動「幸福巴士/幸福小黃」，解決偏鄉大型公車載客率低、虧損停駛的問題。",
+                    desc: "村落離市區醫院很遠，客運公司因為載客量太低想砍掉公車路線。阿嬤去醫院變得很困難，你該怎麼辦？",
+                    choices: [
+                        {
+                            text: "補貼客運公司繼續開大巴",
+                            impact: { money: -20, happy: 0, sustain: -5 },
+                            feedback: "花了很多錢，但大公車還是常常空車跑，既不環保也不符合經濟效益。"
+                        },
+                        {
+                            text: "導入預約制「幸福小黃」",
+                            impact: { money: -5, happy: 20, sustain: 15 },
+                            feedback: "利用計程車或九人座車彈性接送，不僅省錢，還能直接開到阿嬤家門口，解決了「最後一哩路」！"
+                        }
+                    ]
+                },
+                {
+                    title: "地方創生：青年回流",
+                    data: "2019年為「地方創生元年」。強調產業與活下來，而不只是辦活動。",
+                    desc: "一群返鄉青年想創業，但缺乏資金與場地。當地長輩希望能蓋一個傳統的大型遊客中心來吸引觀光客。",
+                    choices: [
+                        {
+                            text: "蓋大型豪華遊客中心",
+                            impact: { money: -25, happy: 5, sustain: -5 },
+                            feedback: "遊客中心蓋好了，但沒有特色內容，很快變成了「蚊子館」，維護費拖垮財政。"
+                        },
+                        {
+                            text: "補助青年整修老屋創業",
+                            impact: { money: -10, happy: 15, sustain: 20 },
+                            feedback: "像「練習曲書店」或「坪林茶業」一樣，青年帶入了新創意與設計，讓老街活了起來，創造了真實的就業機會！"
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // --- GAME STATE ---
+        let state = {
+            role: null, // 'city' or 'rural'
+            money: 50,
+            happy: 50,
+            sustain: 50,
+            currentEventIndex: 0,
+            history: []
+        };
+
+        // --- DOM ELEMENTS ---
+        const els = {
+            container: document.getElementById('game-container'),
+            scenes: {
+                start: document.getElementById('scene-start'),
+                game: document.getElementById('scene-game'),
+                result: document.getElementById('scene-result')
+            },
+            stats: {
+                moneyBar: document.getElementById('stat-money-bar'),
+                happyBar: document.getElementById('stat-happy-bar'),
+                sustainBar: document.getElementById('stat-sustain-bar'),
+                moneyVal: document.getElementById('stat-money-val'),
+                happyVal: document.getElementById('stat-happy-val'),
+                sustainVal: document.getElementById('stat-sustain-val')
+            },
+            event: {
+                title: document.getElementById('event-title'),
+                desc: document.getElementById('event-desc'),
+                data: document.getElementById('event-data'),
+                indicator: document.getElementById('progress-indicator'),
+                choices: document.getElementById('choices-container')
+            },
+            modal: {
+                el: document.getElementById('feedback-modal'),
+                title: document.getElementById('feedback-title'),
+                text: document.getElementById('feedback-text'),
+                changes: document.getElementById('feedback-changes')
+            },
+            roleDisplay: document.getElementById('role-display'),
+            roleName: document.getElementById('current-role-name')
+        };
+
+        // --- FUNCTIONS ---
+
+        function switchScene(sceneName) {
+            Object.values(els.scenes).forEach(el => el.classList.add('hidden'));
+            els.scenes[sceneName].classList.remove('hidden');
+        }
+
+        function updateStats() {
+            // Clamp values between 0 and 100
+            state.money = Math.max(0, Math.min(100, state.money));
+            state.happy = Math.max(0, Math.min(100, state.happy));
+            state.sustain = Math.max(0, Math.min(100, state.sustain));
+
+            els.stats.moneyBar.style.width = `${state.money}%`;
+            els.stats.happyBar.style.width = `${state.happy}%`;
+            els.stats.sustainBar.style.width = `${state.sustain}%`;
+
+            els.stats.moneyVal.innerText = state.money;
+            els.stats.happyVal.innerText = state.happy;
+            els.stats.sustainVal.innerText = state.sustain;
+        }
+
+        function startGame(role) {
+            state.role = role;
+            state.money = 50;
+            state.happy = 50;
+            state.sustain = 50;
+            state.currentEventIndex = 0;
+            
+            // Update Header
+            els.roleDisplay.classList.remove('hidden');
+            els.roleName.innerText = role === 'city' ? '都會區市長' : '偏鄉縣長';
+            
+            // Start Game
+            updateStats();
+            loadEvent();
+            switchScene('game');
+        }
+
+        function loadEvent() {
+            const eventList = scenarios[state.role];
+            
+            if (state.currentEventIndex >= eventList.length) {
+                endGame();
+                return;
+            }
+
+            const event = eventList[state.currentEventIndex];
+            
+            els.event.title.innerText = event.title;
+            els.event.desc.innerText = event.desc;
+            els.event.data.innerText = event.data;
+            els.event.indicator.innerText = `事件 ${state.currentEventIndex + 1} / ${eventList.length}`;
+            
+            // Render Choices
+            els.event.choices.innerHTML = '';
+            event.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-lg border border-gray-200 hover:bg-teal-50 hover:border-teal-500 transition-all shadow-sm group";
+                btn.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-gray-700 group-hover:text-teal-700">${choice.text}</span>
+                        <i class="fas fa-chevron-right text-gray-300 group-hover:text-teal-500"></i>
+                    </div>
+                `;
+                btn.onclick = () => makeChoice(choice);
+                els.event.choices.appendChild(btn);
+            });
+        }
+
+        function makeChoice(choice) {
+            // Update State
+            state.money += choice.impact.money;
+            state.happy += choice.impact.happy;
+            state.sustain += choice.impact.sustain;
+            updateStats();
+
+            // Show Feedback Modal
+            els.modal.title.innerText = "決策結果";
+            els.modal.text.innerText = choice.feedback;
+            
+            // Format changes text
+            const getChangeHTML = (val, icon, color) => {
+                if(val === 0) return '';
+                const sign = val > 0 ? '+' : '';
+                return `<span class="${val > 0 ? 'text-green-600' : 'text-red-600'} bg-gray-100 px-2 py-1 rounded flex items-center"><i class="fas ${icon} mr-1"></i>${sign}${val}</span>`;
+            };
+            
+            els.modal.changes.innerHTML = `
+                ${getChangeHTML(choice.impact.money, 'fa-coins', 'yellow')}
+                ${getChangeHTML(choice.impact.happy, 'fa-smile', 'pink')}
+                ${getChangeHTML(choice.impact.sustain, 'fa-leaf', 'green')}
+            `;
+
+            els.modal.el.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            els.modal.el.classList.add('hidden');
+            state.currentEventIndex++;
+            loadEvent();
+        }
+
+        function endGame() {
+            switchScene('result');
+            
+            // Calculate Score
+            const total = state.money + state.happy + state.sustain;
+            const avg = total / 3;
+            
+            document.getElementById('final-money').innerText = state.money;
+            document.getElementById('final-happy').innerText = state.happy;
+            document.getElementById('final-sustain').innerText = state.sustain;
+
+            const titleEl = document.getElementById('result-title');
+            const descEl = document.getElementById('result-desc');
+            const iconEl = document.getElementById('result-icon');
+
+            if (avg >= 80) {
+                titleEl.innerText = "永續治理典範！";
+                titleEl.className = "text-3xl font-bold mb-4 text-green-600";
+                descEl.innerText = state.role === 'city' 
+                    ? "你成功打造了一個包容、韌性且宜居的現代化都市，實現了居住正義與環境共生。" 
+                    : "你成功活化了鄉村，吸引青年返鄉，並讓長者能在地安老，成為地方創生的傳奇！";
+                iconEl.className = "fas fa-medal text-6xl text-yellow-500";
+            } else if (avg >= 50) {
+                titleEl.innerText = "表現平穩";
+                titleEl.className = "text-3xl font-bold mb-4 text-blue-600";
+                descEl.innerText = "你盡力在預算與理想間取得平衡，雖然仍有改進空間，但至少維持了社會的穩定運作。";
+                iconEl.className = "fas fa-clipboard-check text-6xl text-blue-500";
+            } else {
+                titleEl.innerText = "需要再加油...";
+                titleEl.className = "text-3xl font-bold mb-4 text-red-600";
+                descEl.innerText = "政策導致了嚴重的失衡，可能是財政破產，或是民怨沸騰。永續發展需要更長遠的眼光。";
+                iconEl.className = "fas fa-exclamation-triangle text-6xl text-red-500";
+            }
+        }
+    </script>
+</body>
+</html>
