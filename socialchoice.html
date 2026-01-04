@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>戰後台灣經濟發展：人生選擇大冒險（六關卡）</title>
+  <style>
+    :root{
+      --bg1:#070014;
+      --bg2:#12002a;
+      --card:#120822cc;
+      --stroke:#ffffff2a;
+      --txt:#f7f3ff;
+      --muted:#cbbcff;
+      --good:#35ff8a;
+      --mid:#ffd34e;
+      --bad:#ff4e88;
+      --accent:#7c4dff;
+      --accent2:#00e5ff;
+      --shadow: 0 20px 60px rgba(0,0,0,.55);
+      --shake: 1;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      color:var(--txt);
+      font-family: ui-sans-serif, system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, #2a0a66 0%, transparent 60%),
+        radial-gradient(900px 600px at 85% 20%, #003b7a 0%, transparent 55%),
+        radial-gradient(900px 600px at 50% 95%, #3b0047 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    /* 背景漫畫爆炸點點 */
+    .dots{
+      position:fixed; inset:0;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,.10) 0 2px, transparent 2.2px),
+        radial-gradient(circle at 30% 60%, rgba(255,255,255,.09) 0 2px, transparent 2.2px),
+        radial-gradient(circle at 70% 30%, rgba(255,255,255,.08) 0 2px, transparent 2.2px),
+        radial-gradient(circle at 85% 70%, rgba(255,255,255,.07) 0 2px, transparent 2.2px);
+      background-size: 140px 140px;
+      mix-blend-mode: screen;
+      opacity:.55;
+      pointer-events:none;
+      filter: blur(.2px);
+      animation: drift 14s linear infinite;
+    }
+    @keyframes drift{ to{ transform: translate3d(-40px, 20px, 0); } }
+
+    /* 上方霓虹標題條 */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(90deg, rgba(124,77,255,.35), rgba(0,229,255,.20));
+      border-bottom:1px solid rgba(255,255,255,.16);
+    }
+    .topbar-inner{
+      max-width:1100px; margin:0 auto;
+      padding:12px 16px;
+      display:flex; align-items:center; gap:12px; justify-content:space-between;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      user-select:none;
+    }
+    .logo{
+      width:40px; height:40px; border-radius:14px;
+      background: conic-gradient(from 120deg, var(--accent), var(--accent2), #ff4edb, var(--accent));
+      box-shadow: 0 0 0 2px rgba(255,255,255,.18), 0 10px 30px rgba(0,0,0,.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .logo::after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: linear-gradient(120deg, rgba(255,255,255,.0), rgba(255,255,255,.35), rgba(255,255,255,.0));
+      transform: rotate(20deg);
+      animation: shine 2.8s ease-in-out infinite;
+    }
+    @keyframes shine{
+      0%{ transform: translateX(-60%) rotate(20deg); opacity:.0; }
+      35%{ opacity:.6; }
+      70%{ opacity:.0; }
+      100%{ transform: translateX(80%) rotate(20deg); opacity:0; }
+    }
+    .brand h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.5px;
+      text-shadow: 0 0 10px rgba(0,229,255,.25);
+      line-height:1.1;
+    }
+    .brand small{
+      display:block;
+      color: rgba(255,255,255,.85);
+      opacity:.85;
+      font-size:12px;
+      letter-spacing:.2px;
+    }
+
+    .pill{
+      display:flex; gap:10px; align-items:center;
+      font-size:12px;
+      color: rgba(255,255,255,.92);
+    }
+    .pill .tag{
+      padding:6px 10px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.20);
+      border-radius:999px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.20);
+      user-select:none;
+      white-space:nowrap;
+    }
+
+    main{
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px 16px 70px;
+      display:grid;
+      grid-template-columns: 1.4fr .9fr;
+      gap:18px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      main{ grid-template-columns: 1fr; }
+      .side{ order:2; }
+    }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--stroke);
+      border-radius:22px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(800px 300px at 20% 0%, rgba(124,77,255,.18), transparent 60%),
+        radial-gradient(800px 300px at 80% 0%, rgba(0,229,255,.14), transparent 60%);
+      pointer-events:none;
+    }
+
+    .hero{
+      padding:18px 18px 12px;
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
+      border-bottom:1px dashed rgba(255,255,255,.16);
+      position:relative;
+    }
+    .hero .title{
+      display:flex; flex-direction:column; gap:6px;
+      position:relative;
+      z-index:1;
+    }
+    .hero .title h2{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.6px;
+    }
+    .hero .title p{
+      margin:0;
+      color: rgba(255,255,255,.85);
+      font-size:13px;
+      line-height:1.35;
+    }
+
+    .meter{
+      display:flex; flex-direction:column; align-items:flex-end; gap:8px;
+      min-width:220px;
+      position:relative; z-index:1;
+    }
+    .bar{
+      width:100%;
+      height:10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.12);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.16);
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent2), var(--accent), #ff4edb);
+      border-radius:999px;
+      transition: width .45s ease;
+      box-shadow: 0 0 14px rgba(0,229,255,.25);
+    }
+    .meter .nums{
+      font-size:12px;
+      color: rgba(255,255,255,.90);
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;
+      user-select:none;
+    }
+    .nums span{
+      padding:4px 8px;
+      border-radius:999px;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.14);
+    }
+
+    .stage{
+      padding:18px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .scene{
+      display:grid;
+      grid-template-columns: 140px 1fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width: 520px){
+      .scene{ grid-template-columns: 1fr; }
+    }
+
+    .avatar{
+      width:140px;
+      height:140px;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.18);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.24), transparent 55%),
+        conic-gradient(from 90deg, rgba(0,229,255,.35), rgba(124,77,255,.35), rgba(255,78,136,.30), rgba(0,229,255,.35));
+      box-shadow: 0 18px 40px rgba(0,0,0,.45);
+      display:grid;
+      place-items:center;
+      position:relative;
+      overflow:hidden;
+      transform: rotate(-1deg);
+    }
+    .avatar .emoji{
+      font-size:54px;
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,.35));
+    }
+    .avatar .stamp{
+      position:absolute;
+      bottom:10px; right:10px;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.18);
+      font-size:12px;
+      color: rgba(255,255,255,.92);
+      transform: rotate(8deg);
+      text-shadow: 0 0 10px rgba(0,229,255,.25);
+      user-select:none;
+    }
+
+    .dialog{
+      padding:14px 14px;
+      border-radius:18px;
+      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.20);
+    }
+    .dialog h3{
+      margin:0 0 8px;
+      font-size:18px;
+      letter-spacing:.5px;
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .badge{
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(124,77,255,.18);
+      color: rgba(255,255,255,.95);
+      user-select:none;
+    }
+    .dialog p{
+      margin:0;
+      color: rgba(255,255,255,.88);
+      font-size:14px;
+      line-height:1.55;
+    }
+
+    .choices{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:10px;
+    }
+    @media (max-width: 680px){
+      .choices{ grid-template-columns: 1fr; }
+    }
+
+    .btn{
+      appearance:none;
+      border:none;
+      padding:12px 12px;
+      border-radius:18px;
+      cursor:pointer;
+      color:var(--txt);
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: 0 14px 35px rgba(0,0,0,.35);
+      text-align:left;
+      position:relative;
+      overflow:hidden;
+      transform: translateZ(0);
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+      min-height:86px;
+    }
+    .btn::before{
+      content:"";
+      position:absolute; inset:-30%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 60%);
+      transform: rotate(12deg);
+      opacity:.0;
+      transition: opacity .18s ease;
+    }
+    .btn:hover{ transform: translateY(-2px) scale(1.01); filter: brightness(1.08); }
+    .btn:hover::before{ opacity:.25; }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+
+    .btn .k{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      margin-bottom:6px;
+    }
+    .btn .k strong{
+      font-size:14px;
+      letter-spacing:.3px;
+    }
+    .btn .k .chip{
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.20);
+      background: rgba(0,0,0,.28);
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn .t{
+      font-size:13px;
+      line-height:1.35;
+      color: rgba(255,255,255,.9);
+    }
+
+    /* 三種選擇的戲劇色 */
+    .btn.good{ background: linear-gradient(180deg, rgba(53,255,138,.22), rgba(0,0,0,.18)); }
+    .btn.mid { background: linear-gradient(180deg, rgba(255,211,78,.20), rgba(0,0,0,.18)); }
+    .btn.bad { background: linear-gradient(180deg, rgba(255,78,136,.20), rgba(0,0,0,.18)); }
+
+    /* 結果區 */
+    .result{
+      display:none;
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.24);
+      position:relative;
+      overflow:hidden;
+    }
+    .result.show{ display:block; animation: pop .35s ease; }
+    @keyframes pop{
+      0%{ transform: scale(.96); opacity:0; }
+      100%{ transform: scale(1); opacity:1; }
+    }
+    .result .headline{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .result .headline h4{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.5px;
+      text-shadow: 0 0 16px rgba(0,229,255,.20);
+    }
+    .tone{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(124,77,255,.18);
+      font-size:12px;
+      user-select:none;
+    }
+    .tone.good{ background: rgba(53,255,138,.16); }
+    .tone.mid{ background: rgba(255,211,78,.14); }
+    .tone.bad{ background: rgba(255,78,136,.14); }
+
+    .result p{ margin:0; color: rgba(255,255,255,.9); line-height:1.55; font-size:14px; }
+    .hint{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px dashed rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.9);
+      font-size:13px;
+    }
+
+    .actions{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .mini{
+      cursor:pointer;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.20);
+      color: rgba(255,255,255,.92);
+      font-size:13px;
+      box-shadow: 0 14px 35px rgba(0,0,0,.28);
+      transition: transform .12s ease, filter .12s ease;
+      user-select:none;
+    }
+    .mini:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+    .mini:active{ transform: translateY(1px); }
+    .mini.primary{
+      background: linear-gradient(90deg, rgba(0,229,255,.22), rgba(124,77,255,.25));
+    }
+    .mini.danger{
+      background: linear-gradient(90deg, rgba(255,78,136,.18), rgba(0,0,0,.20));
+    }
+
+    /* 右側：人生履歷 */
+    .side .panel{
+      padding:16px;
+    }
+    .panel h3{
+      margin:0 0 10px;
+      font-size:16px;
+      letter-spacing:.4px;
+    }
+    .timeline{
+      display:grid;
+      gap:10px;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:10px 10px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+    }
+    .dot{
+      width:34px; height:34px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.18);
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.08);
+      flex:0 0 auto;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+    }
+    .row .meta{
+      display:flex; flex-direction:column; gap:4px;
+      min-width:0;
+    }
+    .row .meta .k{
+      font-size:13px;
+      color: rgba(255,255,255,.92);
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    }
+    .row .meta .k span{
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(124,77,255,.14);
+      color: rgba(255,255,255,.9);
+    }
+    .row .meta .v{
+      font-size:12px;
+      color: rgba(255,255,255,.85);
+      line-height:1.35;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient: vertical;
+    }
+    .row.locked{ opacity:.55; filter: grayscale(.25); }
+    .row.done{ opacity:1; filter:none; border-color: rgba(0,229,255,.25); }
+
+    .final{
+      display:none;
+      margin-top:10px;
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.24);
+      overflow:hidden;
+      position:relative;
+    }
+    .final.show{ display:block; animation: pop .35s ease; }
+    .final h4{ margin:0 0 8px; font-size:16px; }
+    .final .big{
+      font-size:18px;
+      letter-spacing:.6px;
+      margin:0 0 8px;
+      text-shadow: 0 0 18px rgba(255,78,136,.20);
+    }
+    .final .sum{
+      margin:0;
+      color: rgba(255,255,255,.90);
+      line-height:1.55;
+      font-size:14px;
+    }
+
+    /* 螢幕小彩蛋：搖晃震撼 */
+    .shake{
+      animation: shake .28s ease-in-out;
+    }
+    @keyframes shake{
+      0%{ transform: translateX(0); }
+      20%{ transform: translateX(calc(-6px * var(--shake))); }
+      40%{ transform: translateX(calc(6px * var(--shake))); }
+      60%{ transform: translateX(calc(-4px * var(--shake))); }
+      80%{ transform: translateX(calc(4px * var(--shake))); }
+      100%{ transform: translateX(0); }
+    }
+
+    /* Confetti canvas */
+    canvas#confetti{
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index:80;
+    }
+
+    /* 小小提示（教學用） */
+    .footer-note{
+      margin-top:12px;
+      font-size:12px;
+      color: rgba(255,255,255,.75);
+      line-height:1.45;
+    }
+    .kbd{
+      display:inline-block;
+      padding:2px 6px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.25);
+      font-size:11px;
+      color: rgba(255,255,255,.9);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+  <div class="dots"></div>
+  <canvas id="confetti"></canvas>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>戰後台灣經濟發展：人生選擇大冒險</h1>
+          <small>六關卡｜每關 1 句情境 + 3 個選擇 + 不同人生結局</small>
+        </div>
+      </div>
+      <div class="pill">
+        <div class="tag">🎭 誇張戲劇 UI</div>
+        <div class="tag">🧠 角色視角思考</div>
+        <div class="tag">🧾 人生履歷表</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 左：關卡主畫面 -->
+    <section class="card" id="mainCard">
+      <div class="hero">
+        <div class="title">
+          <h2 id="stageTitle">開場：按下開始，命運就開演</h2>
+          <p id="stageSub">你不是在選答案，你是在替角色選「人生」。</p>
+        </div>
+        <div class="meter">
+          <div class="bar" aria-label="進度條">
+            <div id="progressFill"></div>
+          </div>
+          <div class="nums">
+            <span id="progressText">進度：0 / 6</span>
+            <span id="scoreText">命運分數：0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="scene">
+          <div class="avatar" id="avatar">
+            <div class="emoji" id="avatarEmoji">🎬</div>
+            <div class="stamp" id="avatarStamp">序章</div>
+          </div>
+
+          <div class="dialog">
+            <h3>
+              <span id="roleName">導演旁白</span>
+              <span class="badge" id="eraBadge">準備上線</span>
+            </h3>
+            <p id="sceneText">
+              你將穿越 1940s → 1980s。每一關都有一個角色、一個時代、一個關鍵抉擇。<br/>
+              <b>規則：</b>點選 A/B/C，看結局；想重選可以「時光倒帶」；六關跑完會得到你的「人生總結局」。
+            </p>
+          </div>
+        </div>
+
+        <div class="choices" id="choices">
+          <!-- JS 動態插入 -->
+        </div>
+
+        <div class="result" id="resultBox" aria-live="polite">
+          <div class="headline">
+            <h4 id="resultTitle">命運播報</h4>
+            <div class="tone" id="toneChip">—</div>
+          </div>
+          <p id="resultText"></p>
+          <div class="hint" id="knowledgeHint"></div>
+          <div class="actions">
+            <button class="mini" id="redoBtn">⏪ 時光倒帶（重選本關）</button>
+            <button class="mini primary" id="nextBtn">➡️ 繼續下一關</button>
+            <button class="mini danger" id="resetBtn">💥 全部重來（清空人生）</button>
+          </div>
+        </div>
+
+        <div class="final" id="finalBox" aria-live="polite">
+          <h4>🎆 終章：你的「人生總結局」出爐！</h4>
+          <p class="big" id="finalTitle"></p>
+          <p class="sum" id="finalSummary"></p>
+          <div class="actions" style="margin-top:12px;">
+            <button class="mini primary" id="replayBtn">🔁 再玩一次（換個人生）</button>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          教學小提示：你也可以讓學生口頭說明「為什麼選這個」再按鈕，讓歷史變成「有理由的決策」。<br/>
+          小彩蛋：按鈕會有音效；重大命運會灑彩帶（如果瀏覽器允許）。<span class="kbd">（可離線使用）</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右：人生履歷 -->
+    <aside class="card side">
+      <div class="panel">
+        <h3>🧾 人生履歷表（你一路怎麼選）</h3>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    // ====== 資料：六關卡（依你提供的對應結果）=====
+    // outcomeScore：③=3（成長/紅利）、②=2（穩定/折衷）、①=1（代價/錯過/壓力）
+    const stages = [
+      {
+        id:1,
+        era:"民國40年代｜耕者有其田",
+        badge:"土地大改造",
+        role:"嘉南平原的農民阿成",
+        emoji:"🌾",
+        stamp:"農民",
+        scene:"你家世代耕作但都租地主土地，每年要繳三到五成租金。政府推動「耕者有其田」，你可以低利貸款買地。你要怎麼選？",
+        choices:[
+          { key:"A", label:"貸款購地，成為自耕農", tone:"good",
+            outcome:{ code:"③", score:3,
+              text:"你咬牙貸款買下土地！從此不用再繳高額地租，努力直接變成自己的收穫。生活更穩定，家人也更有盼望。",
+              hint:"關鍵概念：土地改革讓「耕者有其田」，農民從佃農轉為自耕農，收入與生活穩定度提升。"
+            }
+          },
+          { key:"B", label:"不願負債，繼續租地耕作", tone:"mid",
+            outcome:{ code:"②", score:2,
+              text:"你選擇不冒風險：繼續租地。雖然比較安心，但收入仍看天吃飯、租金固定，生活改善有限。",
+              hint:"關鍵概念：維持佃農身分＝地租壓力仍在，容易受天候與市場波動影響。"
+            }
+          },
+          { key:"C", label:"轉去糖廠做工，領穩定薪水", tone:"bad",
+            outcome:{ code:"①", score:1,
+              text:"你進糖廠當工人，工作時間固定、領薪水，但從此和土地漸漸疏遠。穩定是穩定了，卻也少了「擁有土地」的可能。",
+              hint:"關鍵概念：戰後逐步從農業走向工業，工廠提供工資與規律，但也帶來生活型態轉變。"
+            }
+          }
+        ]
+      },
+      {
+        id:2,
+        era:"1950年代｜美援與水庫興建",
+        badge:"吃什麼＋做什麼",
+        role:"大稻埕的主婦阿梅",
+        emoji:"🍞",
+        stamp:"主婦",
+        scene:"台灣剛走出戰後困難，美國提供麵粉、奶粉等物資；政府也開始興建石門水庫。你想怎麼提升家人生活？",
+        choices:[
+          { key:"A", label:"堅持傳統稻米，不改飲食", tone:"mid",
+            outcome:{ code:"②", score:2,
+              text:"你選擇熟悉的稻米。但當時稻米是外銷賺外匯的重要物資，價格較高，家中開銷變得比較吃緊。",
+              hint:"關鍵概念：美援物資補充糧食；稻米外銷換外匯，價格相對高，家庭負擔可能更大。"
+            }
+          },
+          { key:"B", label:"改用美援麵粉/奶粉，改善營養", tone:"good",
+            outcome:{ code:"③", score:3,
+              text:"你勇敢調整飲食！麵粉、奶粉補足蛋白質與澱粉，孩子體力、健康明顯變好，家人精神也更有力氣。",
+              hint:"關鍵概念：美援協助補充物資、改善營養，支撐戰後社會穩定與建設推進。"
+            }
+          },
+          { key:"C", label:"讓子女去石門水庫工地增加收入", tone:"bad",
+            outcome:{ code:"①", score:1,
+              text:"工地薪水不錯，但真的苦。家人長時間不在家，工地生活辛苦又危險；賺到錢，也付出很大的代價。",
+              hint:"關鍵概念：大型公共建設帶來就業與收入，但勞動強度高、家庭相處時間減少。"
+            }
+          }
+        ]
+      },
+      {
+        id:3,
+        era:"1960年代｜輕工業興起",
+        badge:"客廳即工廠",
+        role:"台中清水的少女秀琴",
+        emoji:"🧵",
+        stamp:"少女",
+        scene:"紡織、塑膠、食品加工快速成長，很多女生第一次出門做工。你要留在家務農？去工廠？還是去學技術？",
+        choices:[
+          { key:"A", label:"去紡織工廠上班，賺第一份薪水", tone:"good",
+            outcome:{ code:"③", score:3,
+              text:"你走進機台轟鳴的工廠，拿到人生第一份薪水。家中經濟改善，但你也得面對長時間、單調高壓的作業。",
+              hint:"關鍵概念：輕工業帶來大量就業與出口機會，但勞動密集、工時長，是工業化早期常見樣貌。"
+            }
+          },
+          { key:"B", label:"留在家務農與照顧家人", tone:"mid",
+            outcome:{ code:"②", score:2,
+              text:"你選擇安穩：留在家裡。生活步調熟悉，但也容易錯過工業化帶來的新機會，和外界發展距離變遠。",
+              hint:"關鍵概念：工業化轉型時，留在傳統農業較穩，但收入成長與機會可能受限。"
+            }
+          },
+          { key:"C", label:"去技術培訓班，先學一技之長", tone:"bad",
+            outcome:{ code:"①", score:1,
+              text:"你選擇先學技術，不急著去拚產量。短期可能賺得比較慢，但長遠更有彈性，未來更有機會拿到更好的職位。",
+              hint:"關鍵概念：投資技能＝提升職涯彈性（不是只賣勞力）。短期慢，長期可能更強。"
+            }
+          }
+        ]
+      },
+      {
+        id:4,
+        era:"1960s-1970s｜加工出口區",
+        badge:"工廠大爆發",
+        role:"高雄鳳山的青年阿泰",
+        emoji:"🏭",
+        stamp:"青年",
+        scene:"加工出口區成立、外國公司進駐，聽說薪水翻倍；也有人去外包小工廠或留在農村。你要怎麼走？",
+        choices:[
+          { key:"A", label:"去外包小工廠當臨時工（接單做）", tone:"good",
+            outcome:{ code:"③", score:3,
+              text:"你進了外包小工廠，工作彈性大，但收入跟訂單跑：旺季忙到飛起、淡季荷包就縮水。",
+              hint:"關鍵概念：外包/家庭式工廠在出口產業鏈中很常見；彈性高但不穩定。"
+            }
+          },
+          { key:"B", label:"留在家鄉務農（慢慢來）", tone:"bad",
+            outcome:{ code:"①", score:1,
+              text:"你留在農村，步調較慢、壓力小，但相較工業薪資飛快成長，農村收入提升空間很有限。",
+              hint:"關鍵概念：工業化時期，農業相對成長慢；城鄉差距容易拉大。"
+            }
+          },
+          { key:"C", label:"進加工出口區當正式員工（大廠制度）", tone:"mid",
+            outcome:{ code:"②", score:2,
+              text:"你進大工廠，制度完善、薪水高，但管理嚴格、工時長，還要適應長時間站立與高強度作業。",
+              hint:"關鍵概念：出口區帶動工業與外銷，提供較穩定高薪，但勞動強度也更大。"
+            }
+          }
+        ]
+      },
+      {
+        id:5,
+        era:"1970年代｜十大建設：中山高",
+        badge:"速度就是錢",
+        role:"台南的卡車司機阿國",
+        emoji:"🚚",
+        stamp:"司機",
+        scene:"中山高速公路通車，很多司機改跑高速路線。你要跟上？維持省道？或加入大公司固定排班？",
+        choices:[
+          { key:"A", label:"改跑高速公路長途運輸（拚效率）", tone:"good",
+            outcome:{ code:"③", score:3,
+              text:"你衝上高速公路！南北往返時間大縮短，效率提升、接更多單，收入也跟著往上跳。",
+              hint:"關鍵概念：交通建設降低運輸成本、提高效率，帶動物流與經濟活動。"
+            }
+          },
+          { key:"B", label:"繼續走省道（照舊）", tone:"bad",
+            outcome:{ code:"①", score:1,
+              text:"你照走省道：紅綠燈多、限速低，耗時費神。在講求效率的市場中，競爭力慢慢被拉開。",
+              hint:"關鍵概念：基礎建設改變市場競爭規則；不跟上可能被效率淘汰。"
+            }
+          },
+          { key:"C", label:"加入大型公司固定排班（穩定保障）", tone:"mid",
+            outcome:{ code:"②", score:2,
+              text:"你加入大公司，收入穩定、有保障，但也得配合公司調度與排班：自由度下降，換來安全感。",
+              hint:"關鍵概念：制度化企業提供穩定，但會壓縮個人彈性。"
+            }
+          }
+        ]
+      },
+      {
+        id:6,
+        era:"1980年代｜新竹科學園區",
+        badge:"高科技登場",
+        role:"新竹東區的阿慧",
+        emoji:"🧪",
+        stamp:"居民",
+        scene:"科學園區成立，人口湧入、城市快速發展。你家族在附近有土地。你要進園區？賣地搬走？還是做服務業？",
+        choices:[
+          { key:"A", label:"應徵園區技術員（高科技紅利）", tone:"good",
+            outcome:{ code:"③", score:3,
+              text:"你進園區吃到產業紅利，薪水更高、技能提升快。但新竹生活成本與房價也飛起來，壓力跟著升級。",
+              hint:"關鍵概念：高科技產業帶來高薪與人口集中，也推升房價與生活成本。"
+            }
+          },
+          { key:"B", label:"出售土地搬到鄉村（拿一桶金）", tone:"bad",
+            outcome:{ code:"①", score:1,
+              text:"你賣地立刻致富！但未來房價持續上漲，你看著自己曾擁有的增值可能離你而去；故鄉景觀也大變樣。",
+              hint:"關鍵概念：土地變現是一次性收入；但也可能失去長期增值與地方情感。"
+            }
+          },
+          { key:"C", label:"轉往服務業（餐飲/住宿/零售）", tone:"mid",
+            outcome:{ code:"②", score:2,
+              text:"你不當工程師也能賺：園區帶來大量人潮與消費，店裡客源穩。收入普通但穩定，靠需求成長慢慢擴張。",
+              hint:"關鍵概念：產業聚落會帶動周邊服務業需求，形成「間接受益」。"
+            }
+          }
+        ]
+      }
+    ];
+
+    // ====== 狀態 ======
+    const state = {
+      index: -1,        // -1 = 序章
+      score: 0,
+      picks: Array(stages.length).fill(null) // {stageId, choiceKey, outcomeCode, score, brief}
+    };
+
+    // ====== DOM ======
+    const stageTitle = document.getElementById("stageTitle");
+    const stageSub   = document.getElementById("stageSub");
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+    const scoreText = document.getElementById("scoreText");
+
+    const avatarEmoji = document.getElementById("avatarEmoji");
+    const avatarStamp = document.getElementById("avatarStamp");
+
+    const roleName = document.getElementById("roleName");
+    const eraBadge = document.getElementById("eraBadge");
+    const sceneText = document.getElementById("sceneText");
+
+    const choicesWrap = document.getElementById("choices");
+    const resultBox = document.getElementById("resultBox");
+    const resultTitle = document.getElementById("resultTitle");
+    const toneChip = document.getElementById("toneChip");
+    const resultText = document.getElementById("resultText");
+    const knowledgeHint = document.getElementById("knowledgeHint");
+
+    const redoBtn = document.getElementById("redoBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const finalBox = document.getElementById("finalBox");
+    const finalTitle = document.getElementById("finalTitle");
+    const finalSummary = document.getElementById("finalSummary");
+    const replayBtn = document.getElementById("replayBtn");
+
+    const timeline = document.getElementById("timeline");
+    const mainCard = document.getElementById("mainCard");
+
+    // ====== 音效（不依賴外部檔案）=====
+    let audioCtx = null;
+    function beep(type="click"){
+      try{
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+        const freq = type==="good" ? 880 : type==="mid" ? 660 : type==="bad" ? 220 : 520;
+        o.frequency.setValueAtTime(freq, now);
+        o.type = "square";
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.12, now+0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now+0.15);
+        o.start(now);
+        o.stop(now+0.16);
+      }catch(e){}
+    }
+
+    function screenShake(intensity=1){
+      mainCard.style.setProperty("--shake", intensity);
+      mainCard.classList.remove("shake");
+      void mainCard.offsetWidth; // reflow
+      mainCard.classList.add("shake");
+      setTimeout(()=>mainCard.classList.remove("shake"), 320);
+    }
+
+    // ====== Confetti（簡易）=====
+    const confCanvas = document.getElementById("confetti");
+    const ctx = confCanvas.getContext("2d");
+    let confettiPieces = [];
+    function resizeConfetti(){
+      confCanvas.width = window.innerWidth * devicePixelRatio;
+      confCanvas.height = window.innerHeight * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    }
+    window.addEventListener("resize", resizeConfetti);
+    resizeConfetti();
+
+    function throwConfetti(power=120){
+      const w = window.innerWidth, h = window.innerHeight;
+      const cx = w * 0.5, cy = h * 0.25;
+      const n = Math.min(220, Math.max(60, power));
+      for(let i=0;i<n;i++){
+        confettiPieces.push({
+          x: cx + (Math.random()*80-40),
+          y: cy + (Math.random()*40-20),
+          vx: (Math.random()*6-3) * (0.9 + Math.random()*0.6),
+          vy: (Math.random()*-8-2) * (0.9 + Math.random()*0.6),
+          r: 2 + Math.random()*4,
+          rot: Math.random()*Math.PI,
+          vr: (Math.random()*0.2-0.1),
+          life: 120 + Math.random()*60
+        });
+      }
+    }
+    function tickConfetti(){
+      ctx.clearRect(0,0,window.innerWidth, window.innerHeight);
+      confettiPieces = confettiPieces.filter(p=>p.life>0);
+      for(const p of confettiPieces){
+        p.life--;
+        p.vy += 0.22;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+
+        const alpha = Math.min(1, p.life/40);
+        ctx.globalAlpha = alpha;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillRect(-p.r, -p.r, p.r*2, p.r*2);
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(tickConfetti);
+    }
+    // 用不同顏色繪製：每一幀隨機變（誇張漫畫感）
+    const oldFillRect = ctx.fillRect.bind(ctx);
+    ctx.fillRect = function(x,y,w,h){
+      ctx.fillStyle = ["#00e5ff","#7c4dff","#ff4e88","#35ff8a","#ffd34e"][Math.floor(Math.random()*5)];
+      oldFillRect(x,y,w,h);
+    };
+    tickConfetti();
+
+    // ====== UI：人生履歷（右側）=====
+    function renderTimeline(){
+      timeline.innerHTML = "";
+      stages.forEach((s, i)=>{
+        const picked = state.picks[i];
+        const row = document.createElement("div");
+        row.className = "row " + (picked ? "done" : "locked");
+
+        const dot = document.createElement("div");
+        dot.className = "dot";
+        dot.textContent = picked ? "✅" : (i <= state.index ? "🕒" : "🔒");
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+
+        const k = document.createElement("div");
+        k.className = "k";
+        const title = document.createElement("div");
+        title.textContent = `第${i+1}關｜${s.role.split("的").pop()}`;
+        const tag = document.createElement("span");
+        tag.textContent = picked ? `選${picked.choiceKey}・${picked.outcomeCode}` : s.badge;
+
+        k.appendChild(title);
+        k.appendChild(tag);
+
+        const v = document.createElement("div");
+        v.className = "v";
+        v.textContent = picked ? picked.brief : "尚未寫下命運…";
+
+        meta.appendChild(k);
+        meta.appendChild(v);
+
+        row.appendChild(dot);
+        row.appendChild(meta);
+
+        timeline.appendChild(row);
+      });
+    }
+
+    // ====== 進度 ======
+    function renderProgress(){
+      const done = state.picks.filter(Boolean).length;
+      progressText.textContent = `進度：${done} / 6`;
+      scoreText.textContent = `命運分數：${state.score}`;
+      const pct = (done/6)*100;
+      progressFill.style.width = pct.toFixed(0) + "%";
+    }
+
+    // ====== 序章 / 關卡渲染 ======
+    function renderIntro(){
+      state.index = -1;
+      stageTitle.textContent = "序章：命運導演喊卡之前，你都能重選";
+      stageSub.textContent = "六個角色，六次抉擇：看見政策與建設如何改變人生。";
+      avatarEmoji.textContent = "🎬";
+      avatarStamp.textContent = "序章";
+      roleName.textContent = "導演旁白";
+      eraBadge.textContent = "按下開始";
+      sceneText.innerHTML = `
+        你將依序經歷：土地改革 → 美援/水庫 → 輕工業 → 加工出口區 → 十大建設 → 科學園區。<br/>
+        <b>玩法：</b>每關選 A/B/C，立刻看到不同人生結果；完成六關會生成你的「人生總結局」。
+      `;
+      resultBox.classList.remove("show");
+      finalBox.classList.remove("show");
+
+      choicesWrap.innerHTML = "";
+      const startBtn = document.createElement("button");
+      startBtn.className = "btn good";
+      startBtn.innerHTML = `
+        <div class="k"><strong>🚀 開始演出：第一關登場</strong><span class="chip">按我</span></div>
+        <div class="t">把手放在滑鼠上，你就是命運。</div>
+      `;
+      startBtn.addEventListener("click", ()=>{
+        beep("click");
+        goStage(0);
+      });
+      choicesWrap.appendChild(startBtn);
+
+      renderTimeline();
+      renderProgress();
+    }
+
+    function goStage(i){
+      state.index = i;
+      const s = stages[i];
+
+      stageTitle.textContent = `第${s.id}關：${s.era}`;
+      stageSub.textContent = `情境：${s.badge}`;
+      avatarEmoji.textContent = s.emoji;
+      avatarStamp.textContent = s.stamp;
+      roleName.textContent = s.role;
+      eraBadge.textContent = s.era;
+      sceneText.textContent = s.scene;
+
+      finalBox.classList.remove("show");
+      resultBox.classList.remove("show");
+
+      // 若本關已選過：顯示已選結果 + 可重選
+      const already = state.picks[i];
+      renderChoices(s, already);
+
+      renderTimeline();
+      renderProgress();
+    }
+
+    function renderChoices(stage, alreadyPick){
+      choicesWrap.innerHTML = "";
+      stage.choices.forEach(ch=>{
+        const btn = document.createElement("button");
+        btn.className = `btn ${ch.tone}`;
+        btn.innerHTML = `
+          <div class="k">
+            <strong>${ch.key}. ${ch.label}</strong>
+            <span class="chip">結局 ${ch.outcome.code}｜+${ch.outcome.score} 分</span>
+          </div>
+          <div class="t">點下去，命運就不能裝沒事（但你可以重選😈）。</div>
+        `;
+        btn.addEventListener("click", ()=> choose(stage, ch));
+        choicesWrap.appendChild(btn);
+      });
+
+      if(alreadyPick){
+        // 顯示已選的結局
+        const chosen = stage.choices.find(c=>c.key===alreadyPick.choiceKey);
+        showOutcome(stage, chosen, true);
+      }
+    }
+
+    function choose(stage, choice){
+      // 若本關之前選過，要先扣回舊分數
+      const idx = stage.id - 1;
+      const prev = state.picks[idx];
+      if(prev){
+        state.score -= prev.score;
+      }
+
+      // 記錄新選擇
+      state.picks[idx] = {
+        stageId: stage.id,
+        choiceKey: choice.key,
+        outcomeCode: choice.outcome.code,
+        score: choice.outcome.score,
+        brief: `${choice.key} → 結局${choice.outcome.code}：${choice.outcome.text}`
+      };
+      state.score += choice.outcome.score;
+
+      // 戲劇效果
+      beep(choice.tone);
+      if(choice.outcome.code === "③"){ throwConfetti(160); screenShake(0.6); }
+      if(choice.outcome.code === "②"){ screenShake(0.35); }
+      if(choice.outcome.code === "①"){ screenShake(1.0); }
+
+      showOutcome(stage, choice, false);
+      renderTimeline();
+      renderProgress();
+    }
+
+    function showOutcome(stage, choice, isReview){
+      resultBox.classList.add("show");
+      resultTitle.textContent = isReview ? "你之前選過的命運（可重選）" : "命運播報：你按下去了！";
+      toneChip.className = "tone " + choice.tone;
+      toneChip.textContent =
+        choice.outcome.code==="③" ? "🎉 紅利結局" :
+        choice.outcome.code==="②" ? "😐 穩定結局" : "💥 代價結局";
+
+      resultText.textContent = choice.outcome.text;
+      knowledgeHint.textContent = "📌 小知識：" + choice.outcome.hint;
+
+      // 只有本關已做選擇才允許下一關
+      nextBtn.disabled = false;
+      nextBtn.style.opacity = 1;
+
+      // 如果到了最後一關，next 變成「看總結局」
+      if(stage.id === 6){
+        nextBtn.textContent = "🏁 生成終章（人生總結局）";
+      }else{
+        nextBtn.textContent = "➡️ 繼續下一關";
+      }
+    }
+
+    // ====== 終章：依總分給一個誇張結局 ======
+    function buildFinal(){
+      const total = state.score; // 6~18
+      let title, summary;
+
+      if(total >= 16){
+        title = "「乘風破浪型」：你總能抓住政策紅利，還敢扛代價！";
+        summary = "你很會在關鍵時刻做出「帶來成長」的選擇：土地改革、營養改善、效率提升、高科技紅利…你都不放過。你的路常常比較辛苦、節奏更快，但你用決策換到了更大的舞台。";
+      }else if(total >= 13){
+        title = "「穩中求進型」：你不亂衝，但每一步都在變強。";
+        summary = "你偏向挑風險可控的路：穩定收入、制度保障、或先累積能力。你不是最戲劇的那種人，但你最像「可以走很遠」的人。";
+      }else if(total >= 10){
+        title = "「安全第一型」：你很會避雷，但也容易錯過大浪。";
+        summary = "你常選擇熟悉與安全感：留在原本的生活節奏，或用穩定換自由。這樣比較不會翻船，但也可能在大變動時期，看到別人的收入與機會跑得更快。";
+      }else{
+        title = "「被時代巨浪拍到沙灘型」：你不是不努力，是選擇太吃虧。";
+        summary = "你的路充滿代價：可能太早放棄土地、太辛苦的工地、或在效率競賽裡慢慢落後。這不是用來嘲笑你，而是提醒：政策與建設會改變規則，懂規則的人比較不會被浪打翻。";
+      }
+
+      finalTitle.textContent = title + `（總分：${total} / 18）`;
+      finalSummary.textContent = summary;
+
+      finalBox.classList.add("show");
+      resultBox.classList.remove("show");
+
+      // 大灑花
+      throwConfetti(220);
+      beep("good");
+      screenShake(0.7);
+    }
+
+    // ====== 按鈕事件 ======
+    redoBtn.addEventListener("click", ()=>{
+      beep("click");
+      const i = state.index;
+      if(i<0) return;
+      // 只把本關清空
+      const prev = state.picks[i];
+      if(prev){
+        state.score -= prev.score;
+        state.picks[i] = null;
+      }
+      resultBox.classList.remove("show");
+      nextBtn.disabled = true;
+      nextBtn.style.opacity = .75;
+
+      // 重新渲染本關
+      goStage(i);
+    });
+
+    nextBtn.addEventListener("click", ()=>{
+      beep("click");
+      const i = state.index;
+      if(i<0) return;
+
+      // 必須先選過本關
+      if(!state.picks[i]){
+        screenShake(1.0);
+        return;
+      }
+
+      if(i === stages.length - 1){
+        buildFinal();
+        return;
+      }
+      goStage(i+1);
+    });
+
+    resetBtn.addEventListener("click", ()=>{
+      beep("bad");
+      screenShake(1.2);
+      state.index = -1;
+      state.score = 0;
+      state.picks = Array(stages.length).fill(null);
+      renderIntro();
+    });
+
+    replayBtn.addEventListener("click", ()=>{
+      beep("click");
+      state.index = -1;
+      state.score = 0;
+      state.picks = Array(stages.length).fill(null);
+      renderIntro();
+    });
+
+    // ====== 初始化 ======
+    renderIntro();
+  </script>
+</body>
+</html>
