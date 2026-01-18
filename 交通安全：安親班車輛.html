@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互動學習報告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom scrollbar for a more polished look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937; /* dark:bg-gray-800 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563; /* dark:bg-gray-600 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* dark:bg-gray-500 */
+        }
+        .quiz-card-enter {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        .quiz-card-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .fade-in {
+            animation: fadeInAnimation 0.8s ease-in-out forwards;
+        }
+        @keyframes fadeInAnimation {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans antialiased overflow-x-hidden">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                        display: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                        body: ['Noto Sans TC', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-primary': '#0e7490', // cyan-700
+                        'brand-secondary': '#155e75', // cyan-800
+                        'brand-accent': '#22d3ee', // cyan-400
+                        'brand-dark': '#111827', // gray-900
+                        'brand-light': '#f0f9ff', // sky-50
+                        'success': '#10b981', // emerald-500
+                        'danger': '#ef4444', // red-500
+                    },
+                    animation: {
+                        'gradient-x': 'gradient-x 15s ease infinite',
+                        'subtle-pulse': 'subtle-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        'gradient-x': {
+                            '0%, 100%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                        },
+                        'subtle-pulse': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: .9 },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <div class="min-h-screen w-full relative overflow-hidden">
+        <!-- Background decorative elements -->
+        <div class="absolute top-0 left-0 -translate-x-1/3 -translate-y-1/3 w-96 h-96 bg-brand-primary/20 rounded-full filter blur-3xl opacity-50 animate-subtle-pulse"></div>
+        <div class="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-[500px] h-[500px] bg-brand-accent/10 rounded-full filter blur-3xl opacity-40 animate-subtle-pulse animation-delay-2000"></div>
+
+        <main class="relative z-10 p-4 sm:p-6 md:p-8 max-w-5xl mx-auto">
+            <header class="text-center mb-12 fade-in">
+                <h1 class="font-display text-4xl sm:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-gray-400 to-gray-200">
+                    互動學習報告
+                </h1>
+                <p class="mt-4 text-lg text-gray-400">學童交通車安全指南</p>
+            </header>
+
+            <!-- Video Section -->
+            <section id="video-section" class="mb-12 fade-in" style="animation-delay: 200ms;">
+                <div class="bg-black/30 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden">
+                    <div class="aspect-w-16 aspect-h-9 flex items-center justify-center p-8">
+                        <div class="text-center">
+                            <svg class="mx-auto h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.55a1 1 0 011.45.89V13.1a1 1 0 01-1.45.89L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <h3 class="mt-4 text-xl font-semibold text-gray-300">教學影片</h3>
+                            <p class="mt-2 text-sm text-gray-400">影片資源未提供，此處為影片播放區。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Analysis Section -->
+            <section id="analysis-section" class="mb-12 fade-in" style="animation-delay: 400ms;">
+                <div class="bg-gray-800/50 backdrop-blur-lg border border-white/10 p-6 sm:p-8 rounded-2xl shadow-lg">
+                    <h2 class="font-display text-2xl sm:text-3xl font-bold mb-6 flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-brand-accent" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm11.707 3.707a1 1 0 00-1.414-1.414L10 8.586 6.707 5.293a1 1 0 00-1.414 1.414L8.586 10l-3.293 3.293a1 1 0 101.414 1.414L10 11.414l3.293 3.293a1 1 0 001.414-1.414L11.414 10l3.293-3.293z" clip-rule="evenodd" />
+                        </svg>
+                        學習內容分析
+                    </h2>
+                    <div class="prose prose-invert prose-p:text-gray-300 prose-li:text-gray-300 max-w-none font-body space-y-4">
+                        <h3 class="text-xl font-semibold text-gray-100">概要 (Overview)</h3>
+                        <p>這段教育內容旨在提升家長對安親班及課後照顧服務機構交通車安全的警覺與認知。它引導家長如何識別合格的學生交通車，並強調學童交通安全的重要法規與實務要求，以避免因交通車不當使用或違規造成的潛在危險。</p>
+                        
+                        <h3 class="text-xl font-semibold text-gray-100">核心學習點 (Key Learning Points)</h3>
+                        <ul class="list-disc list-outside space-y-2 pl-5">
+                            <li><strong>家長主動關懷</strong>: 鼓勵家長應主動關心孩子搭乘交通車的狀況，查察孩子搭乘的交通車是否合格，並了解搭乘細節。</li>
+                            <li><strong>國小學童交通車規範</strong>:
+                                <ul class="list-disc list-outside space-y-1 pl-5 mt-2">
+                                    <li>國小學童嚴禁搭乘幼童專用車。</li>
+                                    <li>國小學童必須搭乘學生交通車。</li>
+                                </ul>
+                            </li>
+                            <li><strong>學生交通車種類與識別</strong>:
+                                <ul class="list-disc list-outside space-y-1 pl-5 mt-2">
+                                    <li><strong>購置車 (機構自有)</strong>: 車身顏色為深黃色，車頂深綠色；有黃紅相間倒三角形標誌；外部標示設立許可字號、車號、出場年份及載運人數。</li>
+                                    <li><strong>租賃車 (機構租用)</strong>: 車身顏色無特定規範；車窗標示中心名稱、電話、載運人數，並加註立案字號。</li>
+                                </ul>
+                            </li>
+                            <li><strong>交通車共通安全要求</strong>:
+                                <ul class="list-disc list-outside space-y-1 pl-5 mt-2">
+                                    <li>座椅不可改裝，須保持原廠設置。</li>
+                                    <li>車內必須備有滅火器。</li>
+                                    <li>接送時必須有隨車人員跟隨。</li>
+                                    <li>絕對不能超載接送。</li>
+                                </ul>
+                            </li>
+                            <li><strong>忽視安全警訊的後果</strong>: 強調忽視兒童搭乘交通車時發出的安全警訊，可能導致無法挽回的嚴重後果。</li>
+                        </ul>
+                        
+                        <h3 class="text-xl font-semibold text-gray-100">執行摘要 (Executive Summary)</h3>
+                        <p>這段教育影片深入探討了學童交通安全的重要性，特別是安親班或課後照顧中心所提供的接送服務。影片從家長對孩子「刺激」乘車經驗的擔憂切入，引導出對交通車座椅支撐力不足、超載、車內不當改裝甚至違規使用幼童專用車接送國小學童等潛在危險的質疑。核心教育訊息明確指出，國小學童不可搭乘幼童專用車，而應搭乘符合規範的「學生交通車」。影片詳細介紹了學生交通車的兩種主要類型：「購置車」與「租賃車」的具體識別方法，包括特定的車身顏色、標誌、以及必須標示的設立許可字號、車號、載運人數、機構名稱及立案字號等資訊。此外，影片強調所有學生交通車無論類型，都必須遵守座椅不得改裝、車內備有滅火器、接送時隨車人員在場以及嚴禁超載等基本安全要求。最終，影片呼籲家長應主動關懷孩子乘車狀況，查核交通車的安全性與合法性，因為在孩子的多重交通宇宙中，平安只有一次的機會。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quiz Section -->
+            <section id="quiz-section" class="fade-in" style="animation-delay: 600ms;">
+                <h2 class="font-display text-2xl sm:text-3xl font-bold mb-8 text-center flex items-center justify-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-brand-accent" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10 2a6 6 0 00-6 6v3.586l-1.707 1.707A1 1 0 003 15v1a1 1 0 001 1h12a1 1 0 001-1v-1a1 1 0 00-.293-.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                    </svg>
+                    互動測驗
+                </h2>
+                <div id="quiz-container" class="space-y-6">
+                    <!-- Quiz cards will be injected here by JavaScript -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "根據影片內容，當家長對孩子搭乘安親班交通車的安全感到疑慮時，最恰當的應對方式是什麼？",
+                options: {
+                    "A": "假設安親班會處理所有安全事務，無需多慮。",
+                    "B": "立即要求安親班更換交通車司機。",
+                    "C": "主動關心孩子乘車狀況，查察交通車是否合格，並了解搭乘細節。",
+                    "D": "讓孩子自行適應，因為「刺激」的經驗有助於成長。"
+                },
+                correctAnswer: "C",
+                explanation: "影片明確指出，家長應「主動關心孩子狀況，查察孩子搭乘的交通車是否合格，並主動關心，了解搭乘的狀況。」"
+            },
+            {
+                question: "依據教育內容的規範，國小學童在搭乘安親班或課後照顧服務機構的交通車時，嚴禁搭乘哪種類型的車輛？",
+                options: {
+                    "A": "學生交通車",
+                    "B": "機構購置車",
+                    "C": "機構租賃車",
+                    "D": "幼童專用車"
+                },
+                correctAnswer: "D",
+                explanation: "教育內容與影片皆強調：「國小學童不可搭乘幼童專用車，必須搭乘學生交通車。」"
+            },
+            {
+                question: "下列哪一項是識別「購置車」（機構自有學生交通車）的正確特徵？",
+                options: {
+                    "A": "車身顏色沒有特定規範。",
+                    "B": "車窗上須標示中心名稱、電話及載運人數。",
+                    "C": "車身為深黃色，車頂為深綠色，並有黃色、紅色相間的倒三角形標誌。",
+                    "D": "駕駛座兩邊外側只需標示車號與載運人數。"
+                },
+                correctAnswer: "C",
+                explanation: "影片及教育內容說明，「購置車」的車身為深黃色，車頂為深綠色，且有黃色、紅色相間的倒三角形標誌。"
+            },
+            {
+                question: "如果安親班或兒童課後照顧服務中心使用「租賃車」接送學童，除了中心名稱、電話及載運人數外，車窗上還必須加註哪項資訊？",
+                options: {
+                    "A": "車輛的出場年份。",
+                    "B": "該租賃車的顏色。",
+                    "C": "該機構的立案字號。",
+                    "D": "司機的姓名和聯絡方式。"
+                },
+                correctAnswer: "C",
+                explanation: "教育內容指出，如果是短期補習班、兒童課後照顧服務班及中心租賃者，車窗上需加註立案字號。"
+            },
+            {
+                question: "關於學生交通車的共通安全要求，下列哪一項敘述是錯誤的？",
+                options: {
+                    "A": "座椅不可改裝，須保持原廠設置。",
+                    "B": "車內必須備有滅火器。",
+                    "C": "接送時，即使人數不多，也可以不配置隨車人員。",
+                    "D": "絕對不能超載接送。"
+                },
+                correctAnswer: "C",
+                explanation: "影片及教育內容均明確要求，學生交通車「接送時必須有隨車人員跟隨」，故選項C是錯誤的。"
+            },
+            {
+                question: "影片中藉由「妮妮頭在那邊晃來晃去」和「伯宇被擠來擠去」的情境，主要在提醒家長留意交通車可能存在哪些潛在安全問題？",
+                options: {
+                    "A": "車輛的行駛速度過快，導致學童不適。",
+                    "B": "座椅支撐力不足、車輛超載或座位不當改裝。",
+                    "C": "車內娛樂設備不足，讓學童感到無聊。",
+                    "D": "交通路線規劃不佳，造成繞路。"
+                },
+                correctAnswer: "B",
+                explanation: "影片中對這些情境的探討，主要指向椅背支撐力不足、超載、幼童專用車座位過小以及車內座椅被改裝成川字型等問題。"
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const quizContainer = document.getElementById('quiz-container');
+            
+            quizData.forEach((quizItem, index) => {
+                const card = document.createElement('div');
+                card.className = 'quiz-card bg-gray-800/50 backdrop-blur-lg border border-white/10 p-6 rounded-2xl shadow-lg transition-all duration-300 quiz-card-enter';
+                card.style.transitionDelay = `${index * 100}ms`;
+
+                const questionHTML = `
+                    <p class="font-bold text-lg mb-4 text-gray-100">${index + 1}. ${quizItem.question}</p>
+                    <div class="space-y-3 mb-4 options-container">
+                        ${Object.entries(quizItem.options).map(([key, value]) => `
+                            <label class="flex items-center p-4 rounded-lg border border-gray-600 hover:border-brand-accent hover:bg-brand-primary/20 cursor-pointer transition-all duration-200 option-label has-[:checked]:bg-brand-primary/30 has-[:checked]:border-brand-accent">
+                                <input type="radio" name="question-${index}" value="${key}" class="hidden">
+                                <span class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-gray-400 flex items-center justify-center mr-4 transition-all duration-200 radio-custom">
+                                    <span class="w-3 h-3 rounded-full bg-brand-accent scale-0 transition-transform duration-200 inner-dot"></span>
+                                </span>
+                                <span class="text-gray-300 flex-grow">${value}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                    <div class="flex justify-end">
+                        <button class="check-answer-btn bg-brand-primary hover:bg-brand-secondary text-white font-bold py-2 px-6 rounded-lg transition-all duration-200 transform hover:scale-105" data-question-index="${index}">批改</button>
+                    </div>
+                    <div class="explanation-container mt-4 hidden"></div>
+                `;
+                card.innerHTML = questionHTML;
+                quizContainer.appendChild(card);
+            });
+            
+            // Trigger animation
+            setTimeout(() => {
+                document.querySelectorAll('.quiz-card-enter').forEach(el => {
+                    el.classList.add('quiz-card-enter-active');
+                });
+            }, 100);
+
+            quizContainer.addEventListener('click', event => {
+                if (event.target.classList.contains('check-answer-btn')) {
+                    const button = event.target;
+                    const questionIndex = parseInt(button.dataset.questionIndex);
+                    const card = button.closest('.quiz-card');
+                    const selectedRadio = card.querySelector(`input[name="question-${questionIndex}"]:checked`);
+                    
+                    if (!selectedRadio) {
+                        alert('請先選擇一個答案！');
+                        return;
+                    }
+
+                    const userAnswer = selectedRadio.value;
+                    const quizItem = quizData[questionIndex];
+                    const isCorrect = userAnswer === quizItem.correctAnswer;
+                    
+                    const optionsContainer = card.querySelector('.options-container');
+                    const allLabels = optionsContainer.querySelectorAll('.option-label');
+                    
+                    allLabels.forEach(label => {
+                        const radio = label.querySelector('input');
+                        label.classList.remove('hover:border-brand-accent', 'hover:bg-brand-primary/20');
+                        label.style.cursor = 'default';
+                        radio.disabled = true;
+
+                        if (radio.value === quizItem.correctAnswer) {
+                            label.classList.add('border-success', 'bg-success/20');
+                        } else if (radio.checked) {
+                            label.classList.add('border-danger', 'bg-danger/20');
+                        }
+                    });
+                    
+                    const explanationContainer = card.querySelector('.explanation-container');
+                    explanationContainer.classList.remove('hidden');
+                    explanationContainer.innerHTML = `
+                        <div class="p-4 rounded-lg ${isCorrect ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'}">
+                            <p class="font-bold text-lg">${isCorrect ? '答對了！' : '答錯了'}</p>
+                            <p class="mt-2 text-sm text-gray-200"><strong>說明：</strong>${quizItem.explanation}</p>
+                        </div>
+                    `;
+                    
+                    button.disabled = true;
+                    button.textContent = '已作答';
+                    button.classList.remove('bg-brand-primary', 'hover:bg-brand-secondary');
+                    button.classList.add('bg-gray-600', 'cursor-not-allowed');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
