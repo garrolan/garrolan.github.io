@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>臺灣時空語文解密</title>
+    <!-- 引入 Tailwind CSS 以確保樣式能正確渲染 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自訂動畫與字體 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
+        body { font-family: 'Noto Serif TC', serif; background-color: #FDF6E3; color: #5C4033; }
+        .selected-card { box-shadow: 0 0 0 4px #F59E0B; transform: scale(1.05); }
+        .pulse-slot { animation: pulse 1.5s infinite; border-color: #F59E0B !important; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        /* 隱藏捲軸但可滑動 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center selection:bg-amber-200">
+
+    <!-- 標題與說明 -->
+    <div class="text-center mb-6 max-w-3xl border-b-2 border-[#8B5A2B] pb-4 w-full">
+        <h1 class="text-3xl md:text-4xl font-bold mb-2 tracking-widest text-[#8B5A2B]">臺灣時空語文解密</h1>
+        <p class="text-lg text-[#6A4E23]">
+            先 <strong class="text-red-700">點擊</strong> 上下的卡片，再 <strong class="text-red-700">點擊</strong> 中間對應的空位放置。<br/>
+            請根據歷史發展，找出各時代對應的「語言」與「歷史道具」吧！
+        </p>
+    </div>
+
+    <!-- 錯誤提示訊息 (取代 alert) -->
+    <div id="toast" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-100 border-2 border-red-500 text-red-700 px-6 py-3 rounded-full font-bold shadow-lg z-50 transition-opacity duration-300">
+        還有空格沒有填完喔！請繼續努力！
+    </div>
+
+    <div class="w-full max-w-6xl flex flex-col gap-6">
+        
+        <!-- 上方：語言卡片區 -->
+        <div class="bg-[#F4ECD8] p-4 rounded-xl border border-[#D2B48C] shadow-inner min-h-[100px]">
+            <h2 class="text-xl font-bold mb-3 text-center border-b border-[#D2B48C] pb-2 text-[#8B5A2B]">📜 語言區 (點擊選取)</h2>
+            <div id="lang-deck" class="flex flex-wrap justify-center gap-3">
+                <!-- 語言卡片將由 JS 生成 -->
+            </div>
+        </div>
+
+        <!-- 中間：時代主軸區 -->
+        <div class="overflow-x-auto pb-4 no-scrollbar">
+            <div id="board-container" class="flex justify-between gap-4 min-w-[800px]">
+                <!-- 棋盤將由 JS 生成 -->
+            </div>
+        </div>
+
+        <!-- 下方：道具卡片區 -->
+        <div class="bg-[#F4ECD8] p-4 rounded-xl border border-[#D2B48C] shadow-inner min-h-[120px]">
+            <h2 class="text-xl font-bold mb-3 text-center border-b border-[#D2B48C] pb-2 text-[#8B5A2B]">📦 歷史道具區 (點擊選取)</h2>
+            <div id="item-deck" class="flex flex-wrap justify-center gap-3">
+                <!-- 道具卡片將由 JS 生成 -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 控制面板 -->
+    <div class="mt-8 flex gap-4">
+        <button onclick="initGame()" class="px-6 py-2 rounded-full bg-transparent border-2 border-[#8B5A2B] text-[#8B5A2B] font-bold hover:bg-[#8B5A2B] hover:text-[#FDF6E3] transition-colors">
+            重新開始
+        </button>
+        <button onclick="checkAnswers()" class="px-8 py-2 rounded-full bg-[#8B5A2B] text-[#FDF6E3] font-bold shadow-lg hover:bg-[#6A4E23] transition-colors text-lg">
+            驗證歷史
+        </button>
+    </div>
+
+    <!-- 勝利視窗 -->
+    <div id="win-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+        <div class="bg-[#FDF6E3] p-8 rounded-2xl border-4 border-[#8B5A2B] max-w-sm text-center shadow-2xl">
+            <div class="text-6xl mb-4 animate-bounce">🎉</div>
+            <h2 class="text-3xl font-bold text-[#8B5A2B] mb-2">完全正確！</h2>
+            <p class="text-lg text-[#6A4E23] mb-6">你成功復原了臺灣的語文歷史記憶！</p>
+            <button onclick="initGame()" class="px-6 py-2 bg-[#8B5A2B] text-white rounded-full font-bold hover:bg-[#6A4E23] transition-colors">
+                再玩一次
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 遊戲資料 ---
+        const PERIODS = [
+            { id: 'p1', name: '大航海時代', desc: '荷蘭人來臺' },
+            { id: 'p2', name: '明鄭與清領', desc: '漢人大量來臺' },
+            { id: 'p3', name: '清領開港', desc: '西方傳教士來臺' },
+            { id: 'p4', name: '日治時期', desc: '日本統治臺灣' },
+            { id: 'p5', name: '現代社會', desc: '全球化與新住民' },
+        ];
+
+        const ORIGINAL_LANGUAGES = [
+            { id: 'l1', text: '原住民族語 (羅馬字母)', match: 'p1' },
+            { id: 'l2', text: '中文 (漢字)', match: 'p2' },
+            { id: 'l3', text: '閩南語 (羅馬字母)', match: 'p3' },
+            { id: 'l4', text: '日語', match: 'p4' },
+            { id: 'l5', text: '東南亞語文', match: 'p5' },
+        ];
+
+        const ORIGINAL_ITEMS = [
+            { id: 'i1', emoji: '📜', text: '新港文書', match: 'p1' },
+            { id: 'i2', emoji: '🖌️', text: '甲骨文、詩詞', match: 'p2' },
+            { id: 'i3', emoji: '📰', text: '臺灣府城教會報', match: 'p3' },
+            { id: 'i4', emoji: '🍱', text: '便當、運將', match: 'p4' },
+            { id: 'i5', emoji: '🍜', text: '異國文字招牌', match: 'p5' },
+        ];
+
+        // --- 遊戲狀態 ---
+        let state = {
+            langCards: [],
+            itemCards: [],
+            board: {}, 
+            selectedCard: null, // { type: 'lang'|'item', id: 'l1' }
+            isChecked: false,
+            gameWon: false
+        };
+
+        // --- 工具：洗牌 ---
+        function shuffleArray(array) {
+            let newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        }
+
+        // --- 工具：尋找卡片物件 ---
+        function findCard(type, id) {
+            const source = type === 'lang' ? ORIGINAL_LANGUAGES : ORIGINAL_ITEMS;
+            return source.find(c => c.id === id);
+        }
+
+        // --- 初始化遊戲 ---
+        function initGame() {
+            state.langCards = shuffleArray(ORIGINAL_LANGUAGES);
+            state.itemCards = shuffleArray(ORIGINAL_ITEMS);
+            state.board = {};
+            PERIODS.forEach(p => {
+                state.board[p.id] = { lang: null, item: null, langCorrect: null, itemCorrect: null };
+            });
+            state.selectedCard = null;
+            state.isChecked = false;
+            state.gameWon = false;
+
+            document.getElementById('win-modal').classList.add('hidden');
+            renderAll();
+        }
+
+        // --- 處理卡片點擊 (牌組區) ---
+        window.selectCard = function(type, id) {
+            if (state.isChecked && state.gameWon) return;
+            state.isChecked = false; // 取消檢查狀態
+
+            if (state.selectedCard && state.selectedCard.id === id) {
+                // 取消選取
+                state.selectedCard = null;
+            } else {
+                // 選取新卡片
+                state.selectedCard = { type, id };
+            }
+            renderAll();
+        };
+
+        // --- 處理槽位點擊 (棋盤區) ---
+        window.clickSlot = function(periodId, slotType) {
+            if (state.isChecked && state.gameWon) return;
+            state.isChecked = false;
+
+            const currentCardId = state.board[periodId][slotType];
+
+            // 情況A：有選取卡片，且類型相符，準備放入
+            if (state.selectedCard && state.selectedCard.type === slotType) {
+                // 如果槽位已經有卡片，先退回牌組
+                if (currentCardId) {
+                    returnToDeck(slotType, currentCardId);
+                }
+                
+                // 放入新卡片
+                state.board[periodId][slotType] = state.selectedCard.id;
+                
+                // 從牌組移除
+                if (slotType === 'lang') {
+                    state.langCards = state.langCards.filter(c => c.id !== state.selectedCard.id);
+                } else {
+                    state.itemCards = state.itemCards.filter(c => c.id !== state.selectedCard.id);
+                }
+                
+                // 清除選取
+                state.selectedCard = null;
+            } 
+            // 情況B：沒有選取卡片，但點擊了有卡片的槽位 -> 退回牌組
+            else if (!state.selectedCard && currentCardId) {
+                returnToDeck(slotType, currentCardId);
+                state.board[periodId][slotType] = null;
+            }
+
+            renderAll();
+        };
+
+        // --- 將卡片退回牌組 ---
+        function returnToDeck(type, id) {
+            const cardObj = findCard(type, id);
+            if (type === 'lang') {
+                state.langCards.push(cardObj);
+            } else {
+                state.itemCards.push(cardObj);
+            }
+        }
+
+        // --- 驗證答案 ---
+        window.checkAnswers = function() {
+            let allCorrect = true;
+            let allFilled = true;
+
+            PERIODS.forEach(p => {
+                const langId = state.board[p.id].lang;
+                const itemId = state.board[p.id].item;
+
+                if (!langId || !itemId) {
+                    allFilled = false;
+                }
+
+                const langIsCorrect = langId ? findCard('lang', langId).match === p.id : false;
+                const itemIsCorrect = itemId ? findCard('item', itemId).match === p.id : false;
+
+                state.board[p.id].langCorrect = langIsCorrect;
+                state.board[p.id].itemCorrect = itemIsCorrect;
+
+                if (!langIsCorrect || !itemIsCorrect) {
+                    allCorrect = false;
+                }
+            });
+
+            state.isChecked = true;
+            renderAll();
+
+            if (allCorrect && allFilled) {
+                state.gameWon = true;
+                setTimeout(() => {
+                    document.getElementById('win-modal').classList.remove('hidden');
+                }, 300);
+            } else if (!allFilled) {
+                showToast();
+            }
+        };
+
+        // --- 顯示提示 ---
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // --- 渲染畫面 ---
+        function renderAll() {
+            renderLangCards();
+            renderItemCards();
+            renderBoard();
+        }
+
+        function renderLangCards() {
+            const container = document.getElementById('lang-deck');
+            if (state.langCards.length === 0) {
+                container.innerHTML = '<span class="text-amber-700/50 italic py-2">（卡片已清空）</span>';
+                return;
+            }
+            
+            container.innerHTML = state.langCards.map(card => {
+                const isSelected = state.selectedCard?.id === card.id;
+                const baseClass = isSelected 
+                    ? 'bg-amber-200 border-amber-600 selected-card' 
+                    : 'bg-[#FFF8DC] border-[#DEB887] hover:bg-amber-100';
+                return `<button onclick="selectCard('lang', '${card.id}')" class="px-4 py-2 rounded-lg border-2 shadow-md transition-all duration-200 cursor-pointer text-[#5C4033] font-bold ${baseClass}">${card.text}</button>`;
+            }).join('');
+        }
+
+        function renderItemCards() {
+            const container = document.getElementById('item-deck');
+            if (state.itemCards.length === 0) {
+                container.innerHTML = '<span class="text-amber-700/50 italic py-4">（道具已清空）</span>';
+                return;
+            }
+
+            container.innerHTML = state.itemCards.map(card => {
+                const isSelected = state.selectedCard?.id === card.id;
+                const baseClass = isSelected 
+                    ? 'bg-amber-200 border-amber-600 selected-card' 
+                    : 'bg-[#FFF8DC] border-[#DEB887] hover:bg-amber-100';
+                return `
+                    <button onclick="selectCard('item', '${card.id}')" class="px-4 py-2 flex flex-col items-center justify-center rounded-lg border-2 shadow-md transition-all duration-200 cursor-pointer text-[#5C4033] ${baseClass}">
+                        <span class="text-2xl mb-1">${card.emoji}</span>
+                        <span class="text-sm font-bold">${card.text}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderBoard() {
+            const container = document.getElementById('board-container');
+            container.innerHTML = PERIODS.map(period => {
+                const slotData = state.board[period.id];
+                const langCard = slotData.lang ? findCard('lang', slotData.lang) : null;
+                const itemCard = slotData.item ? findCard('item', slotData.item) : null;
+
+                // 判斷樣式
+                const langSelectedPulse = (state.selectedCard?.type === 'lang' && !slotData.lang) ? 'pulse-slot border-dashed' : '';
+                const itemSelectedPulse = (state.selectedCard?.type === 'item' && !slotData.item) ? 'pulse-slot border-dashed' : '';
+                
+                let langValidationClass = slotData.lang ? 'border-solid shadow-md bg-[#FFF8DC]' : 'border-dashed border-[#8B5A2B]/40 hover:bg-[#8B5A2B]/10';
+                if (state.isChecked && slotData.lang) {
+                    langValidationClass = slotData.langCorrect ? 'border-green-600 bg-green-100 border-solid' : 'border-red-500 bg-red-100 border-solid';
+                }
+
+                let itemValidationClass = slotData.item ? 'border-solid shadow-md bg-[#FFF8DC]' : 'border-dashed border-[#8B5A2B]/40 hover:bg-[#8B5A2B]/10';
+                if (state.isChecked && slotData.item) {
+                    itemValidationClass = slotData.itemCorrect ? 'border-green-600 bg-green-100 border-solid' : 'border-red-500 bg-red-100 border-solid';
+                }
+
+                // 產生 HTML
+                return `
+                <div class="flex-1 flex flex-col items-center">
+                    
+                    <!-- 語言槽 -->
+                    <div onclick="clickSlot('${period.id}', 'lang')" class="w-full h-16 rounded-lg border-2 flex items-center justify-center p-2 text-center cursor-pointer transition-all duration-200 ${langValidationClass} ${langSelectedPulse}">
+                        ${langCard 
+                            ? `<span class="font-bold text-sm text-[#5C4033]">${langCard.text}</span>` 
+                            : `<span class="text-sm text-amber-800/40 font-bold">放置語言</span>`
+                        }
+                    </div>
+
+                    <!-- 時代標籤 (固定) -->
+                    <div class="my-4 w-full text-center">
+                        <div class="w-4 h-4 rounded-full bg-[#8B5A2B] mx-auto mb-1"></div>
+                        <div class="bg-[#8B5A2B] text-[#FDF6E3] py-2 px-1 rounded-md shadow-md">
+                            <div class="font-bold text-base md:text-lg">${period.name}</div>
+                            <div class="text-xs opacity-80 mt-1 hidden md:block">${period.desc}</div>
+                        </div>
+                        <div class="w-1 h-6 bg-[#8B5A2B] mx-auto mt-1"></div>
+                    </div>
+
+                    <!-- 道具槽 -->
+                    <div onclick="clickSlot('${period.id}', 'item')" class="w-full h-24 rounded-lg border-2 flex flex-col items-center justify-center p-2 text-center cursor-pointer transition-all duration-200 ${itemValidationClass} ${itemSelectedPulse}">
+                        ${itemCard 
+                            ? `<span class="text-2xl mb-1">${itemCard.emoji}</span><span class="font-bold text-sm text-[#5C4033]">${itemCard.text}</span>` 
+                            : `<span class="text-sm text-amber-800/40 font-bold">放置道具</span>`
+                        }
+                    </div>
+
+                </div>
+                `;
+            }).join('');
+        }
+
+        // 啟動遊戲
+        window.onload = initGame;
+
+    </script>
+</body>
+</html>
