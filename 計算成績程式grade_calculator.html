@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>期末成績計算工具</title>
+  <style>
+    body { font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif; margin: 24px; background:#f7f8fb; color:#222; }
+    h1 { margin-bottom: 8px; }
+    .card { background:#fff; border-radius:16px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,0.08); margin-bottom:18px; }
+    .muted { color:#666; font-size:14px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; }
+    label { display:block; font-size:14px; margin-bottom:4px; color:#444; }
+    input[type="number"], input[type="text"], textarea, select {
+      width:100%; padding:10px 12px; border:1px solid #cfd5e3; border-radius:10px; box-sizing:border-box; font-size:15px;
+    }
+    table { width:100%; border-collapse:collapse; margin-top:12px; background:#fff; }
+    th, td { border:1px solid #dde3ef; padding:8px; text-align:center; font-size:14px; }
+    th { background:#eef3ff; }
+    button {
+      background:#2f5bea; color:#fff; border:none; border-radius:10px; padding:10px 16px; cursor:pointer; font-size:14px; margin-right:8px;
+    }
+    button.secondary { background:#6b7280; }
+    button.ghost { background:#eef3ff; color:#2f5bea; }
+    .result-table th { white-space:nowrap; }
+    .formula { background:#f5f7ff; border-radius:12px; padding:14px; line-height:1.8; }
+    .small { font-size:13px; color:#666; }
+    .highlight { color:#2f5bea; font-weight:700; }
+    .footer { font-size:13px; color:#666; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <h1>期末成績計算工具</h1>
+  <div class="muted">適合你的規則：總成績 =（定期評量 + 平常成績）÷ 2；平常成績由作業、HITEACH、藍章組成。</div>
+
+  <div class="card">
+    <h2>一、計分邏輯設定</h2>
+    <div class="grid">
+      <div>
+        <label>作業佔比</label>
+        <input id="wHomework" type="number" value="50" step="1" min="0" max="100" />
+      </div>
+      <div>
+        <label>HITEACH 佔比</label>
+        <input id="wHiteach" type="number" value="30" step="1" min="0" max="100" />
+      </div>
+      <div>
+        <label>藍章佔比</label>
+        <input id="wStamp" type="number" value="20" step="1" min="0" max="100" />
+      </div>
+      <div>
+        <label>相對分最低基準</label>
+        <input id="baseScore" type="number" value="80" step="1" min="0" max="100" />
+      </div>
+      <div>
+        <label>相對分最高上限</label>
+        <input id="topScore" type="number" value="100" step="1" min="0" max="100" />
+      </div>
+      <div>
+        <label>壓縮指數</label>
+        <input id="power" type="number" value="2" step="0.1" min="0.1" max="5" />
+      </div>
+    </div>
+    <div class="formula">
+      <div><span class="highlight">推薦公式：</span>相對分 = 基準分 +（上限分 − 基準分）× (個人數量 ÷ 全班最高數量)<sup>壓縮指數</sup></div>
+      <div class="small">這樣可以保留差異，但不會讓中段學生因為數量只有一半，就直接掉到很低。例如基準 80、上限 100、指數 2 時：50 章 = 100 分，25 章 = 85 分。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>二、輸入學生資料</h2>
+    <div class="small">作業分數請直接填你最後想給的作業分（通常由 100 往下扣）。HITEACH 與藍章填原始數量即可，系統會自動做相對轉換。</div>
+    <table id="inputTable">
+      <thead>
+        <tr>
+          <th>姓名</th>
+          <th>定期評量</th>
+          <th>作業分數</th>
+          <th>HITEACH 次數</th>
+          <th>藍章數</th>
+          <th>刪除</th>
+        </tr>
+      </thead>
+      <tbody id="studentBody"></tbody>
+    </table>
+    <div style="margin-top:12px;">
+      <button onclick="addRow()">新增學生</button>
+      <button class="ghost" onclick="loadDemo()">載入範例</button>
+      <button class="secondary" onclick="calculate()">重新計算</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>三、計算結果</h2>
+    <div id="weightWarning" class="small"></div>
+    <table class="result-table" id="resultTable">
+      <thead>
+        <tr>
+          <th>姓名</th>
+          <th>定期評量</th>
+          <th>作業分</th>
+          <th>HITEACH 原始</th>
+          <th>HITEACH 轉換</th>
+          <th>藍章原始</th>
+          <th>藍章轉換</th>
+          <th>平常成績</th>
+          <th>總成績</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="footer">備註：若全班 HITEACH 或藍章皆為 0，該項目一律以基準分計算。</div>
+  </div>
+
+  <script>
+    function qs(id){ return document.getElementById(id); }
+
+    function addRow(data = {}) {
+      const tbody = qs('studentBody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" value="${data.name ?? ''}" placeholder="姓名"></td>
+        <td><input type="number" value="${data.exam ?? ''}" min="0" max="100" step="0.1"></td>
+        <td><input type="number" value="${data.homework ?? ''}" min="0" max="100" step="0.1"></td>
+        <td><input type="number" value="${data.hiteach ?? ''}" min="0" step="1"></td>
+        <td><input type="number" value="${data.stamp ?? ''}" min="0" step="1"></td>
+        <td><button class="secondary" onclick="this.closest('tr').remove(); calculate();">刪除</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    function getRows() {
+      return Array.from(qs('studentBody').querySelectorAll('tr')).map(tr => {
+        const inputs = tr.querySelectorAll('input');
+        return {
+          name: inputs[0].value || '未命名',
+          exam: parseFloat(inputs[1].value) || 0,
+          homework: parseFloat(inputs[2].value) || 0,
+          hiteach: parseFloat(inputs[3].value) || 0,
+          stamp: parseFloat(inputs[4].value) || 0,
+        };
+      });
+    }
+
+    function relativeScore(value, maxValue, base, top, power) {
+      if (maxValue <= 0) return base;
+      const ratio = Math.max(0, Math.min(1, value / maxValue));
+      return base + (top - base) * Math.pow(ratio, power);
+    }
+
+    function calculate() {
+      const rows = getRows();
+      const maxHiteach = Math.max(0, ...rows.map(r => r.hiteach));
+      const maxStamp = Math.max(0, ...rows.map(r => r.stamp));
+      const base = parseFloat(qs('baseScore').value) || 80;
+      const top = parseFloat(qs('topScore').value) || 100;
+      const power = parseFloat(qs('power').value) || 2;
+      const wHomework = parseFloat(qs('wHomework').value) || 0;
+      const wHiteach = parseFloat(qs('wHiteach').value) || 0;
+      const wStamp = parseFloat(qs('wStamp').value) || 0;
+      const totalWeight = wHomework + wHiteach + wStamp;
+
+      const warning = qs('weightWarning');
+      warning.textContent = totalWeight === 100
+        ? '平常成績權重合計 = 100%，設定正常。'
+        : `提醒：目前平常成績權重合計為 ${totalWeight}%，建議調整為 100%。系統仍會照你輸入的比例計算。`;
+
+      const tbody = qs('resultTable').querySelector('tbody');
+      tbody.innerHTML = '';
+
+      rows.forEach(r => {
+        const hiteachScore = relativeScore(r.hiteach, maxHiteach, base, top, power);
+        const stampScore = relativeScore(r.stamp, maxStamp, base, top, power);
+        const daily = (r.homework * wHomework + hiteachScore * wHiteach + stampScore * wStamp) / totalWeight;
+        const finalScore = (r.exam + daily) / 2;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.name}</td>
+          <td>${r.exam.toFixed(1)}</td>
+          <td>${r.homework.toFixed(1)}</td>
+          <td>${r.hiteach}</td>
+          <td>${hiteachScore.toFixed(1)}</td>
+          <td>${r.stamp}</td>
+          <td>${stampScore.toFixed(1)}</td>
+          <td>${daily.toFixed(1)}</td>
+          <td><strong>${finalScore.toFixed(1)}</strong></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function loadDemo() {
+      qs('studentBody').innerHTML = '';
+      [
+        { name:'A同學', exam:92, homework:96, hiteach:18, stamp:50 },
+        { name:'B同學', exam:88, homework:92, hiteach:12, stamp:25 },
+        { name:'C同學', exam:81, homework:85, hiteach:6, stamp:10 },
+      ].forEach(addRow);
+      calculate();
+    }
+
+    // initial rows
+    addRow({ name:'', exam:'', homework:'', hiteach:'', stamp:'' });
+    addRow({ name:'', exam:'', homework:'', hiteach:'', stamp:'' });
+    addRow({ name:'', exam:'', homework:'', hiteach:'', stamp:'' });
+    calculate();
+
+    document.addEventListener('input', (e) => {
+      if (e.target.matches('input')) calculate();
+    });
+  </script>
+</body>
+</html>
