@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>114學年度南和國小六甲（暨五甲）畢業旅行成果簡報</title>
+  <style>
+    :root {
+      --bg: #f6f1ea;
+      --paper: rgba(255, 252, 248, 0.9);
+      --ink: #2f2c2a;
+      --muted: #6e625b;
+      --accent: #c06f4d;
+      --accent-soft: #d9b08c;
+      --sage: #7e9585;
+      --shadow: 0 20px 45px rgba(62, 49, 39, 0.12);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(192, 111, 77, 0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(126, 149, 133, 0.22), transparent 32%),
+        linear-gradient(180deg, #fbf7f2 0%, #f1ebe3 100%);
+    }
+
+    .nav {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: min(85vw, 720px);
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .slide {
+      min-height: 100vh;
+      padding: 70px 26px 40px;
+      display: grid;
+      place-items: center;
+      scroll-snap-align: start;
+    }
+
+    .frame {
+      width: min(1240px, 100%);
+      min-height: min(86vh, 760px);
+      background: var(--paper);
+      border-radius: 34px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.38), transparent 40%);
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      padding: 42px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: white;
+      background: var(--accent);
+      margin-bottom: 18px;
+    }
+
+    h1, h2 {
+      margin: 0 0 16px;
+      line-height: 1.18;
+      font-weight: 800;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 4vw, 4.1rem);
+    }
+
+    h2 {
+      font-size: clamp(1.7rem, 2.8vw, 2.8rem);
+    }
+
+    p, li {
+      color: var(--muted);
+      font-size: clamp(1rem, 1.2vw, 1.12rem);
+      line-height: 1.8;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.2em;
+    }
+
+    .cover-grid,
+    .two-col,
+    .gallery-row,
+    .outcome-grid {
+      display: grid;
+      gap: 24px;
+    }
+
+    .cover-grid,
+    .two-col {
+      grid-template-columns: 0.9fr 1.1fr;
+      align-items: center;
+    }
+
+    .meta {
+      margin-top: 30px;
+      padding: 22px 24px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .eyebrow {
+      font-size: 0.95rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    .hero-image,
+    .gallery img,
+    .tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero-image-wrap,
+    .tile,
+    .gallery {
+      border-radius: 28px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 12px 28px rgba(38, 28, 18, 0.1);
+    }
+
+    .hero-image-wrap {
+      min-height: 560px;
+    }
+
+    .gallery-row {
+      grid-template-columns: 1.15fr 0.85fr;
+      margin-top: 22px;
+    }
+
+    .gallery-stack {
+      display: grid;
+      gap: 22px;
+      grid-template-rows: 1fr 1fr;
+    }
+
+    .tile { min-height: 230px; }
+    .gallery { min-height: 490px; }
+
+    .note {
+      margin-top: 18px;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .full-photo {
+      position: relative;
+      height: 100%;
+      min-height: 540px;
+      border-radius: 32px;
+      overflow: hidden;
+    }
+
+    .full-photo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(28, 23, 19, 0.15), rgba(28, 23, 19, 0.52));
+    }
+
+    .overlay {
+      position: absolute;
+      left: 38px;
+      right: 38px;
+      bottom: 32px;
+      z-index: 1;
+      color: white;
+    }
+
+    .overlay p {
+      color: rgba(255,255,255,0.88);
+      max-width: 680px;
+    }
+
+    .outcome-grid {
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 30px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 26px;
+      padding: 28px 24px;
+      box-shadow: 0 14px 24px rgba(60, 44, 33, 0.08);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 1.4rem;
+    }
+
+    .closing-grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 26px;
+    }
+
+    .closing-grid .tile {
+      min-height: 220px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    @media (max-width: 980px) {
+      .cover-grid,
+      .two-col,
+      .gallery-row,
+      .outcome-grid,
+      .closing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-image-wrap,
+      .full-photo,
+      .gallery {
+        min-height: 340px;
+      }
+
+      .content {
+        padding: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="#cover">封面</a>
+    <a href="#overview">概況</a>
+    <a href="#zoo">動物園</a>
+    <a href="#city">城市體驗</a>
+    <a href="#evening">晚間互動</a>
+    <a href="#park">新樂園</a>
+    <a href="#museum">博物館</a>
+    <a href="#outcomes">成果</a>
+    <a href="#closing">結語</a>
+  </nav>
+
+  <section class="slide" id="cover">
+    <div class="frame">
+      <div class="content cover-grid">
+        <div>
+          <div class="eyebrow">Graduation Trip Report</div>
+          <h1>114學年度南和國小六甲（暨五甲）畢業旅行成果簡報</h1>
+          <p>用照片把兩天一夜的畢業旅行，整理成一份看得見回憶、也看得見成長的成果簡報。</p>
+          <div class="meta">
+            <p>活動日期｜2025 年 12 月 11 日至 12 日</p>
+            <p>參與人員｜學生 4 人、導師 2 人</p>
+            <p>簡報主軸｜行程回顧、照片紀錄、學習成果</p>
+          </div>
+        </div>
+        <div class="hero-image-wrap">
+          <img class="hero-image" src="selected_photos/IMG_20251211_083516.jpg" alt="畢業旅行封面合照">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="overview">
+    <div class="frame">
+      <div class="content two-col">
+        <div>
+          <div class="tag" style="background: var(--sage);">Overview</div>
+          <h2>活動概況</h2>
+          <p>這次畢業旅行從關西出發前往臺北，行程結合自然生態、城市地標、遊樂體驗與博物館學習，讓孩子們在旅行裡同時累積生活經驗與共同回憶。</p>
+          <ul>
+            <li>日期：2025 年 12 月 11 日至 12 日</li>
+            <li>成員：學生 4 人、導師 2 人</li>
+            <li>交通：國光客運與臺北捷運</li>
+            <li>住宿：背包棧旅店西門町館</li>
+            <li>景點：動物園、臺北 101、四四南村、信義商圈、兒童新樂園、國立臺灣博物館</li>
+          </ul>
+        </div>
+        <div class="hero-image-wrap" style="min-height: 500px;">
+          <img class="hero-image" src="selected_photos/IMG_20251212_093943_1.jpg" alt="兒童新樂園團體照">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="zoo">
+    <div class="frame">
+      <div class="content">
+        <div class="tag">Day 1 / Morning</div>
+        <h2>臺北市立動物園探索</h2>
+        <p>第一站從動物園開始，孩子們透過步行參觀、合照與觀察動物，把旅行的期待正式展開。這一段不只是看動物，也是實際接觸自然生態與場域學習的開始。</p>
+        <div class="gallery-row">
+          <div class="gallery">
+            <img src="selected_photos/IMG_20251211_103546.jpg" alt="動物園入口合照">
+          </div>
+          <div class="gallery-stack">
+            <div class="tile">
+              <img src="selected_photos/IMG_20251211_113447.jpg" alt="觀察河馬">
+            </div>
+            <div class="tile">
+              <img src="selected_photos/IMG_20251211_120015.jpg" alt="動物園休息合照">
+            </div>
+          </div>
+        </div>
+        <p class="note">從集合、觀察到互動，孩子們在第一站就進入了旅行節奏。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="city">
+    <div class="frame">
+      <div class="content">
+        <div class="tag" style="background: var(--sage);">Day 1 / Afternoon</div>
+        <h2>城市移動與景點體驗</h2>
+        <div class="two-col" style="grid-template-columns: 0.78fr 1.22fr; align-items: start;">
+          <div class="tile" style="min-height: 430px;">
+            <img src="selected_photos/IMG_20251211_135234.jpg" alt="四四南村與臺北101">
+          </div>
+          <div>
+            <p>下午行程走進臺北 101、四四南村與信義商圈。從搭乘捷運到地標打卡，學生在城市空間裡練習集合、移動與守時，也在大景與街區場景中留下屬於這趟旅程的城市記憶。</p>
+            <div class="closing-grid" style="margin-top: 12px;">
+              <div class="tile">
+                <img src="selected_photos/IMG_20251211_130604.jpg" alt="捷運車廂合照">
+              </div>
+              <div class="tile">
+                <img src="selected_photos/IMG_20251211_134530.jpg" alt="臺北101前合照">
+              </div>
+              <div class="tile">
+                <img src="selected_photos/IMG_20251211_154849.jpg" alt="信義商圈步行照片">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="evening">
+    <div class="frame">
+      <div class="content">
+        <div class="full-photo">
+          <img class="hero-image" src="selected_photos/IMG_20251211_160522.jpg" alt="旅途中的溫馨時刻">
+          <div class="overlay">
+            <div class="tag" style="background: rgba(255,255,255,0.2);">Day 1 / Evening</div>
+            <h2>團隊互動與溫馨時刻</h2>
+            <p>進入晚上後，照片中的神情更放鬆，也更能看見同學彼此陪伴的默契。旅程的價值，不只在景點，更在一起走過每一段路的感覺。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="park">
+    <div class="frame">
+      <div class="content two-col">
+        <div>
+          <div class="tag">Day 2 / Morning</div>
+          <h2>兒童新樂園活動</h2>
+          <p>第二天上午以遊樂園展開，整體氛圍更活潑。孩子們在遊玩之中仍需要排隊、遵守設施規範，也在輕鬆的節奏裡留下更開心的回憶。</p>
+        </div>
+        <div class="gallery-stack" style="grid-template-rows: 1fr 1fr;">
+          <div class="tile">
+            <img src="selected_photos/IMG_20251212_093943_1.jpg" alt="兒童新樂園入口照">
+          </div>
+          <div class="tile">
+            <img src="selected_photos/IMG_20251212_141802.jpg" alt="兒童新樂園設施體驗">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="museum">
+    <div class="frame">
+      <div class="content">
+        <div class="tag" style="background: var(--sage);">Day 2 / Afternoon</div>
+        <h2>國立臺灣博物館古生物館參觀</h2>
+        <p>旅程最後一站回到較安靜的學習場域。透過大型骨架與古生物展件，學生把這趟畢旅從遊玩延伸到知識探索，也讓整體行程更有完整的學習層次。</p>
+        <div class="gallery-row">
+          <div class="gallery">
+            <img src="selected_photos/IMG_20251212_144842.jpg" alt="博物館大型骨架">
+          </div>
+          <div class="gallery-stack">
+            <div class="tile">
+              <img src="selected_photos/IMG_20251212_141944.jpg" alt="博物館骨架合照">
+            </div>
+            <div class="tile">
+              <img src="selected_photos/IMG_20251212_143418.jpg" alt="博物館台灣民主國黃虎旗展件合照">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="outcomes">
+    <div class="frame">
+      <div class="content">
+        <div class="tag">Learning Outcomes</div>
+        <h2>旅程收穫與學習成果</h2>
+        <div class="outcome-grid">
+          <div class="card">
+            <h3>生活自理</h3>
+            <p>在交通移動、集合、用餐與住宿過程中，學生練習照顧自己、管理物品，也更熟悉校外活動的節奏。</p>
+          </div>
+          <div class="card">
+            <h3>同儕合作</h3>
+            <p>從團體拍照到一起完成行程，孩子們在彼此等待、互相照應中，培養了默契與合作精神。</p>
+          </div>
+          <div class="card">
+            <h3>校外學習</h3>
+            <p>自然生態、城市地標、遊樂設施與博物館展覽，讓這趟畢業旅行兼具休閒體驗與學習延伸。</p>
+          </div>
+        </div>
+        <p class="footer-note">這趟畢旅留下的不只是照片，更是孩子們一起完成旅程的具體成長。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="closing">
+    <div class="frame">
+      <div class="content">
+        <div class="tag">Closing</div>
+        <h2>結語與感謝</h2>
+        <p>兩天的畢旅，不只是抵達一個又一個景點，更是在陪伴、分享與共同經歷中，替小學階段留下很珍貴的一段回憶。</p>
+        <div class="closing-grid">
+          <div class="tile"><img src="selected_photos/IMG_20251211_083516.jpg" alt="合照一"></div>
+          <div class="tile"><img src="selected_photos/IMG_20251211_135234.jpg" alt="合照二"></div>
+          <div class="tile"><img src="selected_photos/IMG_20251212_144842.jpg" alt="合照三"></div>
+        </div>
+        <p class="footer-note">感謝帶隊師長與協助人員，讓本次畢業旅行平安順利、收穫滿滿。</p>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
