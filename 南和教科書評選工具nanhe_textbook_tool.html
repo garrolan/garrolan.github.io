@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>南和國小教科書評選小工具</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --line: #d9deea;
+      --text: #253046;
+      --muted: #6f7a8f;
+      --accent: #435b9a;
+      --accent-2: #eef3ff;
+      --good: #1d6e42;
+      --warn: #8a5a00;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    h1, h2, h3 { margin: 0 0 10px; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 22px; margin-top: 22px; }
+    h3 { font-size: 18px; margin-top: 16px; }
+    .sub { color: var(--muted); margin-bottom: 18px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 22px rgba(24, 39, 75, 0.05);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    input, select, textarea, button {
+      font: inherit;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 10px;
+      background: #fff;
+      color: var(--text);
+    }
+    textarea { min-height: 88px; resize: vertical; }
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    button.secondary {
+      background: #e7edf9;
+      color: var(--accent);
+    }
+    button.ghost {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+      background: #f8fafc;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+    .vendors {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .rank-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 10px;
+      align-items: end;
+      margin-top: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 8px;
+      vertical-align: top;
+    }
+    th {
+      background: #f2f5fb;
+      text-align: center;
+    }
+    td.center { text-align: center; }
+    td.group {
+      background: #f8fbff;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 86px;
+    }
+    .small { font-size: 12px; color: var(--muted); }
+    .pill {
+      display: inline-block;
+      background: var(--accent-2);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+    .quote-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #fcfdff;
+    }
+    .quote-card h4 { margin: 0 0 6px; font-size: 15px; }
+    .footer {
+      margin-top: 22px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    @media (max-width: 1100px) {
+      .grid, .rank-row, .vendors, .grid-2 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 760px) {
+      .grid, .rank-row, .vendors, .grid-2 { grid-template-columns: 1fr; }
+      .wrap { padding: 14px; }
+      h1 { font-size: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>南和國小教科書評選小工具</h1>
+    <div class="sub">依南和國小教科書評鑑表與決議表的欄位順序設計，可快速做排序、產生分數、套用評語，並匯出 Excel 可開啟的 .xls 檔。</div>
+
+    <div class="panel">
+      <h2>一、基本設定</h2>
+      <div class="grid">
+        <div class="field">
+          <label>學年度</label>
+          <input id="schoolYear" value="115" />
+        </div>
+        <div class="field">
+          <label>學校名稱</label>
+          <input id="schoolName" value="新竹縣南和國民小學" />
+        </div>
+        <div class="field">
+          <label>領域別</label>
+          <select id="domainSelect"></select>
+        </div>
+        <div class="field">
+          <label>年級</label>
+          <select id="gradeSelect">
+            <option value="一">一</option>
+            <option value="三">三</option>
+            <option value="五" selected>五</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>冊別</label>
+          <input id="volumeInput" value="第 九 冊" />
+        </div>
+        <div class="field">
+          <label>學期</label>
+          <select id="semesterSelect">
+            <option value="第一學期" selected>第一學期</option>
+            <option value="第二學期">第二學期</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>評選者 / 共同評選者</label>
+          <input id="reviewersInput" value="藍金鳳、魏冠華" />
+        </div>
+        <div class="field">
+          <label>採用版本（可自動帶出）</label>
+          <input id="adoptedVersionInput" placeholder="例如：康軒" />
+        </div>
+      </div>
+      <div class="note">目前已預設南和國小 115 學年度編排表中的領域：國語、國際教育、英語、客語、數學、自然科學、社會、藝術與人文、健康與體育、綜合活動、生活。</div>
+    </div>
+
+    <div class="panel">
+      <h2>二、出版社與排序</h2>
+      <div class="vendors" id="vendorArea"></div>
+      <div class="actions">
+        <button class="secondary" id="resetVendorsBtn">重設為康軒／南一／翰林</button>
+        <button class="ghost" id="addVendorBtn">新增出版社欄位</button>
+      </div>
+      <div class="rank-row" id="rankArea"></div>
+      <div class="grid" style="margin-top:10px;">
+        <div class="field">
+          <label>差距模式</label>
+          <select id="gapMode">
+            <option value="close">差距小（較保守）</option>
+            <option value="medium" selected>中度差距</option>
+            <option value="wide">差距大（偏好明顯）</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>同分處理</label>
+          <select id="tieMode">
+            <option value="strict" selected>維持嚴格排序</option>
+            <option value="soft">允許分數接近</option>
+          </select>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="generateScoresBtn">依排序自動產生分數</button>
+        <button class="secondary" id="recalcBtn">重新計算總分與排序</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>三、評語庫（各領域預設五項）</h2>
+      <div class="actions">
+        <button class="secondary" id="loadQuotesBtn">載入本領域評語</button>
+        <button class="ghost" id="copyQuotesBtn">複製評語內容</button>
+      </div>
+      <div id="quoteList" style="margin-top:12px;"></div>
+      <div class="small">這裡的文字可拿去回饋單、評鑑表的「評語與建議」、決議表的「說明」做參考與改寫。</div>
+    </div>
+
+    <div class="panel">
+      <h2>四、評鑑表計分區</h2>
+      <div class="small" style="margin-bottom:10px;">評分規則：優 5、良好 4、好 3、尚可 2、普通 1。欄位順序依南和國小現行評鑑表。</div>
+      <div style="overflow:auto;">
+        <table id="scoreTable"></table>
+      </div>
+      <div class="actions">
+        <button class="secondary" id="fillNeutralBtn">全部先填 3 分</button>
+        <button class="ghost" id="clearScoresBtn">清空所有分數</button>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h2>五、決議表文字</h2>
+        <div class="field">
+          <label>評審結果</label>
+          <input id="decisionResult" value="採用" />
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label>說明 1</label>
+          <textarea id="decision1"></textarea>
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label>說明 2</label>
+          <textarea id="decision2"></textarea>
+        </div>
+        <div class="actions">
+          <button class="secondary" id="useTopQuotesBtn">將前兩則評語帶入說明</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>六、匯出</h2>
+        <div class="field">
+          <label>匯出檔名</label>
+          <input id="fileNameInput" value="南和國小教科書評選.xls" />
+        </div>
+        <div class="actions">
+          <button id="exportBtn">下載 Excel（.xls）</button>
+          <button class="secondary" id="downloadJsonBtn">下載設定 JSON</button>
+        </div>
+        <div class="note">匯出的 Excel 會包含 3 個工作表：評語庫、評鑑表、決議表。可直接用 Excel 開啟再微調。</div>
+      </div>
+    </div>
+
+    <div class="footer">這是單檔版小工具，不需安裝。直接用瀏覽器打開即可。若妳之後要，我還可以再把它改成「直接套正式 Word/Excel 版型」的下一版。</div>
+  </div>
+
+  <script>
+    const domainOptions = [
+      '國語','國際教育','英語','客語','數學','自然科學','社會','藝術與人文','健康與體育','綜合活動','生活'
+    ];
+
+    const criteriaGroups = [
+      {
+        name: '物理屬性方面',
+        items: [
+          '紙張、字體、字號、開數是否合於「國民中小學教科書教學指引學生習作印製規格」？',
+          '外觀是否感覺舒適？圖片文字是否清晰？油墨的色澤及濃度是否適當？',
+          '裝訂是否堅固耐用、無脫頁、無倒裝、裁切良好？'
+        ]
+      },
+      {
+        name: '內容屬性方面',
+        items: [
+          '內容是否合於課程標準所訂目標、教材綱要？',
+          '單元目標是否明確完整（包含認知、技能、情意三個領域，並兼顧內容目標與過程目標）？',
+          '內容是否正確？',
+          '內容是否拋棄偏見、意識型態、刻板印象、潛藏對學生負面影響？',
+          '內容的敘寫是否有系統、有組織、合邏輯？',
+          '內容的選取是否合乎學生認知發展程序？'
+        ]
+      },
+      {
+        name: '使用屬性方面',
+        items: [
+          '內容、組織、呈現方式是否適合本校學生的特質、能力、性向、程度、生活經驗？',
+          '教材份量是否配合教學時間，教師免於趕進度？',
+          '是否保留部分彈性空間，提供教師自行設計課程？',
+          '是否在每一單元後附有作業、討論問題或評量題目？是否形式多元化？兼顧基本與高層次目標？是否易於學生自我評量？',
+          '是否編寫、製作優良的教學指引和補充讀物等，提供學校使用？',
+          '是否開發設計教具、教學媒體等，是否贈送學校使用？',
+          '教材之編排是否利於師生在教學上採取主動角色？是否易於實施個別化教學？'
+        ]
+      },
+      {
+        name: '出版屬性方面',
+        items: [
+          '出版者是否有健全的人力、物力、財力以及健全的研發系統，俾爾後年度繼續提供教科書？',
+          '該科教科書研發過程是否嚴謹，有無經過試用、檢討與修訂程序？',
+          '出版者是否為提高教科書品質而經常舉辦座談、教師研習，以蒐集意見，適時修改教科書？',
+          '教科書價格是否合理？是否無隱藏費用或「搭售」費用？是否規劃良好的售後服務計劃及網路？'
+        ]
+      }
+    ];
+
+    const quotesByDomain = {
+      '國語': [
+        { angle: '選文與語文素養', text: '教材選文兼具文學性與生活性，能引導學生接觸不同文體，對閱讀理解與語感培養具正面助益。' },
+        { angle: '內容結構', text: '單元安排循序漸進，生字、語詞、句型與閱讀活動能相互呼應，整體結構明確，便於教師掌握教學節奏。' },
+        { angle: '學生適切性', text: '內容大致符合五年級學生的認知與表達需求，但部分文本仍需教師補充背景說明，較能貼近學生生活經驗。' },
+        { angle: '教學應用', text: '課文後設計的提問、習作與延伸活動具有基本教學參考價值，可搭配口說、摘要與寫作活動進一步深化學習。' },
+        { angle: '整體評價', text: '整體而言，本版本編排清楚、備課便利，若能再增加開放性提問與多元表達任務，將更有助於培養學生思辨與表達能力。' }
+      ],
+      '數學': [
+        { angle: '概念建構', text: '教材概念鋪陳大致完整，從基本理解到應用練習具一定層次，有助於學生建立數學概念。' },
+        { angle: '題型設計', text: '例題與練習題數量充足，能支援日常教學與複習，但部分文字題仍需教師協助學生釐清題意。' },
+        { angle: '學生差異', text: '內容難度大致符合五年級學習需求，但對程度落差較大的班級而言，仍需教師另行補充分層教材。' },
+        { angle: '生活連結', text: '若能再增加貼近學生生活情境的題材與探究式活動，將更能提升學生對數學學習的參與感與實用感。' },
+        { angle: '整體評價', text: '整體而言，本版本架構完整、單元編排清楚，對教師備課與學生練習皆具實用性。' }
+      ],
+      '健康與體育': [
+        { angle: '主題完整性', text: '教材內容涵蓋健康促進、身體保健、人際互動與運動技能等面向，整體符合高年級學生身心發展需求。' },
+        { angle: '生活應用', text: '健康教育單元與學生日常生活有一定連結，對建立正確健康觀念與生活習慣具幫助。' },
+        { angle: '教學彈性', text: '體育技能與活動設計具有參考價值，但仍須依學校場地、器材及學生能力進行調整。' },
+        { angle: '教材呈現', text: '版面與圖片編排清楚，學生較易理解內容，亦有助於教師課堂說明與延伸活動設計。' },
+        { angle: '整體評價', text: '整體而言，本版本兼顧知識、態度與技能，若能再強化實作任務與行為落實的設計，教學效果將更佳。' }
+      ],
+      '社會': [
+        { angle: '內容取材', text: '教材內容能結合社會脈絡與生活經驗，對學生理解公民、歷史與地理概念具正面幫助。' },
+        { angle: '脈絡組織', text: '單元編排具系統性，主題脈絡清楚，便於教師引導學生從事實、概念到觀點逐步建構理解。' },
+        { angle: '思辨引導', text: '若能增加更多比較、探究與討論式問題，將更有助於高年級學生培養多角度思考與表達能力。' },
+        { angle: '學生適切性', text: '內容大致符合五年級學生理解能力，但部分抽象議題仍需透過生活化案例與圖表補充，才能提升學習效果。' },
+        { angle: '整體評價', text: '整體而言，本版本教材架構完整，具一定教學支持性，適合作為課堂討論與延伸探究的基礎。' }
+      ],
+      '自然科學': [
+        { angle: '概念與探究', text: '教材兼顧科學概念與探究歷程，能引導學生從觀察、提問到驗證，建立基本科學素養。' },
+        { angle: '實作適切性', text: '活動設計具參考價值，但實際操作仍需視學校器材、場地與授課時間進行調整。' },
+        { angle: '內容正確性', text: '內容敘寫大致清楚且具系統性，有助於學生理解自然現象與基本原理。' },
+        { angle: '學生經驗連結', text: '若能再增加與學生生活情境更直接相關的案例，將更能提升學生主動觀察與探究的興趣。' },
+        { angle: '整體評價', text: '整體而言，本版本內容完整，兼具知識與活動引導，對教師教學與學生操作皆有一定助益。' }
+      ],
+      '英語': [
+        { angle: '語言輸入', text: '教材在字彙、句型與情境對話的安排上具基本系統性，有助於學生累積語言輸入。' },
+        { angle: '口語與互動', text: '若能搭配更多口說互動、配對練習與情境應用活動，將更能提高學生英語使用的主動性。' },
+        { angle: '學生適切性', text: '內容大致符合學生英語學習起點，但對程度差異較大的班級，仍需教師補充分層活動。' },
+        { angle: '教材編排', text: '版面、圖片與活動編排清楚，能協助學生理解情境並降低學習負擔。' },
+        { angle: '整體評價', text: '整體而言，本版本適合作為英語課堂基本教材，若能再增加真實溝通與生活化應用情境，效果會更佳。' }
+      ],
+      '客語': [
+        { angle: '語言文化連結', text: '教材兼顧客語學習與文化理解，能幫助學生在語言學習中接觸在地文化與生活情境。' },
+        { angle: '口說練習', text: '內容適合搭配聽說活動進行，若能增加情境對話與實際使用機會，將更有助於學生開口表達。' },
+        { angle: '教材適切性', text: '整體難度大致適中，但仍需視學生家庭語言背景與接觸經驗調整教學節奏。' },
+        { angle: '教學支援', text: '若能附加更多音檔、圖卡或互動素材，將有助於提升課堂參與度與學習興趣。' },
+        { angle: '整體評價', text: '整體而言，本版本具基礎教學功能，對語言與文化推廣皆有助益。' }
+      ],
+      '綜合活動': [
+        { angle: '核心素養', text: '教材內容能涵蓋自我探索、人際互動、生活管理與問題解決等面向，符合綜合活動領域精神。' },
+        { angle: '活動設計', text: '活動具有基本引導性，但實際教學仍需依班級互動狀況與學生經驗加以調整。' },
+        { angle: '反思深度', text: '若能增加更具層次的反思提問與情境任務，將更能促進學生自我覺察與表達。' },
+        { angle: '彈性空間', text: '教材保留一定教學彈性，便於教師結合班級經營、學校活動或在地特色進行統整。' },
+        { angle: '整體評價', text: '整體而言，本版本適合作為綜合活動課程基礎材料，具延伸與調整空間。' }
+      ],
+      '藝術與人文': [
+        { angle: '美感與表現', text: '教材能兼顧欣賞、表現與創作，引導學生從觀察、體驗到實作，培養基本美感與表達能力。' },
+        { angle: '多元媒材', text: '內容若能再增加不同媒材與多元藝術形式的引導，將更有助於學生拓展創作經驗。' },
+        { angle: '學生參與', text: '課程設計具有一定開放性，能鼓勵學生參與與分享，但仍需教師依班級特質調整活動節奏。' },
+        { angle: '教材呈現', text: '圖片與版面呈現具吸引力，對學生理解作品特色與活動要求有所幫助。' },
+        { angle: '整體評價', text: '整體而言，本版本具基礎藝術教學支持功能，適合搭配實作與展演活動延伸使用。' }
+      ],
+      '生活': [
+        { angle: '生活經驗連結', text: '教材內容能與低年級學生的日常經驗連結，有助於學生在生活情境中學習與應用。' },
+        { angle: '主題整合', text: '單元設計兼顧觀察、表達、操作與體驗，較能符合生活課程強調統整與實作的特色。' },
+        { angle: '活動可行性', text: '教材活動具有參考價值，但仍需視學生年齡特性、場地與時間進行簡化或調整。' },
+        { angle: '學生參與', text: '內容大致能提升學生參與度，若搭配實物、故事或遊戲活動，學習效果會更佳。' },
+        { angle: '整體評價', text: '整體而言，本版本適合作為生活課程基礎教材，具備實作與延伸彈性。' }
+      ],
+      '國際教育': [
+        { angle: '全球視野', text: '教材內容有助於學生接觸多元文化與全球議題，能作為開啟國際視野的基礎。' },
+        { angle: '在地連結', text: '若能再強化在地生活與全球議題的對照，將更有助於學生理解國際教育與自身的關聯。' },
+        { angle: '表達與思考', text: '部分活動具討論與表達空間，若搭配提問與比較活動，可進一步提升學生思辨能力。' },
+        { angle: '學生適切性', text: '內容大致適合學生理解，但部分概念仍需教師透過圖片、影片或案例協助轉化。' },
+        { angle: '整體評價', text: '整體而言，本版本可作為國際教育入門材料，具延伸討論與跨領域統整潛力。' }
+      ]
+    };
+
+    let vendors = ['康軒', '南一', '翰林'];
+
+    const domainSelect = document.getElementById('domainSelect');
+    const vendorArea = document.getElementById('vendorArea');
+    const rankArea = document.getElementById('rankArea');
+    const scoreTable = document.getElementById('scoreTable');
+    const quoteList = document.getElementById('quoteList');
+
+    function initDomains() {
+      domainOptions.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        domainSelect.appendChild(opt);
+      });
+      domainSelect.value = '國語';
+    }
+
+    function renderVendors() {
+      vendorArea.innerHTML = '';
+      vendors.forEach((v, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'field';
+        wrapper.innerHTML = `<label>出版社 ${idx + 1}</label><input value="${escapeHtml(v)}" data-idx="${idx}" class="vendor-input" />`;
+        vendorArea.appendChild(wrapper);
+      });
+      document.querySelectorAll('.vendor-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+          vendors[Number(e.target.dataset.idx)] = e.target.value.trim() || `出版社${Number(e.target.dataset.idx)+1}`;
+          renderRanks();
+          renderScoreTable();
+        });
+      });
+    }
+
+    function renderRanks() {
+      rankArea.innerHTML = '';
+      const rankCount = vendors.length;
+      for (let i = 0; i < rankCount; i++) {
+        const div = document.createElement('div');
+        div.className = 'field';
+        const options = vendors.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
+        div.innerHTML = `<label>第 ${i + 1} 名</label><select class="rank-select">${options}</select>`;
+        rankArea.appendChild(div);
+      }
+      const selects = [...document.querySelectorAll('.rank-select')];
+      selects.forEach((sel, idx) => {
+        sel.value = vendors[idx] || vendors[0];
+        sel.addEventListener('change', enforceUniqueRanks);
+      });
+      enforceUniqueRanks();
+    }
+
+    function enforceUniqueRanks() {
+      const selects = [...document.querySelectorAll('.rank-select')];
+      const seen = new Set();
+      selects.forEach((sel, idx) => {
+        if (seen.has(sel.value)) {
+          const remaining = vendors.find(v => !seen.has(v));
+          if (remaining) sel.value = remaining;
+        }
+        seen.add(sel.value);
+      });
+    }
+
+    function getRankOrder() {
+      return [...document.querySelectorAll('.rank-select')].map(s => s.value);
+    }
+
+    function renderQuoteLibrary() {
+      const domain = domainSelect.value;
+      const list = quotesByDomain[domain] || [];
+      quoteList.innerHTML = list.map((q, i) => `
+        <div class="quote-card">
+          <h4>${i + 1}. ${escapeHtml(q.angle)}</h4>
+          <div>${escapeHtml(q.text)}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderScoreTable() {
+      const vendorHeaders = vendors.map((v, idx) => `<th>${escapeHtml(v)}</th>`).join('');
+      let rows = `
+        <tr>
+          <th style="min-width:110px;">評審指標類別</th>
+          <th style="min-width:420px;">評審指標</th>
+          ${vendorHeaders}
+          <th style="min-width:120px;">備註</th>
+        </tr>`;
+
+      let rowIndex = 0;
+      criteriaGroups.forEach(group => {
+        group.items.forEach((item, idx) => {
+          rows += '<tr>';
+          if (idx === 0) {
+            rows += `<td class="group" rowspan="${group.items.length}">${escapeHtml(group.name)}</td>`;
+          }
+          rows += `<td>${idx + 1}、${escapeHtml(item)}</td>`;
+          vendors.forEach((v, vidx) => {
+            rows += `<td class="center"><input type="number" min="1" max="5" step="1" data-row="${rowIndex}" data-vendor="${vidx}" class="score-input" style="width:70px;text-align:center;" /></td>`;
+          });
+          rows += `<td><input class="remark-input" data-remark-row="${rowIndex}" placeholder="備註" /></td>`;
+          rows += '</tr>';
+          rowIndex += 1;
+        });
+      });
+
+      rows += `<tr><td class="group">其他</td><td><input id="otherText" placeholder="其他補充評比項目" /></td>${vendors.map((v, vidx)=>`<td class="center"><input type="number" min="1" max="5" step="1" data-row="other" data-vendor="${vidx}" class="score-input" style="width:70px;text-align:center;" /></td>`).join('')}<td><input id="otherRemark" placeholder="備註" /></td></tr>`;
+      rows += `<tr><td class="group">合計</td><td>總分</td>${vendors.map((v, idx)=>`<td class="center" id="total-${idx}">0</td>`).join('')}<td></td></tr>`;
+      rows += `<tr><td class="group">排序</td><td>排序</td>${vendors.map((v, idx)=>`<td class="center" id="rank-${idx}">-</td>`).join('')}<td></td></tr>`;
+      rows += `<tr><td class="group">評審結果</td><td>採用版本</td><td colspan="${vendors.length + 1}"><input id="adoptedVersionRow" placeholder="例如：康軒版本" /></td></tr>`;
+      rows += `<tr><td class="group">評語與建議</td><td colspan="${vendors.length + 2}"><textarea id="evaluationComment" placeholder="可貼入本領域評語，或自行改寫"></textarea></td></tr>`;
+      rows += `<tr><td class="group">評選者</td><td colspan="${vendors.length + 2}"><input id="reviewerRow" /></td></tr>`;
+
+      scoreTable.innerHTML = rows;
+      document.getElementById('reviewerRow').value = document.getElementById('reviewersInput').value;
+      document.getElementById('adoptedVersionRow').value = document.getElementById('adoptedVersionInput').value;
+
+      document.querySelectorAll('.score-input').forEach(input => {
+        input.addEventListener('input', recalcTotals);
+      });
+      document.getElementById('reviewersInput').addEventListener('input', () => {
+        const el = document.getElementById('reviewerRow');
+        if (el) el.value = document.getElementById('reviewersInput').value;
+      });
+      document.getElementById('adoptedVersionInput').addEventListener('input', () => {
+        const el = document.getElementById('adoptedVersionRow');
+        if (el) el.value = document.getElementById('adoptedVersionInput').value;
+      });
+    }
+
+    function getCriteriaCount() {
+      return criteriaGroups.reduce((sum, g) => sum + g.items.length, 0);
+    }
+
+    function generateScores() {
+      const order = getRankOrder();
+      const gapMode = document.getElementById('gapMode').value;
+      const strict = document.getElementById('tieMode').value === 'strict';
+      const criteriaCount = getCriteriaCount();
+
+      const totalProfileMap = {
+        close: [88, 86, 84, 82, 80],
+        medium: [90, 86, 82, 80, 80],
+        wide: [90, 85, 80, 80, 80]
+      };
+      const totalProfile = totalProfileMap[gapMode] || totalProfileMap.medium;
+
+      document.querySelectorAll('.score-input').forEach(inp => {
+        if (inp.dataset.row === 'other') {
+          inp.value = '';
+        } else {
+          inp.value = '';
+        }
+      });
+
+      order.forEach((vendorName, rankIdx) => {
+        const vendorIndex = vendors.indexOf(vendorName);
+        if (vendorIndex < 0) return;
+
+        const targetTotal = totalProfile[Math.min(rankIdx, totalProfile.length - 1)] || 80;
+        const baseScore = 4;
+        const extraFives = Math.max(0, Math.min(criteriaCount, targetTotal - baseScore * criteriaCount));
+        const rowInputs = [...document.querySelectorAll(`.score-input[data-vendor="${vendorIndex}"]`)]
+          .filter(input => input.dataset.row !== 'other');
+
+        rowInputs.forEach((input) => {
+          input.value = baseScore;
+        });
+
+        const offset = strict ? rankIdx : (rankIdx * 3 + 1);
+        for (let i = 0; i < extraFives; i++) {
+          const idx = (i * 2 + offset) % rowInputs.length;
+          rowInputs[idx].value = 5;
+        }
+      });
+      recalcTotals();
+    }
+
+    function recalcTotals() {
+      const totals = vendors.map((_, idx) => {
+        const inputs = [...document.querySelectorAll(`.score-input[data-vendor="${idx}"]`)];
+        return inputs.reduce((sum, inp) => sum + (Number(inp.value) || 0), 0);
+      });
+
+      totals.forEach((total, idx) => {
+        const el = document.getElementById(`total-${idx}`);
+        if (el) el.textContent = total;
+      });
+
+      const ranked = totals.map((t, idx) => ({ vendor: vendors[idx], total: t, idx }))
+        .sort((a, b) => b.total - a.total || a.vendor.localeCompare(b.vendor, 'zh-Hant'));
+
+      const rankMap = {};
+      ranked.forEach((item, index) => { rankMap[item.idx] = index + 1; });
+      vendors.forEach((_, idx) => {
+        const el = document.getElementById(`rank-${idx}`);
+        if (el) el.textContent = rankMap[idx] || '-';
+      });
+
+      if (ranked[0] && ranked[0].total > 0) {
+        document.getElementById('adoptedVersionInput').value = ranked[0].vendor;
+        const row = document.getElementById('adoptedVersionRow');
+        if (row) row.value = ranked[0].vendor;
+      }
+    }
+
+    function fillNeutral() {
+      document.querySelectorAll('.score-input').forEach(inp => inp.value = 3);
+      recalcTotals();
+    }
+
+    function clearScores() {
+      document.querySelectorAll('.score-input').forEach(inp => inp.value = '');
+      recalcTotals();
+    }
+
+    function copyQuotes() {
+      const domain = domainSelect.value;
+      const lines = (quotesByDomain[domain] || []).map((q, idx) => `${idx + 1}. ${q.text}`).join('\n');
+      navigator.clipboard.writeText(lines).then(() => alert('已複製本領域評語。'));
+    }
+
+    function useTopQuotes() {
+      const domain = domainSelect.value;
+      const list = quotesByDomain[domain] || [];
+      document.getElementById('decision1').value = list[0]?.text || '';
+      document.getElementById('decision2').value = list[1]?.text || '';
+      const evalBox = document.getElementById('evaluationComment');
+      if (evalBox && !evalBox.value) {
+        evalBox.value = list.map((q, idx) => `${idx + 1}. ${q.text}`).join('\n');
+      }
+    }
+
+    function getAppState() {
+      const domain = domainSelect.value;
+      const grade = document.getElementById('gradeSelect').value;
+      const semester = document.getElementById('semesterSelect').value;
+      const volume = document.getElementById('volumeInput').value;
+      const schoolYear = document.getElementById('schoolYear').value;
+      const schoolName = document.getElementById('schoolName').value;
+      const reviewers = document.getElementById('reviewersInput').value;
+      const adopted = document.getElementById('adoptedVersionRow')?.value || document.getElementById('adoptedVersionInput').value;
+      const evaluationComment = document.getElementById('evaluationComment')?.value || '';
+      const decisionResult = document.getElementById('decisionResult').value;
+      const decision1 = document.getElementById('decision1').value;
+      const decision2 = document.getElementById('decision2').value;
+      const totals = vendors.map((_, idx) => document.getElementById(`total-${idx}`)?.textContent || '0');
+      const ranks = vendors.map((_, idx) => document.getElementById(`rank-${idx}`)?.textContent || '-');
+      const otherText = document.getElementById('otherText')?.value || '';
+      const otherRemark = document.getElementById('otherRemark')?.value || '';
+
+      const allRows = [];
+      let rowCounter = 0;
+      criteriaGroups.forEach(group => {
+        group.items.forEach((item, idx) => {
+          const rowScores = vendors.map((_, vidx) => document.querySelector(`.score-input[data-row="${rowCounter}"][data-vendor="${vidx}"]`)?.value || '');
+          const remark = document.querySelector(`.remark-input[data-remark-row="${rowCounter}"]`)?.value || '';
+          allRows.push({ group: group.name, item: `${idx + 1}、${item}`, scores: rowScores, remark });
+          rowCounter += 1;
+        });
+      });
+      allRows.push({
+        group: '其他', item: otherText,
+        scores: vendors.map((_, vidx) => document.querySelector(`.score-input[data-row="other"][data-vendor="${vidx}"]`)?.value || ''),
+        remark: otherRemark
+      });
+
+      return {
+        domain, grade, semester, volume, schoolYear, schoolName, reviewers,
+        vendors: [...vendors], totals, ranks, adopted, evaluationComment,
+        decisionResult, decision1, decision2, allRows,
+        quotes: quotesByDomain[domain] || []
+      };
+    }
+
+    function exportExcel() {
+      const state = getAppState();
+      const filename = document.getElementById('fileNameInput').value || '南和國小教科書評選.xls';
+      const xml = buildWorkbookXml(state);
+      const blob = new Blob([xml], { type: 'application/vnd.ms-excel' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename.endsWith('.xls') ? filename : `${filename}.xls`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function buildWorkbookXml(state) {
+      const esc = xmlEscape;
+      const quoteRows = state.quotes.map((q, idx) => rowXml([
+        `${idx + 1}`,
+        q.angle,
+        q.text
+      ])).join('');
+
+      const header1 = `${state.schoolName}領域教科書評選表（所選用之教科書預定為${state.schoolYear}學年度使用）`;
+      const header2 = `領域別：${state.domain}    冊別：${state.volume}（適用${state.grade}年級 ${state.semester}）`;
+      const evalRows = state.allRows.map(r => rowXml([r.group, r.item, ...r.scores, r.remark])).join('');
+      const totalRow = rowXml(['合計', '總分', ...state.totals, '']);
+      const rankRow = rowXml(['排序', '排序', ...state.ranks, '']);
+      const adoptedRow = rowXml(['評審結果', '採用版本', state.adopted, '', '', '', '']);
+      const commentRow = rowXml(['評語與建議', state.evaluationComment, '', '', '', '', '']);
+      const reviewerRow = rowXml(['評選者', state.reviewers, '', '', '', '', '']);
+
+      const evalSheetRows = rowXml([header1]) + rowXml([header2]) + rowXml(['評審指標類別','評審指標',...state.vendors,'備註']) + evalRows + totalRow + rankRow + adoptedRow + commentRow + reviewerRow;
+
+      const decisionHeader1 = `${state.schoolName}領域教科書評選(決議)表（所選用之教科書預定為${state.schoolYear}學年度使用）`;
+      const decisionHeader2 = `領域別：${state.domain}    冊別：${state.volume}（適用${state.grade}年級 ${state.semester}）`;
+      const rankingLine = rowXml(['排序', ...state.vendors.map((v, i) => `第${state.ranks[i]}名：${v}`)]);
+      const decisionRows = rowXml([decisionHeader1]) + rowXml([decisionHeader2]) + rankingLine + rowXml(['評審結果', `${state.decisionResult}${state.adopted}版本`]) + rowXml(['說明1', state.decision1]) + rowXml(['說明2', state.decision2]) + rowXml(['共同評選者', state.reviewers]);
+
+      return `<?xml version="1.0"?>
+      <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+       xmlns:o="urn:schemas-microsoft-com:office:office"
+       xmlns:x="urn:schemas-microsoft-com:office:excel"
+       xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+       xmlns:html="http://www.w3.org/TR/REC-html40">
+        <Styles>
+          <Style ss:ID="Header"><Font ss:Bold="1" ss:Size="12"/></Style>
+          <Style ss:ID="Bold"><Font ss:Bold="1"/></Style>
+          <Style ss:ID="Wrap"><Alignment ss:Vertical="Top" ss:WrapText="1"/></Style>
+        </Styles>
+        <Worksheet ss:Name="評語庫">
+          <Table>
+            ${rowXml([`${esc(state.domain)}領域預設評語`])}
+            ${rowXml(['序號','評鑑角度','文字'])}
+            ${quoteRows}
+          </Table>
+        </Worksheet>
+        <Worksheet ss:Name="評鑑表">
+          <Table>
+            ${evalSheetRows}
+          </Table>
+        </Worksheet>
+        <Worksheet ss:Name="決議表">
+          <Table>
+            ${decisionRows}
+          </Table>
+        </Worksheet>
+      </Workbook>`;
+    }
+
+    function rowXml(cells) {
+      return `<Row>${cells.map(c => `<Cell><Data ss:Type="String">${xmlEscape(String(c ?? ''))}</Data></Cell>`).join('')}</Row>`;
+    }
+
+    function xmlEscape(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str).replace(/'/g, '&#39;');
+    }
+
+    function downloadJson() {
+      const state = getAppState();
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = '南和國小教科書評選設定.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    document.getElementById('addVendorBtn').addEventListener('click', () => {
+      vendors.push(`出版社${vendors.length + 1}`);
+      renderVendors();
+      renderRanks();
+      renderScoreTable();
+    });
+    document.getElementById('resetVendorsBtn').addEventListener('click', () => {
+      vendors = ['康軒', '南一', '翰林'];
+      renderVendors();
+      renderRanks();
+      renderScoreTable();
+    });
+    document.getElementById('generateScoresBtn').addEventListener('click', generateScores);
+    document.getElementById('recalcBtn').addEventListener('click', recalcTotals);
+    document.getElementById('fillNeutralBtn').addEventListener('click', fillNeutral);
+    document.getElementById('clearScoresBtn').addEventListener('click', clearScores);
+    document.getElementById('loadQuotesBtn').addEventListener('click', renderQuoteLibrary);
+    document.getElementById('copyQuotesBtn').addEventListener('click', copyQuotes);
+    document.getElementById('useTopQuotesBtn').addEventListener('click', useTopQuotes);
+    document.getElementById('exportBtn').addEventListener('click', exportExcel);
+    document.getElementById('downloadJsonBtn').addEventListener('click', downloadJson);
+    domainSelect.addEventListener('change', () => {
+      renderQuoteLibrary();
+      if (!document.getElementById('evaluationComment').value.trim()) {
+        useTopQuotes();
+      }
+    });
+
+    initDomains();
+    renderVendors();
+    renderRanks();
+    renderScoreTable();
+    renderQuoteLibrary();
+    useTopQuotes();
+  </script>
+</body>
+</html>
