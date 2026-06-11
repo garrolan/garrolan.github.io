@@ -9,13 +9,14 @@
         color-scheme: light;
         --bg: #f5f7f4;
         --ink: #17212b;
-        --muted: #66727f;
+        --muted: #65717f;
         --panel: #ffffff;
-        --line: #d9e0e6;
+        --line: #d8e0e7;
         --teal: #007a78;
         --blue: #2d5f9a;
-        --amber: #b45c16;
-        --shadow: 0 18px 50px rgba(28, 42, 58, 0.12);
+        --amber: #a95512;
+        --violet: #6d4aa2;
+        --shadow: 0 16px 44px rgba(28, 42, 58, 0.11);
       }
 
       * {
@@ -25,8 +26,8 @@
       body {
         margin: 0;
         background:
-          linear-gradient(90deg, rgba(0, 122, 120, 0.06) 1px, transparent 1px),
-          linear-gradient(0deg, rgba(180, 92, 22, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 122, 120, 0.055) 1px, transparent 1px),
+          linear-gradient(0deg, rgba(169, 85, 18, 0.04) 1px, transparent 1px),
           var(--bg);
         background-size: 34px 34px;
         color: var(--ink);
@@ -46,32 +47,32 @@
       }
 
       .page {
-        width: min(1120px, calc(100% - 32px));
+        width: min(1180px, calc(100% - 32px));
         margin: 0 auto;
-        padding: 34px 0 46px;
+        padding: 30px 0 48px;
       }
 
       .hero {
         display: grid;
-        grid-template-columns: 1.1fr 0.9fr;
-        gap: 22px;
+        grid-template-columns: 1fr minmax(290px, 390px);
+        gap: 18px;
         align-items: stretch;
-        min-height: 260px;
       }
 
       .intro,
       .feature,
+      .toolbar,
       .tool-card {
         border: 1px solid var(--line);
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.92);
+        background: rgba(255, 255, 255, 0.94);
         box-shadow: var(--shadow);
       }
 
       .intro {
         display: grid;
         align-content: center;
-        padding: clamp(24px, 5vw, 48px);
+        padding: clamp(24px, 4vw, 44px);
       }
 
       .eyebrow {
@@ -83,23 +84,40 @@
 
       h1 {
         margin: 0;
-        font-size: clamp(34px, 7vw, 72px);
+        font-size: clamp(34px, 7vw, 68px);
         line-height: 1;
         letter-spacing: 0;
       }
 
       .intro p {
-        max-width: 620px;
+        max-width: 690px;
         margin: 18px 0 0;
         color: var(--muted);
         font-size: 17px;
         line-height: 1.7;
       }
 
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 20px;
+      }
+
+      .stat {
+        padding: 7px 10px;
+        border: 1px solid #cfe0df;
+        border-radius: 999px;
+        background: #f2faf9;
+        color: #075d5b;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
       .feature {
         display: grid;
         grid-template-rows: auto 1fr auto;
-        padding: 22px;
+        padding: 20px;
         background:
           linear-gradient(135deg, rgba(0, 122, 120, 0.12), rgba(45, 95, 154, 0.08)),
           #fff;
@@ -148,7 +166,7 @@
       .tool-card p {
         margin: 0;
         color: var(--muted);
-        line-height: 1.62;
+        line-height: 1.58;
       }
 
       .button {
@@ -169,32 +187,56 @@
         align-items: end;
         justify-content: space-between;
         gap: 16px;
-        margin: 34px 0 14px;
+        margin: 32px 0 12px;
       }
 
       .section-head h2 {
         margin: 0;
-        font-size: 24px;
+        font-size: 25px;
         letter-spacing: 0;
       }
 
       .section-head p {
-        margin: 0;
+        margin: 6px 0 0;
         color: var(--muted);
         line-height: 1.6;
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 14px;
+        padding: 12px;
+      }
+
+      .search {
+        width: 100%;
+        min-height: 42px;
+        padding: 0 13px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        font: inherit;
+      }
+
+      .count {
+        color: var(--muted);
+        font-size: 14px;
+        white-space: nowrap;
       }
 
       .grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
+        gap: 12px;
       }
 
       .tool-card {
         display: grid;
         gap: 10px;
-        min-height: 150px;
-        padding: 18px;
+        min-height: 136px;
+        padding: 16px;
         transition:
           border-color 140ms ease,
           transform 140ms ease,
@@ -207,6 +249,13 @@
         box-shadow: 0 20px 56px rgba(28, 42, 58, 0.16);
       }
 
+      .meta-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
       .tag {
         width: fit-content;
         padding: 5px 9px;
@@ -217,30 +266,56 @@
         font-weight: 800;
       }
 
-      .tag.blue {
-        background: #edf3fb;
+      .tag[data-tag="行政"],
+      .tag[data-tag="教學"],
+      .tag[data-tag="數學"],
+      .tag[data-tag="語言"] {
+        background: #fff5e8;
+        color: var(--amber);
+      }
+
+      .tag[data-tag="遊戲"],
+      .tag[data-tag="創作"] {
+        background: #eef3fb;
         color: var(--blue);
       }
 
-      .tag.amber {
-        background: #fff4e8;
-        color: var(--amber);
+      .tag[data-tag="原始碼"] {
+        background: #f2eefb;
+        color: var(--violet);
+      }
+
+      .type {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
       }
 
       .tool-card h3 {
         margin: 0;
-        font-size: 20px;
+        font-size: 18px;
+        line-height: 1.35;
         letter-spacing: 0;
       }
 
+      .empty {
+        display: none;
+        padding: 18px;
+        border: 1px dashed #aeb9c5;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.84);
+        color: var(--muted);
+      }
+
       .footer {
-        margin-top: 28px;
+        margin-top: 26px;
         color: var(--muted);
         font-size: 14px;
         line-height: 1.7;
       }
 
-      @media (max-width: 900px) {
+      @media (max-width: 980px) {
         .hero,
         .grid {
           grid-template-columns: 1fr;
@@ -249,19 +324,21 @@
 
       @media (max-width: 640px) {
         .page {
-          width: min(100% - 22px, 1120px);
+          width: min(100% - 22px, 1180px);
           padding-top: 18px;
         }
 
         .intro,
         .feature,
+        .toolbar,
         .tool-card {
           box-shadow: 0 10px 30px rgba(28, 42, 58, 0.1);
         }
 
-        .section-head {
-          align-items: start;
-          flex-direction: column;
+        .section-head,
+        .toolbar {
+          align-items: stretch;
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -272,7 +349,12 @@
         <div class="intro">
           <p class="eyebrow">GARRO TOOLS</p>
           <h1 id="pageTitle">Garro 小工具箱</h1>
-          <p>這裡放一些教學、圖片處理、遊戲與日常工作會用到的小工具。點進去就能用，不需要登入。</p>
+          <p>所有已放在這個網站裡的網頁程式都會留在首頁。你可以直接往下找，也可以用搜尋框快速縮小清單。</p>
+          <div class="stats" aria-label="工具數量">
+            <span class="stat">67 個入口</span>
+            <span class="stat">63 個 HTML 工具</span>
+            <span class="stat">3 個 JSX 原始檔</span>
+          </div>
         </div>
 
         <a class="feature" href="./fake-transparent-bg-remover/">
@@ -288,69 +370,583 @@
       <section aria-labelledby="toolsTitle">
         <div class="section-head">
           <div>
-            <h2 id="toolsTitle">常用工具</h2>
-            <p>先放最容易反覆用到的入口，之後可以再慢慢整理分類。</p>
+            <h2 id="toolsTitle">全部工具清單</h2>
+            <p>這裡列出目前 repo 裡所有可找到的網頁工具，避免舊工具被藏起來。</p>
           </div>
         </div>
 
-        <div class="grid">
-          <a class="tool-card" href="./圖片壓縮程式preview.html">
-            <span class="tag">圖片</span>
-            <h3>圖片壓縮工具</h3>
-            <p>把圖片壓小，方便上傳或放進網站。</p>
-          </a>
+        <div class="toolbar">
+          <input class="search" id="searchInput" type="search" placeholder="搜尋工具名稱、檔名或分類" autocomplete="off" />
+          <span class="count" id="resultCount">67 / 67 個工具</span>
+        </div>
 
-          <a class="tool-card" href="./計算成績程式grade_calculator.html">
-            <span class="tag amber">行政</span>
+        <div class="grid" id="toolGrid">
+          <a class="tool-card" href="./fake-transparent-bg-remover/" data-search="假透明去背工具 fake-transparent-bg-remover/ 圖片 把 ai 圖片裡的灰白格子背景，轉成真正透明的 png。">
+            <div class="meta-row">
+              <span class="tag" data-tag="圖片">圖片</span>
+              <span class="type">html</span>
+            </div>
+            <h3>假透明去背工具</h3>
+            <p>把 AI 圖片裡的灰白格子背景，轉成真正透明的 PNG。</p>
+          </a>
+          <a class="tool-card" href="./113-2-L07_WORD_V1.html" data-search="國語生字練習 ‑ 第十課 113-2-l07_word_v1.html 語言 113-2-l07_word_v1.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>國語生字練習 ‑ 第十課</h3>
+            <p>113-2-L07_WORD_V1.html</p>
+          </a>
+          <a class="tool-card" href="./113-2-L08_WORD_V1.html" data-search="國語生字練習 ‑ 第十課 113-2-l08_word_v1.html 語言 113-2-l08_word_v1.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>國語生字練習 ‑ 第十課</h3>
+            <p>113-2-L08_WORD_V1.html</p>
+          </a>
+          <a class="tool-card" href="./113-2-L09_WORD_V1.html" data-search="國語生字練習 ‑ 第十課 113-2-l09_word_v1.html 語言 113-2-l09_word_v1.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>國語生字練習 ‑ 第十課</h3>
+            <p>113-2-L09_WORD_V1.html</p>
+          </a>
+          <a class="tool-card" href="./113-2-L10_WORD_V4.html" data-search="國語生字練習 ‑ 第十課 113-2-l10_word_v4.html 語言 113-2-l10_word_v4.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>國語生字練習 ‑ 第十課</h3>
+            <p>113-2-L10_WORD_V4.html</p>
+          </a>
+          <a class="tool-card" href="./113-2-L11_WORD_V1.html" data-search="國語生字練習 ‑ 第十課 113-2-l11_word_v1.html 語言 113-2-l11_word_v1.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>國語生字練習 ‑ 第十課</h3>
+            <p>113-2-L11_WORD_V1.html</p>
+          </a>
+          <a class="tool-card" href="./113-2-L12_WORD_V1.html" data-search="國語生字練習 ‑ 第十課 113-2-l12_word_v1.html 語言 113-2-l12_word_v1.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>國語生字練習 ‑ 第十課</h3>
+            <p>113-2-L12_WORD_V1.html</p>
+          </a>
+          <a class="tool-card" href="./台灣文字解密遊戲.html" data-search="臺灣時空語文解密 台灣文字解密遊戲.html 語言 台灣文字解密遊戲.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>臺灣時空語文解密</h3>
+            <p>台灣文字解密遊戲.html</p>
+          </a>
+          <a class="tool-card" href="./交通安全：安親班車輛.html" data-search="互動學習報告 交通安全：安親班車輛.html 教學 交通安全：安親班車輛.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="教學">教學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>互動學習報告</h3>
+            <p>交通安全：安親班車輛.html</p>
+          </a>
+          <a class="tool-card" href="./南和教科書評選工具nanhe_textbook_tool.html" data-search="南和國小教科書評選小工具 南和教科書評選工具nanhe_textbook_tool.html 行政 南和教科書評選工具nanhe_textbook_tool.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="行政">行政</span>
+              <span class="type">html</span>
+            </div>
+            <h3>南和國小教科書評選小工具</h3>
+            <p>南和教科書評選工具nanhe_textbook_tool.html</p>
+          </a>
+          <a class="tool-card" href="./計算成績程式grade_calculator.html" data-search="期末成績計算工具 計算成績程式grade_calculator.html 行政 計算成績程式grade_calculator.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="行政">行政</span>
+              <span class="type">html</span>
+            </div>
             <h3>期末成績計算工具</h3>
-            <p>快速整理平時、定期評量與總成績。</p>
+            <p>計算成績程式grade_calculator.html</p>
           </a>
-
-          <a class="tool-card" href="./南和教科書評選工具nanhe_textbook_tool.html">
-            <span class="tag amber">行政</span>
-            <h3>教科書評選工具</h3>
-            <p>協助整理教科書評選資料與比較。</p>
+          <a class="tool-card" href="./馬達加斯加生字.html" data-search="《馬達加斯加，出發！》詞彙小達人 馬達加斯加生字.html 語言 馬達加斯加生字.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>《馬達加斯加，出發！》詞彙小達人</h3>
+            <p>馬達加斯加生字.html</p>
           </a>
-
-          <a class="tool-card" href="./kanban.html">
-            <span class="tag blue">整理</span>
-            <h3>極簡互動看板</h3>
-            <p>用看板整理任務、想法與待辦事項。</p>
+          <a class="tool-card" href="./國語：展開夢的翅膀閱讀測驗reading_quiz_wings_linear.html" data-search="如何張開追夢的翅膀｜互動閱讀測驗 國語：展開夢的翅膀閱讀測驗reading_quiz_wings_linear.html 語言 國語：展開夢的翅膀閱讀測驗reading_quiz_wings_linear.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>如何張開追夢的翅膀｜互動閱讀測驗</h3>
+            <p>國語：展開夢的翅膀閱讀測驗reading_quiz_wings_linear.html</p>
           </a>
-
-          <a class="tool-card" href="./hiteach_count.html">
-            <span class="tag amber">教學</span>
+          <a class="tool-card" href="./畢旅成果簡報.html" data-search="114學年度南和國小六甲（暨五甲）畢業旅行成果簡報 畢旅成果簡報.html 工具 畢旅成果簡報.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="工具">工具</span>
+              <span class="type">html</span>
+            </div>
+            <h3>114學年度南和國小六甲（暨五甲）畢業旅行成果簡報</h3>
+            <p>畢旅成果簡報.html</p>
+          </a>
+          <a class="tool-card" href="./雪夜小屋：聖誕節_chiaki誕生紀念（單檔互動網站）.html" data-search="雪夜小屋：聖誕節 × chiaki誕生紀念 雪夜小屋：聖誕節_chiaki誕生紀念（單檔互動網站）.html 創作 雪夜小屋：聖誕節_chiaki誕生紀念（單檔互動網站）.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="創作">創作</span>
+              <span class="type">html</span>
+            </div>
+            <h3>雪夜小屋：聖誕節 × Chiaki誕生紀念</h3>
+            <p>雪夜小屋：聖誕節_chiaki誕生紀念（單檔互動網站）.html</p>
+          </a>
+          <a class="tool-card" href="./新竹縣文化漫遊：探索在地風華.html" data-search="新竹縣文化漫遊：探索在地風華 新竹縣文化漫遊：探索在地風華.html 教學 新竹縣文化漫遊：探索在地風華.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="教學">教學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>新竹縣文化漫遊：探索在地風華</h3>
+            <p>新竹縣文化漫遊：探索在地風華.html</p>
+          </a>
+          <a class="tool-card" href="./圖片壓縮程式preview.html" data-search="圖片壓縮工具｜自由人生實驗室 圖片壓縮程式preview.html 圖片 圖片壓縮程式preview.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="圖片">圖片</span>
+              <span class="type">html</span>
+            </div>
+            <h3>圖片壓縮工具｜自由人生實驗室</h3>
+            <p>圖片壓縮程式preview.html</p>
+          </a>
+          <a class="tool-card" href="./關西話語漫遊：穿越時空的語言地圖.html" data-search="關西話語漫遊：穿越時空的語言地圖 關西話語漫遊：穿越時空的語言地圖.html 教學 關西話語漫遊：穿越時空的語言地圖.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="教學">教學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>關西話語漫遊：穿越時空的語言地圖</h3>
+            <p>關西話語漫遊：穿越時空的語言地圖.html</p>
+          </a>
+          <a class="tool-card" href="./airport_matching_game_celebration_fixed.html" data-search="英語 ⇆ 中文 配對遊戲：機場篇 airport_matching_game_celebration_fixed.html 數學 airport_matching_game_celebration_fixed.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>英語 ⇆ 中文 配對遊戲：機場篇</h3>
+            <p>airport_matching_game_celebration_fixed.html</p>
+          </a>
+          <a class="tool-card" href="./auricula_pulmo_larynx_（v_1_）.html" data-search="auricula·pulmo·larynx — 三合一小實驗 auricula_pulmo_larynx_（v_1_）.html 工具 auricula_pulmo_larynx_（v_1_）.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="工具">工具</span>
+              <span class="type">html</span>
+            </div>
+            <h3>AURICULA·PULMO·LARYNX — 三合一小實驗</h3>
+            <p>auricula_pulmo_larynx_（v_1_）.html</p>
+          </a>
+          <a class="tool-card" href="./auricula_pulmo_larynx_v_2.html" data-search="auricula·pulmo·larynx — 三合一小實驗（v2） auricula_pulmo_larynx_v_2.html 工具 auricula_pulmo_larynx_v_2.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="工具">工具</span>
+              <span class="type">html</span>
+            </div>
+            <h3>AURICULA·PULMO·LARYNX — 三合一小實驗（V2）</h3>
+            <p>auricula_pulmo_larynx_v_2.html</p>
+          </a>
+          <a class="tool-card" href="./chiaki_virtual_boyfriend_v6.html" data-search="chiaki 的戀人小屋 · v6 chiaki_virtual_boyfriend_v6.html 創作 chiaki_virtual_boyfriend_v6.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="創作">創作</span>
+              <span class="type">html</span>
+            </div>
+            <h3>Chiaki 的戀人小屋 · v6</h3>
+            <p>chiaki_virtual_boyfriend_v6.html</p>
+          </a>
+          <a class="tool-card" href="./city_country.html" data-search="城鄉共好：永續決策模擬器 city_country.html 行政 city_country.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="行政">行政</span>
+              <span class="type">html</span>
+            </div>
+            <h3>城鄉共好：永續決策模擬器</h3>
+            <p>city_country.html</p>
+          </a>
+          <a class="tool-card" href="./climate_explanation_game_final_v2.html" data-search="氣候變遷探究遊戲（完整版） climate_explanation_game_final_v2.html 遊戲 climate_explanation_game_final_v2.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>氣候變遷探究遊戲（完整版）</h3>
+            <p>climate_explanation_game_final_v2.html</p>
+          </a>
+          <a class="tool-card" href="./clothing_store_matching_game_v4.html" data-search="英語 ⇆ 中文 配對遊戲 clothing_store_matching_game_v4.html 語言 clothing_store_matching_game_v4.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>英語 ⇆ 中文 配對遊戲</h3>
+            <p>clothing_store_matching_game_v4.html</p>
+          </a>
+          <a class="tool-card" href="./date_japanese.html" data-search="戀愛日語課｜互動式閃卡（文意・單字・句型） date_japanese.html 語言 date_japanese.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>戀愛日語課｜互動式閃卡（文意・單字・句型）</h3>
+            <p>date_japanese.html</p>
+          </a>
+          <a class="tool-card" href="./democratic process_2.html" data-search="戰後臺灣民主進程｜拖拉配對（無圖精簡＋易拖曳） democratic process_2.html 遊戲 democratic process_2.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>戰後臺灣民主進程｜拖拉配對（無圖精簡＋易拖曳）</h3>
+            <p>democratic process_2.html</p>
+          </a>
+          <a class="tool-card" href="./democratic process.html" data-search="戰後臺灣民主進程｜拖拉配對互動 democratic process.html 遊戲 democratic process.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>戰後臺灣民主進程｜拖拉配對互動</h3>
+            <p>democratic process.html</p>
+          </a>
+          <a class="tool-card" href="./EduTaiwan Hub-saved.html" data-search="世界文化在台灣的發展：以新竹關西為例 edutaiwan hub-saved.html 教學 edutaiwan hub-saved.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="教學">教學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>世界文化在台灣的發展：以新竹關西為例</h3>
+            <p>EduTaiwan Hub-saved.html</p>
+          </a>
+          <a class="tool-card" href="./Family_matching_game.html" data-search="家庭五種需求配對遊戲 family_matching_game.html 語言 family_matching_game.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>家庭五種需求配對遊戲</h3>
+            <p>Family_matching_game.html</p>
+          </a>
+          <a class="tool-card" href="./FastFoodOrderGame_Expanded.html" data-search="fast food order game fastfoodordergame_expanded.html 遊戲 fastfoodordergame_expanded.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>Fast Food Order Game</h3>
+            <p>FastFoodOrderGame_Expanded.html</p>
+          </a>
+          <a class="tool-card" href="./FastFoodOrderGame.html" data-search="fast food ordering game fastfoodordergame.html 遊戲 fastfoodordergame.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>Fast Food Ordering Game</h3>
+            <p>FastFoodOrderGame.html</p>
+          </a>
+          <a class="tool-card" href="./FindFactorsGame_V1.html" data-search="因數配對遊戲｜find all the factors findfactorsgame_v1.html 數學 findfactorsgame_v1.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>因數配對遊戲｜Find All the Factors</h3>
+            <p>FindFactorsGame_V1.html</p>
+          </a>
+          <a class="tool-card" href="./FindFactorsGame_V2.html" data-search="因數配對遊戲｜find all the factors findfactorsgame_v2.html 數學 findfactorsgame_v2.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>因數配對遊戲｜Find All the Factors</h3>
+            <p>FindFactorsGame_V2.html</p>
+          </a>
+          <a class="tool-card" href="./hiteach_count.html" data-search="記分統計工具 hiteach_count.html 行政 hiteach_count.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="行政">行政</span>
+              <span class="type">html</span>
+            </div>
             <h3>記分統計工具</h3>
-            <p>課堂活動或分組競賽時快速計分。</p>
+            <p>hiteach_count.html</p>
           </a>
-
-          <a class="tool-card" href="./MorningPages_app_V2.html">
-            <span class="tag blue">寫作</span>
-            <h3>晨間隨筆</h3>
-            <p>留一個安靜位置寫下今天的念頭。</p>
+          <a class="tool-card" href="./kanban.html" data-search="chiaki 極簡互動看板 kanban.html 創作 kanban.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="創作">創作</span>
+              <span class="type">html</span>
+            </div>
+            <h3>Chiaki 極簡互動看板</h3>
+            <p>kanban.html</p>
           </a>
-
-          <a class="tool-card" href="./PrimeNumberHunt_V3.html">
-            <span class="tag amber">數學</span>
-            <h3>質數挑戰遊戲</h3>
-            <p>用遊戲方式練習判斷質數。</p>
+          <a class="tool-card" href="./L11CER_V3.html" data-search="幸福的火苗｜立場選擇遊戲 l11cer_v3.html 遊戲 l11cer_v3.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>幸福的火苗｜立場選擇遊戲</h3>
+            <p>L11CER_V3.html</p>
           </a>
-
-          <a class="tool-card" href="./prime_factor02.html">
-            <span class="tag amber">數學</span>
-            <h3>質因數分解</h3>
-            <p>搭配教學與挑戰，練習拆解數字。</p>
+          <a class="tool-card" href="./L11CER_V4.html" data-search="幸福的火苗｜立場選擇遊戲 l11cer_v4.html 遊戲 l11cer_v4.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>幸福的火苗｜立場選擇遊戲</h3>
+            <p>L11CER_V4.html</p>
           </a>
-
-          <a class="tool-card" href="./library_matching_game.html">
-            <span class="tag amber">英語</span>
-            <h3>英語中文配對遊戲</h3>
-            <p>用配對練習生活英語詞彙。</p>
+          <a class="tool-card" href="./library_matching_game.html" data-search="英語 ⇆ 中文 配對遊戲 library_matching_game.html 語言 library_matching_game.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>英語 ⇆ 中文 配對遊戲</h3>
+            <p>library_matching_game.html</p>
+          </a>
+          <a class="tool-card" href="./lottery_game.html" data-search="童趣數字抽獎遊戲 lottery_game.html 遊戲 lottery_game.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>童趣數字抽獎遊戲</h3>
+            <p>lottery_game.html</p>
+          </a>
+          <a class="tool-card" href="./loveletter.html" data-search="七夕 · 給小金鳳的一封情書 loveletter.html 創作 loveletter.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="創作">創作</span>
+              <span class="type">html</span>
+            </div>
+            <h3>七夕 · 給小金鳳的一封情書</h3>
+            <p>loveletter.html</p>
+          </a>
+          <a class="tool-card" href="./MoneyStudy.html" data-search="理財小學堂：收入與支出遊戲 moneystudy.html 遊戲 moneystudy.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>理財小學堂：收入與支出遊戲</h3>
+            <p>MoneyStudy.html</p>
+          </a>
+          <a class="tool-card" href="./MorningPages_app_V2.html" data-search="晨間隨筆 · 小金鳳專屬 app morningpages_app_v2.html 創作 morningpages_app_v2.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="創作">創作</span>
+              <span class="type">html</span>
+            </div>
+            <h3>晨間隨筆 · 小金鳳專屬 App</h3>
+            <p>MorningPages_app_V2.html</p>
+          </a>
+          <a class="tool-card" href="./MorningPages_app.html" data-search="晨間隨筆 · 小金鳳專屬 morningpages_app.html 創作 morningpages_app.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="創作">創作</span>
+              <span class="type">html</span>
+            </div>
+            <h3>晨間隨筆 · 小金鳳專屬</h3>
+            <p>MorningPages_app.html</p>
+          </a>
+          <a class="tool-card" href="./number_ralationship.html" data-search="數量關係互動組｜和不變・差不變・積不變・商不變・堆疊 number_ralationship.html 數學 number_ralationship.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>數量關係互動組｜和不變・差不變・積不變・商不變・堆疊</h3>
+            <p>number_ralationship.html</p>
+          </a>
+          <a class="tool-card" href="./pharmacy_matching_game_display_fixed.html" data-search="英語 ⇆ 中文 配對遊戲：藥局篇 pharmacy_matching_game_display_fixed.html 語言 pharmacy_matching_game_display_fixed.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>英語 ⇆ 中文 配對遊戲：藥局篇</h3>
+            <p>pharmacy_matching_game_display_fixed.html</p>
+          </a>
+          <a class="tool-card" href="./plus_same.html" data-search="互動式數學網頁 plus_same.html 工具 plus_same.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="工具">工具</span>
+              <span class="type">html</span>
+            </div>
+            <h3>互動式數學網頁</h3>
+            <p>plus_same.html</p>
+          </a>
+          <a class="tool-card" href="./prime_factor01.html" data-search="質因數分解｜教學模式＋挑戰模式 prime_factor01.html 數學 prime_factor01.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>質因數分解｜教學模式＋挑戰模式</h3>
+            <p>prime_factor01.html</p>
+          </a>
+          <a class="tool-card" href="./prime_factor02.html" data-search="質因數分解｜教學＋挑戰 prime_factor02.html 數學 prime_factor02.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>質因數分解｜教學＋挑戰</h3>
+            <p>prime_factor02.html</p>
+          </a>
+          <a class="tool-card" href="./PrimeNumberHunt_V1.html" data-search="質數挑戰遊戲｜prime number hunt primenumberhunt_v1.html 數學 primenumberhunt_v1.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>質數挑戰遊戲｜Prime Number Hunt</h3>
+            <p>PrimeNumberHunt_V1.html</p>
+          </a>
+          <a class="tool-card" href="./PrimeNumberHunt_V2.html" data-search="質數挑戰遊戲｜prime number hunt primenumberhunt_v2.html 數學 primenumberhunt_v2.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>質數挑戰遊戲｜Prime Number Hunt</h3>
+            <p>PrimeNumberHunt_V2.html</p>
+          </a>
+          <a class="tool-card" href="./PrimeNumberHunt_V3.html" data-search="質數挑戰遊戲｜prime number hunt primenumberhunt_v3.html 數學 primenumberhunt_v3.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>質數挑戰遊戲｜Prime Number Hunt</h3>
+            <p>PrimeNumberHunt_V3.html</p>
+          </a>
+          <a class="tool-card" href="./qixi_date.html" data-search="七夕・兩段式儀式感行程｜關西 qixi_date.html 創作 qixi_date.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="創作">創作</span>
+              <span class="type">html</span>
+            </div>
+            <h3>七夕・兩段式儀式感行程｜關西</h3>
+            <p>qixi_date.html</p>
+          </a>
+          <a class="tool-card" href="./qixi_love_card.html" data-search="七夕情人節快樂 qixi_love_card.html 創作 qixi_love_card.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="創作">創作</span>
+              <span class="type">html</span>
+            </div>
+            <h3>七夕情人節快樂</h3>
+            <p>qixi_love_card.html</p>
+          </a>
+          <a class="tool-card" href="./ratio_game_v3.html" data-search="比率挑戰小遊戲 v3 ratio_game_v3.html 數學 ratio_game_v3.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>比率挑戰小遊戲 V3</h3>
+            <p>ratio_game_v3.html</p>
+          </a>
+          <a class="tool-card" href="./ratio_game_v4_1.html" data-search="比率挑戰小遊戲 v4.1 ratio_game_v4_1.html 數學 ratio_game_v4_1.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>比率挑戰小遊戲 V4.1</h3>
+            <p>ratio_game_v4_1.html</p>
+          </a>
+          <a class="tool-card" href="./socialchoice.html" data-search="戰後台灣經濟發展：人生選擇大冒險（六關卡） socialchoice.html 遊戲 socialchoice.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>戰後台灣經濟發展：人生選擇大冒險（六關卡）</h3>
+            <p>socialchoice.html</p>
+          </a>
+          <a class="tool-card" href="./spanish_matching_game_pet.html" data-search="西語配對遊戲（進階互動版） spanish_matching_game_pet.html 語言 spanish_matching_game_pet.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="語言">語言</span>
+              <span class="type">html</span>
+            </div>
+            <h3>西語配對遊戲（進階互動版）</h3>
+            <p>spanish_matching_game_pet.html</p>
+          </a>
+          <a class="tool-card" href="./TimeGame_V1.html" data-search="時間換算遊戲 timegame_v1.html 數學 timegame_v1.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>時間換算遊戲</h3>
+            <p>TimeGame_V1.html</p>
+          </a>
+          <a class="tool-card" href="./TimeGame_V2.html" data-search="時間教學遊戲 timegame_v2.html 數學 timegame_v2.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="數學">數學</span>
+              <span class="type">html</span>
+            </div>
+            <h3>時間教學遊戲</h3>
+            <p>TimeGame_V2.html</p>
+          </a>
+          <a class="tool-card" href="./veritas_occulta_game_v_3.html" data-search="veritas occulta — 光影密儀 v3 veritas_occulta_game_v_3.html 遊戲 veritas_occulta_game_v_3.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>Veritas Occulta — 光影密儀 V3</h3>
+            <p>veritas_occulta_game_v_3.html</p>
+          </a>
+          <a class="tool-card" href="./veritas_occulta_lux_ordo_caritas_game.html" data-search="veritas occulta — lux·ordo·caritas veritas_occulta_lux_ordo_caritas_game.html 遊戲 veritas_occulta_lux_ordo_caritas_game.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="遊戲">遊戲</span>
+              <span class="type">html</span>
+            </div>
+            <h3>Veritas Occulta — LUX·ORDO·CARITAS</h3>
+            <p>veritas_occulta_lux_ordo_caritas_game.html</p>
+          </a>
+          <a class="tool-card" href="./victorian_piano.html" data-search="維多利亞古宅小鋼琴 victorian_piano.html 創作 victorian_piano.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="創作">創作</span>
+              <span class="type">html</span>
+            </div>
+            <h3>維多利亞古宅小鋼琴</h3>
+            <p>victorian_piano.html</p>
+          </a>
+          <a class="tool-card" href="./VintageAlbum_V5.html" data-search="復古互動相冊 vintagealbum_v5.html 圖片 vintagealbum_v5.html">
+            <div class="meta-row">
+              <span class="tag" data-tag="圖片">圖片</span>
+              <span class="type">html</span>
+            </div>
+            <h3>復古互動相冊</h3>
+            <p>VintageAlbum_V5.html</p>
+          </a>
+          <a class="tool-card" href="./1_2_social.jsx" data-search="1_2_social 1_2_social.jsx 原始碼 1_2_social.jsx（原始檔，可能需要再包成 html 才適合直接使用）">
+            <div class="meta-row">
+              <span class="tag" data-tag="原始碼">原始碼</span>
+              <span class="type">jsx</span>
+            </div>
+            <h3>1_2_social</h3>
+            <p>1_2_social.jsx（原始檔，可能需要再包成 HTML 才適合直接使用）</p>
+          </a>
+          <a class="tool-card" href="./七夕｜我們的小宇宙（chiaki_小金鳳）.jsx" data-search="七夕｜我們的小宇宙（chiaki_小金鳳） 七夕｜我們的小宇宙（chiaki_小金鳳）.jsx 原始碼 七夕｜我們的小宇宙（chiaki_小金鳳）.jsx（原始檔，可能需要再包成 html 才適合直接使用）">
+            <div class="meta-row">
+              <span class="tag" data-tag="原始碼">原始碼</span>
+              <span class="type">jsx</span>
+            </div>
+            <h3>七夕｜我們的小宇宙（chiaki_小金鳳）</h3>
+            <p>七夕｜我們的小宇宙（chiaki_小金鳳）.jsx（原始檔，可能需要再包成 HTML 才適合直接使用）</p>
+          </a>
+          <a class="tool-card" href="./austen_bronte_文字冒險管理器（mvp）.jsx" data-search="austen_bronte_文字冒險管理器（mvp） austen_bronte_文字冒險管理器（mvp）.jsx 原始碼 austen_bronte_文字冒險管理器（mvp）.jsx（原始檔，可能需要再包成 html 才適合直接使用）">
+            <div class="meta-row">
+              <span class="tag" data-tag="原始碼">原始碼</span>
+              <span class="type">jsx</span>
+            </div>
+            <h3>austen_bronte_文字冒險管理器（mvp）</h3>
+            <p>austen_bronte_文字冒險管理器（mvp）.jsx（原始檔，可能需要再包成 HTML 才適合直接使用）</p>
           </a>
         </div>
+
+        <div class="empty" id="emptyState">找不到符合的工具。清空搜尋框就會回到完整清單。</div>
       </section>
 
-      <p class="footer">部分舊工具仍保留在同一個網站資料夾裡，可以用原本的連結開啟。</p>
+      <p class="footer">提醒：HTML 工具通常可以直接開；JSX 原始檔是保留下來方便尋找，可能需要再整理成 HTML 才適合直接使用。</p>
     </main>
+
+    <script>
+      const searchInput = document.getElementById("searchInput");
+      const resultCount = document.getElementById("resultCount");
+      const cards = Array.from(document.querySelectorAll(".tool-card"));
+      const emptyState = document.getElementById("emptyState");
+      const total = cards.length;
+
+      function updateList() {
+        const query = searchInput.value.trim().toLowerCase();
+        let visible = 0;
+
+        for (const card of cards) {
+          const match = !query || card.dataset.search.includes(query);
+          card.style.display = match ? "" : "none";
+          if (match) visible += 1;
+        }
+
+        resultCount.textContent = visible + " / " + total + " 個工具";
+        emptyState.style.display = visible ? "none" : "block";
+      }
+
+      searchInput.addEventListener("input", updateList);
+    </script>
   </body>
 </html>
