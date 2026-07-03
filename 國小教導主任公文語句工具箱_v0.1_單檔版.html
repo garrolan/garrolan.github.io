@@ -1,0 +1,3251 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#1f2937" />
+  <title>國小教導主任公文語句工具箱 v0.1</title>
+  <style>
+:root{
+  --bg:#f7f4ee;
+  --panel:#fffdf9;
+  --ink:#1f2937;
+  --muted:#6b7280;
+  --line:#e5dfd4;
+  --accent:#374151;
+  --accent2:#8b5e34;
+  --danger:#a33a3a;
+  --soft:#efe7da;
+  --shadow:0 10px 25px rgba(31,41,55,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",Segoe UI,sans-serif;color:var(--ink);background:var(--bg)}
+body{display:flex;justify-content:center}
+.app-shell{width:min(100%,420px);min-height:100vh;background:linear-gradient(180deg,#fffdf9 0%,#f8f2e8 100%);border-left:1px solid var(--line);border-right:1px solid var(--line);padding:14px 14px 22px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+h1{font-size:22px;margin:0;letter-spacing:.04em}
+p{margin:0}.topbar p,.muted{color:var(--muted);font-size:13px;margin-top:3px}
+.search-panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow)}
+label{display:block;font-size:13px;color:var(--muted);font-weight:700;margin-bottom:6px}
+input,textarea,select{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-size:15px;padding:10px 11px;outline:none}
+textarea{resize:vertical;line-height:1.55}
+input:focus,textarea:focus,select:focus{border-color:#9ca3af;box-shadow:0 0 0 3px rgba(55,65,81,.12)}
+.search-row{display:flex;gap:8px;align-items:center}.search-row input{flex:1}.search-row button{width:42px;padding:8px 0}
+.smart-hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.45}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 0 8px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;border:1px solid var(--line);background:#fffdf9;border-radius:999px;padding:8px 11px;color:var(--ink);font-weight:700;cursor:pointer}.tab.active{background:var(--accent);color:white;border-color:var(--accent)}
+.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:7px 0 8px}@media(min-width:390px){.toolbar{grid-template-columns:1fr 1fr 1fr 1fr}}
+button{border:0;border-radius:12px;background:var(--accent);color:white;padding:10px 12px;font-weight:800;cursor:pointer;font-size:14px}button:hover{filter:brightness(.96)}button.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}button.danger{color:var(--danger);border-color:#e9b7b7}button.small{padding:7px 10px;font-size:12px}
+.stats{font-size:12px;color:var(--muted);margin:6px 2px 10px;line-height:1.5}
+.phrase-list{display:flex;flex-direction:column;gap:10px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:13px;box-shadow:var(--shadow)}.card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.card-title{font-weight:900;font-size:16px}.card-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0 2px;color:var(--muted);font-size:12px;line-height:1.4}.pill{font-size:12px;border-radius:999px;padding:4px 8px;background:var(--soft);color:#513b2a}.pill.warn{background:#ffe7e7;color:#842020;white-space:nowrap}.phrase-text{white-space:pre-wrap;line-height:1.6;font-size:15px;background:#fff8ef;border:1px dashed #e3d4c0;border-radius:13px;padding:10px;margin:8px 0}.note,.warning{font-size:12px;line-height:1.5;margin-top:6px;color:var(--muted)}.warning{color:#8a2d2d;background:#fff1f1;border-radius:10px;padding:7px}.card-actions{display:grid;grid-template-columns:1fr 1fr 42px 42px;gap:7px;margin-top:10px}.icon-btn{padding:9px 0}.star.on{background:#f6e7b4;color:#4b3610;border-color:#e7cd83}.copy-index{font-size:12px;color:var(--muted);margin-left:5px}.empty{padding:24px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:18px}
+.footer-note{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(20px);background:#111827;color:white;padding:10px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:.18s;max-width:min(92vw,420px);font-size:14px;box-shadow:var(--shadow)}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.dialog{border:0;border-radius:20px;padding:0;width:min(94vw,520px);box-shadow:0 25px 80px rgba(0,0,0,.25);background:#fffdf9}.dialog::backdrop{background:rgba(31,41,55,.45)}.dialog form{padding:18px}.dialog h2{margin:0 0 13px}.dialog label{margin-top:10px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+@media(max-width:340px){.grid2{grid-template-columns:1fr}.card-actions{grid-template-columns:1fr 1fr}.app-shell{padding:10px}h1{font-size:19px}}
+@media(min-width:900px){body{justify-content:flex-start}.app-shell{margin-left:0;width:380px}}
+
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>公文語句工具箱</h1>
+        <p>國小教導主任版 v0.1</p>
+      </div>
+      <button id="installBtn" class="ghost small" hidden>安裝</button>
+    </header>
+
+    <section class="search-panel">
+      <label for="searchInput">搜尋關鍵字或情境</label>
+      <div class="search-row">
+        <input id="searchInput" type="search" placeholder="例：研習 公假、班親會補休、函報成果、鑒核" autocomplete="off" />
+        <button id="clearSearch" class="ghost" title="清除搜尋">×</button>
+      </div>
+      <div id="smartHint" class="smart-hint">提示：可搜「錢」「老師去研習」「送資料給教育局」這種白話。</div>
+    </section>
+
+    <nav class="tabs" id="tabs"></nav>
+
+    <section class="toolbar">
+      <button id="addBtn">＋新增</button>
+      <button id="exportBtn" class="ghost">匯出 JSON</button>
+      <button id="importBtn" class="ghost">匯入</button>
+      <button id="resetBtn" class="danger ghost">重設</button>
+      <input id="importFile" type="file" accept="application/json,.json" hidden />
+    </section>
+
+    <section class="stats" id="stats"></section>
+
+    <main id="phraseList" class="phrase-list" aria-live="polite"></main>
+
+    <footer class="footer-note">
+      <p>Alt+1～Alt+9 可複製目前列表前九句。資料儲存在本機瀏覽器 localStorage。</p>
+    </footer>
+  </div>
+
+  <dialog id="editDialog" class="dialog">
+    <form method="dialog" id="editForm">
+      <h2 id="dialogTitle">新增語句</h2>
+      <input type="hidden" id="editId" />
+      <label>標題<input id="editTitle" required /></label>
+      <label>語句<textarea id="editText" required rows="4"></textarea></label>
+      <div class="grid2">
+        <label>分類<select id="editCategory"></select></label>
+        <label>子分類<input id="editSubcategory" placeholder="例：公假、經費、函報" /></label>
+      </div>
+      <div class="grid2">
+        <label>用途<input id="editUsageType" placeholder="例：主旨、說明、擬辦、結尾" /></label>
+        <label>身分位置<input id="editPosition" placeholder="例：承辦主管、主任核閱" /></label>
+      </div>
+      <label>標籤（以逗號分隔）<input id="editTags" placeholder="研習, 公假, 教師" /></label>
+      <label>搜尋別名（以逗號分隔）<input id="editAliases" placeholder="老師去研習, 請假" /></label>
+      <label>備註<textarea id="editNote" rows="2"></textarea></label>
+      <label>提醒／警語<textarea id="editWarning" rows="2"></textarea></label>
+      <div class="dialog-actions">
+        <button value="cancel" type="button" class="ghost" id="cancelEdit">取消</button>
+        <button value="default" type="submit">儲存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="variableDialog" class="dialog">
+    <form method="dialog" id="variableForm">
+      <h2>填入變數</h2>
+      <p id="variablePhraseTitle" class="muted"></p>
+      <div id="variableFields"></div>
+      <label>預覽<textarea id="variablePreview" rows="5" readonly></textarea></label>
+      <div class="dialog-actions">
+        <button value="cancel" type="button" class="ghost" id="cancelVariable">取消</button>
+        <button value="default" type="submit">複製</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+window.DEFAULT_PHRASES = [
+  {
+    "id": "draft-001",
+    "title": "依文辦理",
+    "text": "擬：依文辦理。",
+    "category": "擬辦",
+    "subcategory": "例行",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "例行",
+      "收文",
+      "辦理"
+    ],
+    "aliases": [
+      "照公文辦",
+      "一般公文"
+    ],
+    "variables": [],
+    "note": "適合一般例行公文。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-002",
+    "title": "陳閱後存查",
+    "text": "擬：陳閱後存查。",
+    "category": "擬辦",
+    "subcategory": "存查",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "存查",
+      "閱知",
+      "無後續"
+    ],
+    "aliases": [
+      "看過存起來",
+      "只要校長看"
+    ],
+    "variables": [],
+    "note": "適合只需主管閱知、無需後續辦理之案件。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-003",
+    "title": "公告周知",
+    "text": "擬：公告周知。",
+    "category": "擬辦",
+    "subcategory": "公告",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "公告",
+      "周知",
+      "校內公告"
+    ],
+    "aliases": [
+      "貼公告",
+      "大家知道"
+    ],
+    "variables": [],
+    "note": "適合校內一般公告事項。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-004",
+    "title": "轉知教師",
+    "text": "擬：轉知本校教師知悉。",
+    "category": "擬辦",
+    "subcategory": "轉知",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "轉知",
+      "教師",
+      "研習"
+    ],
+    "aliases": [
+      "告訴老師",
+      "通知老師"
+    ],
+    "variables": [],
+    "note": "適合研習、競賽、宣導等需讓教師知道之事項。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-005",
+    "title": "轉知相關人員",
+    "text": "擬：轉知相關人員知悉並依說明辦理。",
+    "category": "擬辦",
+    "subcategory": "轉知",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "轉知",
+      "相關人員",
+      "辦理"
+    ],
+    "aliases": [
+      "通知相關人員"
+    ],
+    "variables": [],
+    "note": "適合需特定人員配合之公文。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-006",
+    "title": "轉知導師配合",
+    "text": "擬：轉知各班導師協助配合辦理。",
+    "category": "擬辦",
+    "subcategory": "轉知",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "導師",
+      "配合",
+      "班級"
+    ],
+    "aliases": [
+      "請導師配合",
+      "導師要知道"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-007",
+    "title": "參閱附件",
+    "text": "擬：轉知相關人員參閱附件資料。",
+    "category": "擬辦",
+    "subcategory": "附件",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "附件",
+      "轉知",
+      "資料"
+    ],
+    "aliases": [
+      "看附件",
+      "附件資料"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-008",
+    "title": "依限回復",
+    "text": "擬：依來文期限辦理，並於期限內完成回復。",
+    "category": "擬辦",
+    "subcategory": "期限",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "期限",
+      "回復",
+      "填報"
+    ],
+    "aliases": [
+      "限期",
+      "要回報",
+      "期限內"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-009",
+    "title": "線上填報",
+    "text": "擬：依限完成線上填報作業。",
+    "category": "擬辦",
+    "subcategory": "填報",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "填報",
+      "線上",
+      "期限"
+    ],
+    "aliases": [
+      "填系統",
+      "上網填報"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-010",
+    "title": "調查後回復",
+    "text": "擬：調查本校參與意願後依限回復。",
+    "category": "擬辦",
+    "subcategory": "調查",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "調查",
+      "意願",
+      "回復"
+    ],
+    "aliases": [
+      "問老師要不要",
+      "調查意願"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-011",
+    "title": "成果上傳",
+    "text": "擬：依限彙整成果資料並上傳。",
+    "category": "擬辦",
+    "subcategory": "成果",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "成果",
+      "上傳",
+      "期限"
+    ],
+    "aliases": [
+      "交成果",
+      "傳成果"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-012",
+    "title": "會辦教務組",
+    "text": "擬：會辦教務組協助辦理。",
+    "category": "擬辦",
+    "subcategory": "會辦",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "會辦",
+      "教務組"
+    ],
+    "aliases": [
+      "交教務組",
+      "教務協助"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-013",
+    "title": "會辦訓導組",
+    "text": "擬：會辦訓導組協助辦理。",
+    "category": "擬辦",
+    "subcategory": "會辦",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "會辦",
+      "訓導組"
+    ],
+    "aliases": [
+      "交訓導組",
+      "訓導協助"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-014",
+    "title": "會辦總務處",
+    "text": "擬：會辦總務處協助經費、採購及核銷相關事宜。",
+    "category": "擬辦",
+    "subcategory": "會辦",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "會辦",
+      "總務",
+      "經費",
+      "採購",
+      "核銷"
+    ],
+    "aliases": [
+      "找總務",
+      "總務協助",
+      "錢",
+      "買東西"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-015",
+    "title": "會辦健康中心",
+    "text": "擬：會辦健康中心協助相關宣導及資料彙整。",
+    "category": "擬辦",
+    "subcategory": "會辦",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "會辦",
+      "健康中心",
+      "宣導"
+    ],
+    "aliases": [
+      "健康中心協助"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-016",
+    "title": "校長核示",
+    "text": "擬：陳請校長核示後辦理。",
+    "category": "擬辦",
+    "subcategory": "核示",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "校長",
+      "核示",
+      "請示"
+    ],
+    "aliases": [
+      "問校長",
+      "請校長決定"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-017",
+    "title": "無參與需求",
+    "text": "擬：本校無參與需求，陳閱後存查。",
+    "category": "擬辦",
+    "subcategory": "存查",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "無需求",
+      "不參加",
+      "存查"
+    ],
+    "aliases": [
+      "不參加",
+      "不用辦"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-018",
+    "title": "不適用本校",
+    "text": "擬：本案與本校業務暫無相關，陳閱後存查。",
+    "category": "擬辦",
+    "subcategory": "存查",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "不適用",
+      "無相關",
+      "存查"
+    ],
+    "aliases": [
+      "跟學校無關"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-019",
+    "title": "研習自由報名",
+    "text": "擬：轉知本校教師知悉，請有意願教師自行報名參加。",
+    "category": "擬辦",
+    "subcategory": "研習",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "研習",
+      "報名",
+      "教師"
+    ],
+    "aliases": [
+      "老師自己報名",
+      "自由參加"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-020",
+    "title": "指定研習公假",
+    "text": "擬：請相關教師依公文說明報名參加，並依規定辦理公假登記。",
+    "category": "擬辦",
+    "subcategory": "研習",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "研習",
+      "公假",
+      "報名"
+    ],
+    "aliases": [
+      "指定老師去研習",
+      "公假研習"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-021",
+    "title": "活動依計畫辦理",
+    "text": "擬：依計畫辦理相關活動。",
+    "category": "擬辦",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "活動",
+      "計畫",
+      "辦理"
+    ],
+    "aliases": [
+      "活動辦理"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-022",
+    "title": "資料留存備查",
+    "text": "擬：相關資料彙整後留存備查。",
+    "category": "擬辦",
+    "subcategory": "備查",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "備查",
+      "資料",
+      "留存"
+    ],
+    "aliases": [
+      "留資料"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-023",
+    "title": "轉知家長",
+    "text": "擬：由各班導師轉知家長知悉。",
+    "category": "擬辦",
+    "subcategory": "轉知",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "家長",
+      "導師",
+      "轉知"
+    ],
+    "aliases": [
+      "告知家長"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "draft-024",
+    "title": "校內宣導",
+    "text": "擬：配合辦理校內宣導，並請相關人員協助推動。",
+    "category": "擬辦",
+    "subcategory": "宣導",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "擬辦",
+    "usageType": "擬辦語",
+    "tags": [
+      "宣導",
+      "校內",
+      "配合"
+    ],
+    "aliases": [
+      "宣導活動"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-leave-001",
+    "title": "研習公假主旨",
+    "text": "為辦理本校教師參加「【研習名稱】」研習一案，擬准予參加教師公假登記，簽請核示。",
+    "category": "簽",
+    "subcategory": "公假",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "研習",
+      "公假",
+      "教師",
+      "主旨"
+    ],
+    "aliases": [
+      "老師去研習",
+      "教師進修",
+      "研習請假"
+    ],
+    "variables": [
+      "研習名稱"
+    ],
+    "note": "適用於校內簽請教師研習公假。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-leave-002",
+    "title": "會議公假主旨",
+    "text": "為辦理本校教師出席「【會議名稱】」一案，擬准予出席人員公假登記，簽請核示。",
+    "category": "簽",
+    "subcategory": "公假",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "會議",
+      "公假",
+      "教師"
+    ],
+    "aliases": [
+      "老師開會",
+      "出席會議"
+    ],
+    "variables": [
+      "會議名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-leave-003",
+    "title": "公務公假主旨",
+    "text": "為辦理本校教師執行「【任務名稱】」相關公務，擬准予公假登記，簽請核示。",
+    "category": "簽",
+    "subcategory": "公假",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "公務",
+      "公假",
+      "任務"
+    ],
+    "aliases": [
+      "校外公務",
+      "任務公假"
+    ],
+    "variables": [
+      "任務名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-leave-004",
+    "title": "依據來文",
+    "text": "依據【來文機關】【來文字號】函辦理。",
+    "category": "簽",
+    "subcategory": "公假",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "依據",
+      "來文",
+      "字號"
+    ],
+    "aliases": [
+      "根據公文",
+      "公文依據"
+    ],
+    "variables": [
+      "來文機關",
+      "來文字號"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-leave-005",
+    "title": "研習時間地點",
+    "text": "本案研習時間為【日期】【時間】，地點為【地點】，參加人員為【姓名／職稱】。",
+    "category": "簽",
+    "subcategory": "公假",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "研習",
+      "時間",
+      "地點",
+      "人員"
+    ],
+    "aliases": [
+      "研習資訊"
+    ],
+    "variables": [
+      "日期",
+      "時間",
+      "地點",
+      "姓名／職稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-leave-006",
+    "title": "參加有助校務",
+    "text": "本案與本校【業務名稱】相關，參加後有助於後續校務推動。",
+    "category": "簽",
+    "subcategory": "公假",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "校務",
+      "研習",
+      "必要性"
+    ],
+    "aliases": [
+      "為什麼要去"
+    ],
+    "variables": [
+      "業務名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-leave-007",
+    "title": "公假不支差旅",
+    "text": "擬准予參加人員公假登記，惟不支領差旅費。",
+    "category": "簽",
+    "subcategory": "公假",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "公假",
+      "差旅費",
+      "不支領"
+    ],
+    "aliases": [
+      "不給差旅",
+      "公假不支差旅"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-leave-008",
+    "title": "公假支差旅",
+    "text": "擬准予參加人員公假登記，所需差旅費由【經費來源】項下支應。",
+    "category": "簽",
+    "subcategory": "公假",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "公假",
+      "差旅費",
+      "經費"
+    ],
+    "aliases": [
+      "支差旅",
+      "差旅費"
+    ],
+    "variables": [
+      "經費來源"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-leave-009",
+    "title": "人事協助公假",
+    "text": "奉核後，請人事協助辦理公假登記事宜。",
+    "category": "簽",
+    "subcategory": "公假",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "人事",
+      "公假",
+      "登記"
+    ],
+    "aliases": [
+      "請人事登記"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-comp-001",
+    "title": "班親會補休主旨",
+    "text": "為辦理本校【學年度】第【學期】班親會工作人員加班補休一案，簽請核示。",
+    "category": "簽",
+    "subcategory": "補休",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "班親會",
+      "補休",
+      "加班"
+    ],
+    "aliases": [
+      "班親會加班",
+      "晚上開班親會"
+    ],
+    "variables": [
+      "學年度",
+      "學期"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-comp-002",
+    "title": "運動會補休主旨",
+    "text": "為辦理本校【活動名稱】工作人員假日出勤及補休一案，簽請核示。",
+    "category": "簽",
+    "subcategory": "補休",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "運動會",
+      "補休",
+      "假日出勤"
+    ],
+    "aliases": [
+      "運動會補假",
+      "假日活動"
+    ],
+    "variables": [
+      "活動名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-comp-003",
+    "title": "晚間活動補休主旨",
+    "text": "為辦理本校【活動名稱】工作人員於非上班時間協助活動一案，擬核予補休，簽請核示。",
+    "category": "簽",
+    "subcategory": "補休",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "晚間活動",
+      "補休",
+      "非上班時間"
+    ],
+    "aliases": [
+      "晚上活動",
+      "加班補休"
+    ],
+    "variables": [
+      "活動名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-comp-004",
+    "title": "活動補休說明",
+    "text": "本案活動時間為【日期】（星期【星期】）【開始時間】至【結束時間】，參與工作人員需協助場地布置、活動執行及後續收拾。",
+    "category": "簽",
+    "subcategory": "補休",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "活動時間",
+      "工作人員",
+      "補休"
+    ],
+    "aliases": [
+      "補休理由",
+      "活動時間"
+    ],
+    "variables": [
+      "日期",
+      "星期",
+      "開始時間",
+      "結束時間"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-comp-005",
+    "title": "逾上班時間",
+    "text": "因活動辦理時間逾正常上班時間，擬依學校相關規定辦理補休。",
+    "category": "簽",
+    "subcategory": "補休",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "逾時",
+      "補休",
+      "規定"
+    ],
+    "aliases": [
+      "超過上班時間"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-comp-006",
+    "title": "名冊補休",
+    "text": "工作人員及補休時數詳如附件名冊。",
+    "category": "簽",
+    "subcategory": "補休",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "名冊",
+      "時數",
+      "附件"
+    ],
+    "aliases": [
+      "補休名冊"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-comp-007",
+    "title": "不另支加班費",
+    "text": "本案以補休方式辦理，不另支給加班費。",
+    "category": "簽",
+    "subcategory": "補休",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "補休",
+      "加班費",
+      "不支給"
+    ],
+    "aliases": [
+      "不發加班費"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-comp-008",
+    "title": "核予補休",
+    "text": "擬核予相關工作人員補休【時數】小時。",
+    "category": "簽",
+    "subcategory": "補休",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "補休",
+      "時數"
+    ],
+    "aliases": [
+      "補假幾小時"
+    ],
+    "variables": [
+      "時數"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-comp-009",
+    "title": "人事補休登記",
+    "text": "奉核後，請人事協助辦理補休登記事宜。",
+    "category": "簽",
+    "subcategory": "補休",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "人事",
+      "補休",
+      "登記"
+    ],
+    "aliases": [
+      "請人事登記補休"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-001",
+    "title": "活動經費主旨",
+    "text": "為辦理本校【活動名稱】所需經費一案，簽請核示。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "活動",
+      "經費",
+      "支應"
+    ],
+    "aliases": [
+      "活動要錢",
+      "經費簽"
+    ],
+    "variables": [
+      "活動名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-002",
+    "title": "班親會經費主旨",
+    "text": "為辦理本校班親會相關經費支應一案，簽請核示。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "班親會",
+      "經費"
+    ],
+    "aliases": [
+      "班親會的錢"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-003",
+    "title": "研習經費主旨",
+    "text": "為辦理本校「【研習名稱】」所需講師鐘點費及相關費用一案，簽請核示。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "研習",
+      "講師",
+      "鐘點費",
+      "經費"
+    ],
+    "aliases": [
+      "講師費",
+      "研習要錢"
+    ],
+    "variables": [
+      "研習名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-004",
+    "title": "材料採購主旨",
+    "text": "為辦理本校【課程／活動名稱】所需材料採購一案，簽請核示。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "材料",
+      "採購",
+      "經費"
+    ],
+    "aliases": [
+      "買材料",
+      "材料費"
+    ],
+    "variables": [
+      "課程／活動名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-005",
+    "title": "由計畫經費支應",
+    "text": "本案所需經費擬由【經費名稱】項下支應。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "經費來源",
+      "支應"
+    ],
+    "aliases": [
+      "錢從哪裡出",
+      "哪筆錢"
+    ],
+    "variables": [
+      "經費名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-006",
+    "title": "由補助經費支應",
+    "text": "本案所需經費擬由【補助計畫名稱】補助經費項下支應。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "補助",
+      "經費",
+      "支應"
+    ],
+    "aliases": [
+      "補助款"
+    ],
+    "variables": [
+      "補助計畫名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-007",
+    "title": "由學校預算支應",
+    "text": "本案所需經費擬由本校【預算科目／相關經費】項下支應。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "學校預算",
+      "經費",
+      "支應"
+    ],
+    "aliases": [
+      "學校預算"
+    ],
+    "variables": [
+      "預算科目／相關經費"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-008",
+    "title": "無經費支出",
+    "text": "本案無經費支出。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "無經費",
+      "不花錢"
+    ],
+    "aliases": [
+      "沒有錢",
+      "不用經費"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-009",
+    "title": "經費概算附件",
+    "text": "經費概算詳如附件。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "概算",
+      "附件",
+      "經費"
+    ],
+    "aliases": [
+      "經費表"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-010",
+    "title": "不足款支應",
+    "text": "如有不足，擬由【經費來源】項下支應。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "不足款",
+      "經費來源"
+    ],
+    "aliases": [
+      "不夠錢"
+    ],
+    "variables": [
+      "經費來源"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-011",
+    "title": "准予動支",
+    "text": "擬請准予動支相關經費。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "動支",
+      "經費"
+    ],
+    "aliases": [
+      "動支經費"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-012",
+    "title": "總務採購核銷",
+    "text": "奉核後，請總務處協助採購及核銷相關事宜。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "總務",
+      "採購",
+      "核銷"
+    ],
+    "aliases": [
+      "找總務",
+      "買東西核銷"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-013",
+    "title": "會計確認科目",
+    "text": "奉核後，請會計協助確認經費科目及核銷方式。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "會計",
+      "經費科目",
+      "核銷"
+    ],
+    "aliases": [
+      "問會計",
+      "會計確認"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-money-014",
+    "title": "活動後核銷",
+    "text": "活動結束後，擬依規定檢具相關憑證辦理核銷。",
+    "category": "簽",
+    "subcategory": "經費",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "活動後",
+      "憑證",
+      "核銷"
+    ],
+    "aliases": [
+      "辦完核銷"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-001",
+    "title": "校內活動主旨",
+    "text": "為辦理本校【活動名稱】一案，簽請核示。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "活動",
+      "辦理",
+      "校內"
+    ],
+    "aliases": [
+      "辦活動"
+    ],
+    "variables": [
+      "活動名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-002",
+    "title": "校外教學主旨",
+    "text": "為辦理本校【年級／班級】校外教學活動一案，簽請核示。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "校外教學",
+      "活動"
+    ],
+    "aliases": [
+      "戶外教育",
+      "校外活動"
+    ],
+    "variables": [
+      "年級／班級"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-003",
+    "title": "運動會主旨",
+    "text": "為辦理本校【學年度】運動會／體育競賽活動一案，簽請核示。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "運動會",
+      "體育競賽"
+    ],
+    "aliases": [
+      "體育活動"
+    ],
+    "variables": [
+      "學年度"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-004",
+    "title": "畢業典禮主旨",
+    "text": "為辦理本校【學年度】畢業典禮相關事宜，簽請核示。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "主旨",
+    "tags": [
+      "畢業典禮",
+      "期末"
+    ],
+    "aliases": [
+      "畢業活動"
+    ],
+    "variables": [
+      "學年度"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-005",
+    "title": "活動目的",
+    "text": "本活動旨在【活動目的】。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "活動目的",
+      "目的"
+    ],
+    "aliases": [
+      "為什麼辦"
+    ],
+    "variables": [
+      "活動目的"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-006",
+    "title": "活動資訊",
+    "text": "活動時間為【日期】，於【地點】辦理，參加對象為【對象】。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "時間",
+      "地點",
+      "對象"
+    ],
+    "aliases": [
+      "活動資訊"
+    ],
+    "variables": [
+      "日期",
+      "地點",
+      "對象"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-007",
+    "title": "實施計畫附件",
+    "text": "活動實施計畫詳如附件。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "計畫",
+      "附件"
+    ],
+    "aliases": [
+      "活動計畫"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-008",
+    "title": "學生安全維護",
+    "text": "活動期間將依學生安全維護相關規定辦理，並請相關人員協助照護學生安全。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "說明",
+    "tags": [
+      "安全",
+      "學生",
+      "照護"
+    ],
+    "aliases": [
+      "安全管理"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-009",
+    "title": "家長通知",
+    "text": "奉核後，將另行發送家長通知單並調查學生參與情形。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "家長",
+      "通知單",
+      "調查"
+    ],
+    "aliases": [
+      "發通知單"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-010",
+    "title": "准予辦理",
+    "text": "擬請准予辦理。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "准予辦理"
+    ],
+    "aliases": [
+      "請准辦理"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-011",
+    "title": "依計畫辦理",
+    "text": "擬依附件計畫辦理。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "計畫",
+      "辦理"
+    ],
+    "aliases": [
+      "照計畫辦"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "sign-act-012",
+    "title": "成果留存",
+    "text": "活動結束後，擬彙整成果照片及相關資料留存備查。",
+    "category": "簽",
+    "subcategory": "活動",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "簽",
+    "usageType": "擬辦",
+    "tags": [
+      "成果",
+      "照片",
+      "備查"
+    ],
+    "aliases": [
+      "活動照片",
+      "留下資料"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-001",
+    "title": "檢送資料請查照",
+    "text": "檢送本校【資料名稱】1份，請查照。",
+    "category": "函",
+    "subcategory": "檢送",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "主旨",
+    "tags": [
+      "檢送",
+      "資料",
+      "查照"
+    ],
+    "aliases": [
+      "送資料",
+      "給教育局看"
+    ],
+    "variables": [
+      "資料名稱"
+    ],
+    "note": "單純檢送資料、請對方知悉時使用。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-002",
+    "title": "函報成果請查照",
+    "text": "檢送本校辦理【活動／計畫名稱】成果資料1份，請查照。",
+    "category": "函",
+    "subcategory": "函報",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "主旨",
+    "tags": [
+      "成果",
+      "函報",
+      "查照"
+    ],
+    "aliases": [
+      "交成果",
+      "成果給教育局"
+    ],
+    "variables": [
+      "活動／計畫名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-003",
+    "title": "調查回復請查照",
+    "text": "有關貴局調查【事項名稱】一案，本校填復資料如附件，請查照。",
+    "category": "函",
+    "subcategory": "回復",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "主旨",
+    "tags": [
+      "調查",
+      "回復",
+      "查照"
+    ],
+    "aliases": [
+      "填調查",
+      "回覆教育局"
+    ],
+    "variables": [
+      "事項名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-004",
+    "title": "送審計畫請鑒核",
+    "text": "檢送本校【計畫名稱】1份，請鑒核。",
+    "category": "函",
+    "subcategory": "送審",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "主旨",
+    "tags": [
+      "計畫",
+      "送審",
+      "鑒核"
+    ],
+    "aliases": [
+      "計畫給教育局審查",
+      "請審查"
+    ],
+    "variables": [
+      "計畫名稱"
+    ],
+    "note": "需要上級審查、判斷或核定時使用。",
+    "warning": "「鑒核」用於送審，不適合單純檢送。",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-005",
+    "title": "報局備查",
+    "text": "檢送本校【文件名稱】1份，請備查。",
+    "category": "函",
+    "subcategory": "備查",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "主旨",
+    "tags": [
+      "備查",
+      "報送",
+      "文件"
+    ],
+    "aliases": [
+      "辦完送存",
+      "報局備查"
+    ],
+    "variables": [
+      "文件名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-006",
+    "title": "申請核定主旨",
+    "text": "檢送本校申請【計畫／補助名稱】相關資料1份，請惠予核定。",
+    "category": "函",
+    "subcategory": "申請",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "主旨",
+    "tags": [
+      "申請",
+      "補助",
+      "核定"
+    ],
+    "aliases": [
+      "申請補助",
+      "請核定"
+    ],
+    "variables": [
+      "計畫／補助名稱"
+    ],
+    "note": "用於申請計畫、補助或需上級核准事項。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-007",
+    "title": "依據貴局來文",
+    "text": "依據貴局【來文字號】函辦理。",
+    "category": "函",
+    "subcategory": "說明",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "說明",
+    "tags": [
+      "依據",
+      "來文",
+      "貴局"
+    ],
+    "aliases": [
+      "教育局公文依據"
+    ],
+    "variables": [
+      "來文字號"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-008",
+    "title": "資料彙整完竣",
+    "text": "旨揭資料業已彙整完竣，詳如附件。",
+    "category": "函",
+    "subcategory": "說明",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "說明",
+    "tags": [
+      "資料",
+      "附件",
+      "彙整"
+    ],
+    "aliases": [
+      "資料整理好了"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-009",
+    "title": "成果已辦理完成",
+    "text": "本校已於【日期】辦理完成旨揭活動，成果資料詳如附件。",
+    "category": "函",
+    "subcategory": "成果",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "說明",
+    "tags": [
+      "成果",
+      "活動",
+      "附件"
+    ],
+    "aliases": [
+      "活動已完成"
+    ],
+    "variables": [
+      "日期"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-010",
+    "title": "依意見修正",
+    "text": "本校業依貴局意見完成修正，修正內容詳如附件。",
+    "category": "函",
+    "subcategory": "修正",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "說明",
+    "tags": [
+      "修正",
+      "補件",
+      "附件"
+    ],
+    "aliases": [
+      "修正後送",
+      "補件"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-011",
+    "title": "補送資料",
+    "text": "補送本校【資料名稱】1份，請查照。",
+    "category": "函",
+    "subcategory": "補件",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "主旨",
+    "tags": [
+      "補件",
+      "補送",
+      "查照"
+    ],
+    "aliases": [
+      "補資料"
+    ],
+    "variables": [
+      "資料名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-012",
+    "title": "修正後送審",
+    "text": "檢送本校修正後【文件名稱】1份，請鑒核。",
+    "category": "函",
+    "subcategory": "修正",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "主旨",
+    "tags": [
+      "修正",
+      "鑒核",
+      "送審"
+    ],
+    "aliases": [
+      "修正後再送"
+    ],
+    "variables": [
+      "文件名稱"
+    ],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-013",
+    "title": "請惠予支持",
+    "text": "請貴局惠予支持，以利本校後續推動。",
+    "category": "函",
+    "subcategory": "申請",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "結尾",
+    "tags": [
+      "支持",
+      "推動"
+    ],
+    "aliases": [
+      "請支持"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-014",
+    "title": "請查照結尾",
+    "text": "請查照。",
+    "category": "函",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "結尾",
+    "tags": [
+      "查照",
+      "期望語"
+    ],
+    "aliases": [
+      "告知",
+      "看一下"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-015",
+    "title": "請鑒核結尾",
+    "text": "請鑒核。",
+    "category": "函",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "結尾",
+    "tags": [
+      "鑒核",
+      "期望語"
+    ],
+    "aliases": [
+      "請審查"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-016",
+    "title": "請備查結尾",
+    "text": "請備查。",
+    "category": "函",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "結尾",
+    "tags": [
+      "備查",
+      "期望語"
+    ],
+    "aliases": [
+      "留存"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-017",
+    "title": "請惠予核定結尾",
+    "text": "請惠予核定。",
+    "category": "函",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "結尾",
+    "tags": [
+      "核定",
+      "期望語"
+    ],
+    "aliases": [
+      "請核准"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "letter-018",
+    "title": "請同意備查",
+    "text": "請同意備查。",
+    "category": "函",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "承辦主管",
+    "documentType": "函",
+    "usageType": "結尾",
+    "tags": [
+      "同意備查",
+      "期望語"
+    ],
+    "aliases": [
+      "同意留存"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "review-001",
+    "title": "閱",
+    "text": "閱。",
+    "category": "核閱",
+    "subcategory": "主任核閱",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "核閱",
+    "usageType": "核閱語",
+    "tags": [
+      "閱",
+      "核閱"
+    ],
+    "aliases": [
+      "看過"
+    ],
+    "variables": [],
+    "note": "適用主任／主管核閱，不適合作為承辦擬辦語。",
+    "warning": "請確認自己是在核閱位置，而非承辦擬辦位置。",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "review-002",
+    "title": "閱悉",
+    "text": "閱悉。",
+    "category": "核閱",
+    "subcategory": "主任核閱",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "核閱",
+    "usageType": "核閱語",
+    "tags": [
+      "閱悉",
+      "核閱"
+    ],
+    "aliases": [
+      "知道了"
+    ],
+    "variables": [],
+    "note": "比「閱」稍完整。",
+    "warning": "請確認自己是在核閱位置。",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "review-003",
+    "title": "如擬",
+    "text": "如擬。",
+    "category": "核閱",
+    "subcategory": "主管批示",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "核閱",
+    "usageType": "批示語",
+    "tags": [
+      "如擬",
+      "批示",
+      "同意"
+    ],
+    "aliases": [
+      "同意承辦意見"
+    ],
+    "variables": [],
+    "note": "多用於主管同意承辦擬辦內容。",
+    "warning": "非承辦擬辦語；請勿在擬辦欄自行使用。",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "review-004",
+    "title": "准如擬辦理",
+    "text": "准如擬辦理。",
+    "category": "核閱",
+    "subcategory": "主管批示",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "核閱",
+    "usageType": "批示語",
+    "tags": [
+      "核可",
+      "如擬",
+      "准予"
+    ],
+    "aliases": [
+      "准了"
+    ],
+    "variables": [],
+    "note": "需有核定權限時使用。",
+    "warning": "請確認自身權責。",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "review-005",
+    "title": "請續辦",
+    "text": "請依規定續辦。",
+    "category": "核閱",
+    "subcategory": "主任核閱",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "核閱",
+    "usageType": "核閱語",
+    "tags": [
+      "續辦",
+      "辦理"
+    ],
+    "aliases": [
+      "繼續辦"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "review-006",
+    "title": "請補充說明",
+    "text": "請補充說明後再陳。",
+    "category": "核閱",
+    "subcategory": "主任核閱",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "核閱",
+    "usageType": "核閱語",
+    "tags": [
+      "補充",
+      "再陳"
+    ],
+    "aliases": [
+      "資料不夠",
+      "請補資料"
+    ],
+    "variables": [],
+    "note": "",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "phrase-001",
+    "title": "請查照",
+    "text": "請查照。",
+    "category": "短語",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "短語",
+    "usageType": "短語",
+    "tags": [
+      "查照",
+      "告知"
+    ],
+    "aliases": [
+      "請知道",
+      "參考"
+    ],
+    "variables": [],
+    "note": "用於告知、檢送、請對方知悉。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "phrase-002",
+    "title": "請鑒核",
+    "text": "請鑒核。",
+    "category": "短語",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "短語",
+    "usageType": "短語",
+    "tags": [
+      "鑒核",
+      "審查"
+    ],
+    "aliases": [
+      "請審查"
+    ],
+    "variables": [],
+    "note": "用於送審、請上級審核。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "phrase-003",
+    "title": "請核示",
+    "text": "請核示。",
+    "category": "短語",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "短語",
+    "usageType": "短語",
+    "tags": [
+      "核示",
+      "請示"
+    ],
+    "aliases": [
+      "請裁示",
+      "問主管"
+    ],
+    "variables": [],
+    "note": "校內向校長或主管請示。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "phrase-004",
+    "title": "請備查",
+    "text": "請備查。",
+    "category": "短語",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "短語",
+    "usageType": "短語",
+    "tags": [
+      "備查",
+      "留存"
+    ],
+    "aliases": [
+      "留存紀錄"
+    ],
+    "variables": [],
+    "note": "已辦事項送上級留存。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "phrase-005",
+    "title": "請惠予核定",
+    "text": "請惠予核定。",
+    "category": "短語",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "短語",
+    "usageType": "短語",
+    "tags": [
+      "核定",
+      "申請"
+    ],
+    "aliases": [
+      "請核准"
+    ],
+    "variables": [],
+    "note": "申請計畫、補助、經費。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "phrase-006",
+    "title": "請依限辦理",
+    "text": "請依限辦理。",
+    "category": "短語",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "短語",
+    "usageType": "短語",
+    "tags": [
+      "期限",
+      "辦理"
+    ],
+    "aliases": [
+      "期限內"
+    ],
+    "variables": [],
+    "note": "強調期限。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "phrase-007",
+    "title": "請辦理見復",
+    "text": "請辦理見復。",
+    "category": "短語",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "短語",
+    "usageType": "短語",
+    "tags": [
+      "回復",
+      "辦理"
+    ],
+    "aliases": [
+      "辦完回覆"
+    ],
+    "variables": [],
+    "note": "要求辦理後回復。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  },
+  {
+    "id": "phrase-008",
+    "title": "請惠予協助",
+    "text": "請惠予協助。",
+    "category": "短語",
+    "subcategory": "期望語",
+    "scenario": "",
+    "role": "國小教導主任",
+    "position": "主任／主管核閱",
+    "documentType": "短語",
+    "usageType": "短語",
+    "tags": [
+      "協助"
+    ],
+    "aliases": [
+      "幫忙"
+    ],
+    "variables": [],
+    "note": "請外部單位協助。",
+    "warning": "",
+    "favorite": false,
+    "usageCount": 0,
+    "lastUsedAt": null,
+    "createdAt": "2026-07-03T00:00:00+08:00",
+    "updatedAt": "2026-07-03T00:00:00+08:00"
+  }
+];
+
+  </script>
+  <script>
+const STORAGE_KEY = 'directorPhraseTool.v0.1.phrases';
+const FILTER_KEY = 'directorPhraseTool.v0.1.filter';
+const TABS = ['常用','擬辦','簽','函','核閱','經費','研習','活動','補休','短語','全部'];
+const EDIT_CATEGORIES = ['擬辦','簽','函','核閱','短語'];
+let phrases = [];
+let activeTab = localStorage.getItem(FILTER_KEY) || '常用';
+let searchTerm = '';
+let currentVariablePhrase = null;
+let deferredPrompt = null;
+
+const $ = (id)=>document.getElementById(id);
+const normalize = (s)=>String(s||'').toLowerCase().replace(/\s+/g,'').trim();
+const nowIso = ()=>new Date().toISOString();
+function uid(){ return 'custom-' + Math.random().toString(36).slice(2,10) + '-' + Date.now().toString(36); }
+
+function loadData(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){
+    try{ phrases = JSON.parse(raw); return; }catch(e){ console.warn(e); }
+  }
+  phrases = structuredClone(window.DEFAULT_PHRASES || []);
+  saveData();
+}
+function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(phrases)); }
+function toast(msg){
+  const el=$('toast'); el.textContent=msg; el.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1800);
+}
+
+function scorePhrase(p,q){
+  if(!q) return 0;
+  const nq=normalize(q);
+  const fields=[p.title,p.text,p.category,p.subcategory,p.scenario,p.usageType,p.note,p.warning,(p.tags||[]).join(''),(p.aliases||[]).join('')];
+  let score=0;
+  fields.forEach((f,idx)=>{ const nf=normalize(f); if(nf.includes(nq)) score += idx<2 ? 8 : 4; });
+  // multi token bonus
+  q.split(/[\s,，、]+/).filter(Boolean).forEach(t=>{
+    const nt=normalize(t); if(!nt) return;
+    fields.forEach((f,idx)=>{ if(normalize(f).includes(nt)) score += idx<2 ? 3 : 2; });
+  });
+  return score;
+}
+function inTab(p,tab){
+  if(tab==='全部') return true;
+  if(tab==='常用') return p.favorite || (p.usageCount||0)>0;
+  if(['擬辦','簽','函','核閱','短語'].includes(tab)) return p.category===tab;
+  const hay = normalize([p.category,p.subcategory,p.usageType,p.title,p.text,(p.tags||[]).join(' '),(p.aliases||[]).join(' ')].join(' '));
+  return hay.includes(normalize(tab));
+}
+function filteredPhrases(){
+  const q=searchTerm;
+  let list=phrases.map(p=>({...p,_score:scorePhrase(p,q)})).filter(p=>inTab(p,activeTab));
+  if(q.trim()) list=list.filter(p=>p._score>0);
+  list.sort((a,b)=>{
+    if((b.favorite?1:0)!==(a.favorite?1:0)) return (b.favorite?1:0)-(a.favorite?1:0);
+    if(searchTerm && b._score!==a._score) return b._score-a._score;
+    const ad=a.lastUsedAt?Date.parse(a.lastUsedAt):0, bd=b.lastUsedAt?Date.parse(b.lastUsedAt):0;
+    if(bd!==ad) return bd-ad;
+    if((b.usageCount||0)!==(a.usageCount||0)) return (b.usageCount||0)-(a.usageCount||0);
+    return String(a.title).localeCompare(String(b.title),'zh-Hant');
+  });
+  return list;
+}
+function renderTabs(){
+  $('tabs').innerHTML=TABS.map(t=>`<button class="tab ${t===activeTab?'active':''}" data-tab="${t}">${t}</button>`).join('');
+  document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{activeTab=btn.dataset.tab;localStorage.setItem(FILTER_KEY,activeTab);render();}));
+}
+function escapeHtml(str){return String(str??'').replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+function renderList(){
+  const list=filteredPhrases();
+  const total=phrases.length;
+  $('stats').textContent=`顯示 ${list.length} / ${total} 句｜目前分類：${activeTab}${searchTerm?'｜搜尋：'+searchTerm:''}`;
+  if(list.length===0){ $('phraseList').innerHTML='<div class="empty">找不到語句。可以換個關鍵字，或按「＋新增」建立自己的句子。</div>'; return; }
+  $('phraseList').innerHTML=list.map((p,i)=>cardHtml(p,i)).join('');
+  document.querySelectorAll('[data-copy]').forEach(btn=>btn.addEventListener('click',()=>copyPhrase(btn.dataset.copy)));
+  document.querySelectorAll('[data-star]').forEach(btn=>btn.addEventListener('click',()=>toggleFavorite(btn.dataset.star)));
+  document.querySelectorAll('[data-edit]').forEach(btn=>btn.addEventListener('click',()=>openEdit(btn.dataset.edit)));
+  document.querySelectorAll('[data-var]').forEach(btn=>btn.addEventListener('click',()=>openVariable(btn.dataset.var)));
+}
+function cardHtml(p,i){
+  const metaParts=[p.category,p.subcategory].filter(Boolean);
+  const metaHtml=metaParts.length || p.warning
+    ? `<div class="card-meta">${metaParts.length?`<span>${escapeHtml(metaParts.join(' / '))}</span>`:''}${p.warning?'<span class="pill warn">有提醒</span>':''}</div>`
+    : '';
+  const hasVars=(p.variables&&p.variables.length)||/【[^】]+】/.test(p.text);
+  return `<article class="card">
+    <div class="card-head">
+      <div><div class="card-title">${escapeHtml(p.title)} <span class="copy-index">#${i+1}</span></div></div>
+      <button class="ghost icon-btn star ${p.favorite?'on':''}" data-star="${p.id}" title="收藏">${p.favorite?'★':'☆'}</button>
+    </div>
+    ${metaHtml}
+    <div class="phrase-text">${escapeHtml(p.text)}</div>
+    ${p.note?`<div class="note">備註：${escapeHtml(p.note)}</div>`:''}
+    ${p.warning?`<div class="warning">提醒：${escapeHtml(p.warning)}</div>`:''}
+    <div class="card-actions">
+      <button data-copy="${p.id}">複製</button>
+      ${hasVars?`<button class="ghost" data-var="${p.id}">填變數</button>`:`<button class="ghost" disabled>無變數</button>`}
+      <button class="ghost icon-btn" data-edit="${p.id}" title="編輯">✎</button>
+      <button class="ghost icon-btn" data-delete="${p.id}" title="刪除" onclick="deletePhrase('${p.id}')">🗑</button>
+    </div>
+  </article>`;
+}
+function render(){ renderTabs(); renderList(); }
+async function writeClipboard(text){
+  try{ await navigator.clipboard.writeText(text); return true; }
+  catch(e){
+    const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.focus(); ta.select();
+    const ok=document.execCommand('copy'); ta.remove(); return ok;
+  }
+}
+async function copyText(text, id){
+  const ok=await writeClipboard(text);
+  if(ok){
+    if(id){ const p=phrases.find(x=>x.id===id); if(p){ p.usageCount=(p.usageCount||0)+1; p.lastUsedAt=nowIso(); saveData(); renderList(); } }
+    toast('已複製：' + text.slice(0,30) + (text.length>30?'…':''));
+  }else toast('複製失敗，請手動選取文字。');
+}
+function copyPhrase(id){ const p=phrases.find(x=>x.id===id); if(p) copyText(p.text,p.id); }
+function toggleFavorite(id){ const p=phrases.find(x=>x.id===id); if(!p) return; p.favorite=!p.favorite; p.updatedAt=nowIso(); saveData(); renderList(); }
+window.deletePhrase=function(id){
+  const p=phrases.find(x=>x.id===id); if(!p) return;
+  if(confirm(`確定刪除「${p.title}」？`)){ phrases=phrases.filter(x=>x.id!==id); saveData(); render(); toast('已刪除'); }
+}
+function openEdit(id){
+  const p=id?phrases.find(x=>x.id===id):null;
+  $('dialogTitle').textContent=p?'編輯語句':'新增語句';
+  $('editId').value=p?.id||'';
+  $('editTitle').value=p?.title||'';
+  $('editText').value=p?.text||'';
+  $('editCategory').value=p?.category||'擬辦';
+  $('editSubcategory').value=p?.subcategory||'';
+  $('editUsageType').value=p?.usageType||'';
+  $('editPosition').value=p?.position||'承辦主管';
+  $('editTags').value=(p?.tags||[]).join(', ');
+  $('editAliases').value=(p?.aliases||[]).join(', ');
+  $('editNote').value=p?.note||'';
+  $('editWarning').value=p?.warning||'';
+  $('editDialog').showModal();
+}
+function saveEdit(e){
+  e.preventDefault();
+  const id=$('editId').value || uid();
+  const old=phrases.find(x=>x.id===id);
+  const text=$('editText').value.trim();
+  const item={
+    ...(old||{}), id,
+    title:$('editTitle').value.trim(), text,
+    category:$('editCategory').value, subcategory:$('editSubcategory').value.trim(),
+    scenario: old?.scenario || '', role:'國小教導主任', position:$('editPosition').value.trim()||'承辦主管',
+    documentType:$('editCategory').value, usageType:$('editUsageType').value.trim(),
+    tags:$('editTags').value.split(/[,，、]/).map(s=>s.trim()).filter(Boolean),
+    aliases:$('editAliases').value.split(/[,，、]/).map(s=>s.trim()).filter(Boolean),
+    variables:[...new Set(Array.from(text.matchAll(/【([^】]+)】/g)).map(m=>m[1]))],
+    note:$('editNote').value.trim(), warning:$('editWarning').value.trim(),
+    favorite:old?.favorite||false, usageCount:old?.usageCount||0, lastUsedAt:old?.lastUsedAt||null,
+    createdAt:old?.createdAt||nowIso(), updatedAt:nowIso()
+  };
+  if(old) phrases=phrases.map(x=>x.id===id?item:x); else phrases.unshift(item);
+  saveData(); $('editDialog').close(); render(); toast('已儲存');
+}
+function openVariable(id){
+  const p=phrases.find(x=>x.id===id); if(!p) return;
+  currentVariablePhrase=p;
+  const vars=p.variables?.length?p.variables:[...new Set(Array.from(p.text.matchAll(/【([^】]+)】/g)).map(m=>m[1]))];
+  $('variablePhraseTitle').textContent=p.title;
+  $('variableFields').innerHTML=vars.map(v=>`<label>${escapeHtml(v)}<input data-var-name="${escapeHtml(v)}" placeholder="請填入${escapeHtml(v)}" /></label>`).join('');
+  const update=()=>{
+    let out=p.text;
+    document.querySelectorAll('[data-var-name]').forEach(inp=>{ const name=inp.dataset.varName; out=out.replaceAll(`【${name}】`, inp.value || `【${name}】`); });
+    $('variablePreview').value=out;
+  };
+  document.querySelectorAll('[data-var-name]').forEach(inp=>inp.addEventListener('input',update));
+  update(); $('variableDialog').showModal();
+}
+function submitVariable(e){ e.preventDefault(); if(currentVariablePhrase){ copyText($('variablePreview').value,currentVariablePhrase.id); } $('variableDialog').close(); }
+function exportJson(){
+  const blob=new Blob([JSON.stringify(phrases,null,2)],{type:'application/json;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='國小教導主任公文語句庫.json'; a.click(); URL.revokeObjectURL(a.href);
+}
+function importJson(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{ const data=JSON.parse(reader.result); if(!Array.isArray(data)) throw new Error('不是陣列'); phrases=data; saveData(); render(); toast('匯入完成'); }
+    catch(e){ alert('匯入失敗：JSON 格式不正確。'); }
+  };
+  reader.readAsText(file,'utf-8');
+}
+function resetDefaults(){
+  if(confirm('確定重設為內建語句？目前自訂與使用紀錄會被覆蓋。')){ phrases=structuredClone(window.DEFAULT_PHRASES||[]); saveData(); render(); toast('已重設'); }
+}
+function setup(){
+  $('searchInput').addEventListener('input',e=>{searchTerm=e.target.value; renderList();});
+  $('clearSearch').addEventListener('click',()=>{$('searchInput').value='';searchTerm='';renderList();$('searchInput').focus();});
+  $('addBtn').addEventListener('click',()=>openEdit());
+  $('cancelEdit').addEventListener('click',()=>$('editDialog').close());
+  $('editForm').addEventListener('submit',saveEdit);
+  $('exportBtn').addEventListener('click',exportJson);
+  $('importBtn').addEventListener('click',()=>$('importFile').click());
+  $('importFile').addEventListener('change',e=>{ if(e.target.files[0]) importJson(e.target.files[0]); e.target.value=''; });
+  $('resetBtn').addEventListener('click',resetDefaults);
+  $('cancelVariable').addEventListener('click',()=>$('variableDialog').close());
+  $('variableForm').addEventListener('submit',submitVariable);
+  EDIT_CATEGORIES.forEach(c=>{ const opt=document.createElement('option'); opt.value=c; opt.textContent=c; $('editCategory').appendChild(opt); });
+  document.addEventListener('keydown',e=>{
+    if(e.altKey && /^[1-9]$/.test(e.key)){
+      e.preventDefault(); const list=filteredPhrases(); const p=list[Number(e.key)-1]; if(p) copyPhrase(p.id);
+    }
+  });
+  window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredPrompt=e; $('installBtn').hidden=false; });
+  $('installBtn').addEventListener('click',async()=>{ if(deferredPrompt){ deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; $('installBtn').hidden=true; } });
+  if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+}
+loadData(); setup(); render(); $('searchInput').focus();
+
+  </script>
+</body>
+</html>
