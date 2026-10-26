@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101922">
+<title>第零號保管局｜一間不存在的博物館</title>
+<style>
+:root{--bg:#0c141b;--panel:#15232c;--edge:#38525a;--gold:#d6b77b;--ink:#e7e2d4;--muted:#9db1b4;--aqua:#8ecdc4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -15%,#29444a,transparent 45%),var(--bg);color:var(--ink);font-family:"Noto Serif TC","Songti TC",Georgia,serif;line-height:1.8;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;background-image:repeating-linear-gradient(0deg,transparent 0 3px,#fff 4px 4.5px);mix-blend-mode:overlay}
+.wrap{width:min(960px,92vw);margin:auto;padding:48px 0 80px}
+.topline{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font:12px sans-serif;letter-spacing:.18em;border-bottom:1px solid var(--edge);padding-bottom:12px}
+.badge{border:1px solid #657b77;padding:3px 12px;border-radius:50px;color:var(--gold)}
+h1{font-weight:500;font-size:clamp(32px,5.4vw,56px);letter-spacing:.1em;line-height:1.25;margin:48px 0 16px}
+.subtitle{color:var(--gold);letter-spacing:.25em;font-size:13px}
+.lead{max-width:700px;color:#b8c7c7;margin:20px 0 32px;font-size:16px}
+blockquote{margin:0 0 32px;border-left:2px solid var(--gold);padding:9px 22px;color:#e2d0ae;background:#d6b77b0d}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+.card{background:linear-gradient(150deg,#1d3038,#122029);border:1px solid var(--edge);border-radius:6px;padding:24px 20px;min-height:365px;position:relative;cursor:pointer;text-align:left;color:inherit;transition:transform .25s,border-color .25s,box-shadow .25s}
+.card:hover,.card:focus-visible{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 12px 40px #0005;outline:none}
+.card[aria-expanded="true"]{border-color:var(--gold);background:linear-gradient(160deg,#26373c,#14222a)}
+.no{color:var(--gold);font:12px sans-serif;letter-spacing:.18em}
+.art{height:136px;display:grid;place-items:center;margin:16px auto 8px;position:relative}
+.art svg{width:132px;height:132px;filter:drop-shadow(0 12px 18px #0008)}
+.card h2{font-weight:500;font-size:21px;margin:4px 0}
+.card p{color:var(--muted);font-size:14px;line-height:1.7;margin:0}
+.tag{position:absolute;right:16px;top:18px;font:11px sans-serif;letter-spacing:.12em;color:#85bcb5}
+.detail{display:none;margin-top:18px;padding-top:16px;border-top:1px dashed #62787b;color:#e4d8bc;font-size:14px}
+.card[aria-expanded="true"] .detail{display:block}
+.lock{margin-top:42px;border:1px solid #7b765c;background:linear-gradient(135deg,#1c292e,#111c23);border-radius:6px;padding:28px 32px;display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center}
+.lock h2{font-size:24px;font-weight:500;margin:0 0 4px}
+.lock p{color:var(--muted);margin:0 0 8px;font-size:14px}
+.controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+input{width:100px;letter-spacing:.3em;font-size:23px;font-family:monospace;color:var(--gold);background:#0b1419;border:1px solid #6a7a76;border-radius:4px;padding:9px 12px;text-align:center}
+button.action{cursor:pointer;background:var(--gold);color:#152027;border:0;border-radius:4px;padding:13px 18px;font-size:14px;font-weight:700}
+button.action:hover{background:#f0d5a0}
+.status{min-height:24px;color:#f0c59a;font-size:13px;margin-top:10px}
+.secret{display:none;margin-top:24px;border:1px solid #7eafab;padding:30px;background:#14292e;animation:rise .5s ease}
+.secret.open{display:block}
+.secret h2{color:var(--gold);font-weight:500}
+.secret p{max-width:700px}
+.footer{margin-top:50px;color:#80989b;font:12px sans-serif;letter-spacing:.1em;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+@keyframes rise{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){.wrap{padding-top:26px}.grid{grid-template-columns:1fr}.card{min-height:250px}.art{height:100px}.art svg{width:95px;height:95px}.lock{grid-template-columns:1fr;padding:22px}.topline{font-size:10px}h1{margin-top:32px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head>
+<body><main class="wrap">
+<header class="topline"><span>DEPARTMENT OF IMPOSSIBLE OBJECTS</span><span class="badge">第 0 號檔案</span></header>
+<h1>第零號保管局</h1><div class="subtitle">一間不存在的博物館</div>
+<p class="lead">這裡只收容三種物件：無法歸還昨天的、無法停留今天的，以及提前抵達明天的。請點開三件展品的鑑定紀錄。保管局最深處有一道鎖；能不能打開，取決於你是否讀懂了它們的時間。</p>
+<blockquote>「門鎖不認識數字的大小，只認識時間的順序：<strong>先明天，再昨天，最後今天。</strong>」—— 無署名的保管員</blockquote>
+<section class="grid" aria-label="三件神祕展品">
+<button class="card" aria-expanded="false" onclick="toggle(this)">
+<span class="no">OBJECT / 01</span><span class="tag">昨日</span>
+<div class="art" aria-hidden="true"><svg viewBox="0 0 160 160"><defs><linearGradient id="key" x1="0" x2="1"><stop stop-color="#c0a36c"/><stop offset="1" stop-color="#f0d6a4"/></linearGradient></defs><circle cx="62" cy="48" r="29" fill="none" stroke="url(#key)" stroke-width="12"/><path d="M82 69L135 122l-10 10-13-13-12 12-14-14 12-12-25-25" fill="none" stroke="url(#key)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<h2>昨天的鑰匙</h2><p>任何門都打不開，但可以鎖住一個已經結束的午後。</p>
+<div class="detail">鑑定員在鑰匙柄內側發現刻痕：<strong>6</strong>。持有者表示，每當他試圖忘記某件事，鑰匙就會變重一公克。</div></button>
+<button class="card" aria-expanded="false" onclick="toggle(this)">
+<span class="no">OBJECT / 02</span><span class="tag">今天</span>
+<div class="art" aria-hidden="true"><svg viewBox="0 0 160 160"><path d="M53 25h54v15l-9 15v10c0 9 25 34 25 57 0 18-18 25-43 25s-43-7-43-25c0-23 25-48 25-57V55l-9-15z" fill="#9dd8d3" fill-opacity=".16" stroke="#b3e0d7" stroke-width="4"/><path d="M44 111q36-20 72 0" fill="none" stroke="#85c6bc" stroke-width="3"/><circle cx="80" cy="92" r="7" fill="#d6b77b"/><path d="M62 26h36" stroke="#d6b77b" stroke-width="7" stroke-linecap="round"/></svg></div>
+<h2>今天的玻璃瓶</h2><p>瓶裡裝著一分鐘的寂靜，打開時卻聽見有人笑。</p>
+<div class="detail">瓶底的玻璃氣泡恰好形成數字：<strong>1</strong>。奇怪的是，錄音設備只能錄到開瓶者自己的呼吸。</div></button>
+<button class="card" aria-expanded="false" onclick="toggle(this)">
+<span class="no">OBJECT / 03</span><span class="tag">明天</span>
+<div class="art" aria-hidden="true"><svg viewBox="0 0 160 160"><rect x="30" y="32" width="100" height="96" rx="3" fill="#dbc6a0" transform="rotate(8 80 80)"/><rect x="43" y="45" width="74" height="70" fill="#203b46" transform="rotate(8 80 80)"/><circle cx="82" cy="77" r="21" fill="none" stroke="#d8ba7b" stroke-width="3" stroke-dasharray="3 5"/><path d="M76 60l24 18-29 9z" fill="#a5d1c9" transform="rotate(8 80 80)"/><path d="M38 49h82M38 110h82" stroke="#d5b57c" stroke-width="2" opacity=".6" transform="rotate(8 80 80)"/></svg></div>
+<h2>明天的郵票</h2><p>寄出的信總會提前一天到達；寄件人卻永遠晚一天收到回覆。</p>
+<div class="detail">郵戳尚未蓋下，背膠已浮現數字：<strong>8</strong>。這張郵票只接受寫給「尚未成為的自己」的信。</div></button>
+</section>
+<section class="lock" aria-label="保管局密碼鎖">
+<div><h2>第零號抽屜</h2><p>三位數密碼藏在展品鑑定紀錄裡。請按照門口保管員留下的時間順序排列。</p><div class="status" id="status" aria-live="polite">狀態：上鎖</div></div>
+<div class="controls"><label for="code" class="sr" style="position:absolute;left:-9999px">三位數密碼</label><input id="code" type="text" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="•••" aria-label="三位數密碼" onkeydown="if(event.key==='Enter')unlock()"><button class="action" onclick="unlock()">開啟抽屜</button></div>
+</section>
+<section class="secret" id="secret" tabindex="-1" aria-live="polite">
+<div class="subtitle">OBJECT / 00 · 無法分類</div>
+<h2>第四件展品：一張空白的借據</h2>
+<p>抽屜裡沒有金銀珠寶，只有一張薄薄的借據。上面寫著：</p>
+<blockquote>「本局向你借走了三分鐘。<br>作為交換，你得到了一個沒有用途的祕密。<br>若仍覺得值得，請在此簽名。」</blockquote>
+<p>借據下方已經有人簽過名。那個名字是——<strong>「明天的你」。</strong></p>
+<p style="color:#a5ccc4">檔案結束。你沒有贏得任何東西，卻真的打開了一扇門。</p>
+</section>
+<footer class="footer"><span>虛構作品 · 互動微型博物館</span><span>CHIAKI / 獨立單頁 · 無須網路</span></footer>
+</main>
+<script>
+function toggle(el){const opened=el.getAttribute('aria-expanded')==='true';el.setAttribute('aria-expanded',String(!opened))}
+function unlock(){
+const code=document.getElementById('code').value.replace(/\s/g,'');
+const status=document.getElementById('status');
+if(code==='861'){
+status.textContent='狀態：已解鎖。保管局承認你的訪問權限。';status.style.color='#9fdfc9';
+const secret=document.getElementById('secret');secret.classList.add('open');secret.focus();return;
+}
+status.textContent=/^\d{3}$/.test(code)?'密碼不符。再讀一次門口的時間順序。':'請輸入三位數字。';
+status.style.color='#f0c59a';
+}
+</script></body></html>
