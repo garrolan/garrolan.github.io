@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>螞蟻公路實驗室｜千彰的自由活動時間</title>
+<style>
+:root{color-scheme:light;--ink:#17283b;--muted:#64758a;--paper:#f5f1e9;--card:#fffdf9;--accent:#d86c45;--line:#e4ddd1;--green:#2c7264}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;line-height:1.55}
+main{max-width:1120px;margin:auto;padding:clamp(16px,4vw,44px)}.eyebrow{letter-spacing:.15em;color:var(--accent);font-weight:750;font-size:.77rem}h1{font-size:clamp(1.9rem,4vw,3.1rem);letter-spacing:-.04em;margin:.18em 0}.lede{font-size:1.04rem;color:#526277;max-width:750px;margin:0 0 22px}.lab{display:grid;grid-template-columns:minmax(0,1fr) 295px;gap:18px;align-items:stretch}.board,.panel,.note{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 28px #293b4a0a}.board{overflow:hidden;position:relative;min-height:470px}.board canvas{display:block;width:100%;height:470px;touch-action:manipulation;cursor:crosshair}.badge{position:absolute;top:13px;left:13px;padding:6px 12px;background:#ffffffdd;border:1px solid var(--line);border-radius:99px;font-size:.79rem;color:#45536a;pointer-events:none}.panel{padding:20px}.step{font-size:2.6rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1;margin:5px 0 8px}.muted{color:var(--muted);font-size:.87rem}.phase{font-size:.98rem;font-weight:750;color:var(--green);min-height:2.9em;margin:15px 0}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}.buttons button{border:1px solid var(--line);background:#fff;padding:10px 8px;border-radius:10px;color:var(--ink);font-weight:700;cursor:pointer;transition:.15s}.buttons button:hover{border-color:#baaa95;transform:translateY(-1px)}.buttons .primary{background:var(--ink);color:#fff;border-color:var(--ink)}.buttons .wide{grid-column:span 2}.control{margin-top:19px}.control label{font-weight:700;font-size:.92rem;display:flex;justify-content:space-between;gap:10px}input[type=range]{width:100%;accent-color:var(--accent);margin:12px 0}.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.chips button{border:1px solid var(--line);border-radius:99px;background:#fff;padding:6px 10px;cursor:pointer;font-size:.81rem}.chips button:hover{border-color:var(--accent)}.note{margin-top:20px;padding:22px 24px}.note h2{font-size:1.25rem;margin:0 0 10px}.note p{margin:8px 0;color:#3f5064}.rules{display:flex;flex-wrap:wrap;gap:10px;margin:13px 0}.rule{background:#f5f1e9;border-radius:10px;padding:10px 13px;font-weight:650;font-size:.91rem}.rule .swatch{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:7px;border:1px solid #b7b7b7}.source{font-size:.84rem;color:#69788b;margin-top:20px}.source a{color:#3b6b88}kbd{font-family:inherit;border:1px solid #ddd4c7;background:#f5f1e9;border-radius:4px;padding:1px 5px}@media(max-width:760px){.lab{grid-template-columns:1fr}.board,.board canvas{min-height:330px;height:360px}.panel{padding:18px}.step{font-size:2.2rem}}
+</style>
+</head>
+<body><main>
+<div class="eyebrow">千彰的自由活動時間 · 可動手的數學實驗</div>
+<h1>一隻沒有地圖的螞蟻，<br>蓋出一條公路。</h1>
+<p class="lede">牠只有兩條規則，沒有目的地，沒有隨機數。先繞圈、再亂走將近一萬步，最後竟然開始鋪出一條規律的斜線。這不是預錄動畫——下面的每一步都是即時計算。</p>
+<section class="lab">
+<div class="board"><div class="badge" id="badge">空白世界 · 點格子可預先塗黑</div><canvas id="world" aria-label="蘭頓螞蟻模擬格子"></canvas></div>
+<div class="panel"><div class="muted">已走步數</div><div class="step" id="count">0</div><div class="muted" id="coords">位置 (0, 0) · 朝北</div><div class="phase" id="phase">第一幕：一切還沒開始</div>
+<div class="buttons"><button class="primary" id="play">▶ 開始</button><button id="step">走一步</button><button id="chaos">跳到 9,000 步</button><button id="road">跳到 12,000 步</button><button id="reset" class="wide">↺ 重來</button></div>
+<div class="control"><label for="speed">速度 <span id="speedLabel">200 步／秒</span></label><input type="range" min="0" max="4" value="2" id="speed"></div>
+<div class="chips"><button id="blank">純白起點</button><button id="perturb">放一格黑色障礙</button><button id="zoomOut">縮小 −</button><button id="zoomIn">放大 ＋</button></div>
+<p class="muted" style="margin-top:15px">試試先按「跳到 9,000 步」，再按「開始」，看看混亂如何突然變成有方向的公路。畫布上可用滾輪縮放。</p></div>
+</section>
+<section class="note"><h2>規則就這麼簡單</h2><div class="rules"><div class="rule"><span class="swatch" style="background:#fff"></span>白格：右轉 90° → 塗黑 → 前進</div><div class="rule"><span class="swatch" style="background:#17283b"></span>黑格：左轉 90° → 塗白 → 前進</div></div>
+<p>這是 <strong>蘭頓螞蟻（Langton's ant）</strong>，由人工生命研究者 Christopher Langton 在 1980 年代提出。從全白格子出發，約在第 9,977 步附近，牠會進入一個每 <strong>104 步</strong>重複、同時沿對角線推進的「高速公路」模式。</p>
+<p>我喜歡這個實驗裡最不直覺的地方：<strong>螞蟻本身沒有記憶，記憶卻留在牠改變過的地面。</strong> 牠下一次回來，會讀到自己以前寫下的黑白痕跡。看似毫無規劃的行為，最終竟產生了穩定的結構。</p>
+<p>但要小心：這不代表任何混亂最後都會變好。對於所有可能的有限初始圖樣，是否都會出現高速公路，仍是尚未完全證明的問題。</p>
+<p class="source">資料核對：<a href="https://mathworld.wolfram.com/LangtonsAnt.html" target="_blank" rel="noopener">Wolfram MathWorld</a>、<a href="https://langtonsant.es/" target="_blank" rel="noopener">Langton's Ant Project</a>。模擬與介面：千彰原創製作；不需網路即可執行。</p>
+</section>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),canvas=$('world'),ctx=canvas.getContext('2d');
+const dx=[0,1,0,-1],dy=[-1,0,1,0],dirs=['北','東','南','西'];
+let cells=new Set(),x=0,y=0,dir=0,n=0,playing=false,scale=10,centerX=0,centerY=0,manualZoom=false,seeded=false;
+let lastTime=0,carry=0;const speedList=[5,40,200,1500,10000];
+const key=(a,b)=>a+','+b;
+function stepOne(){const k=key(x,y),black=cells.has(k);dir=(dir+(black?3:1))&3;if(black)cells.delete(k);else cells.add(k);x+=dx[dir];y+=dy[dir];n++;}
+function advance(target){while(n<target)stepOne();sync();render();}
+function phase(){if(n===0)return '第一幕：一切還沒開始';if(n<300)return '第一幕：短暫的對稱';if(n<9900)return '第二幕：看似無序的漫遊';if(n<10200)return '轉折：公路正在形成！';return '第三幕：每 104 步延伸一段公路';}
+function sync(){ $('count').textContent=n.toLocaleString('zh-TW');$('coords').textContent=`位置 (${x}, ${y}) · 朝${dirs[dir]}`;$('phase').textContent=phase();$('play').textContent=playing?'❚❚ 暫停':'▶ 開始';$('speedLabel').textContent=speedList[+$('speed').value].toLocaleString()+' 步／秒';$('badge').textContent=n===0?'空白世界 · 點格子可預先塗黑':(seeded?'有初始擾動 · ':'經典空白起點 · ')+(n>9900?'公路觀察中':'自由漫遊中');}
+function size(){const rect=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio||1;canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));ctx.setTransform(dpr,0,0,dpr,0,0);render();}
+function bounds(){let minX=Math.min(0,x),maxX=Math.max(0,x),minY=Math.min(0,y),maxY=Math.max(0,y);for(const k of cells){const p=k.split(','),a=+p[0],b=+p[1];if(a<minX)minX=a;if(a>maxX)maxX=a;if(b<minY)minY=b;if(b>maxY)maxY=b;}return {minX,maxX,minY,maxY};}
+function view(){const w=canvas.clientWidth,h=canvas.clientHeight;if(!manualZoom){const b=bounds();const needed=Math.min((w-55)/(b.maxX-b.minX+9),(h-55)/(b.maxY-b.minY+9));scale=Math.max(2.2,Math.min(19,needed));centerX=(b.minX+b.maxX)/2;centerY=(b.minY+b.maxY)/2;}return {w,h,ox:w/2-centerX*scale,oy:h/2-centerY*scale};}
+function render(){const {w,h,ox,oy}=view();ctx.clearRect(0,0,w,h);ctx.fillStyle='#fffdf9';ctx.fillRect(0,0,w,h);
+if(scale>=8){ctx.strokeStyle='#eee9e0';ctx.lineWidth=.65;const minI=Math.floor(-ox/scale)-1,maxI=Math.ceil((w-ox)/scale)+1,minJ=Math.floor(-oy/scale)-1,maxJ=Math.ceil((h-oy)/scale)+1;ctx.beginPath();for(let i=minI;i<=maxI;i++){const px=ox+i*scale;ctx.moveTo(px,0);ctx.lineTo(px,h);}for(let j=minJ;j<=maxJ;j++){const py=oy+j*scale;ctx.moveTo(0,py);ctx.lineTo(w,py);}ctx.stroke();}
+ctx.fillStyle='#17283b';for(const k of cells){const p=k.split(','),px=ox+ +p[0]*scale,py=oy+ +p[1]*scale;if(px+scale<0||py+scale<0||px>w||py>h)continue;ctx.fillRect(px+.4,py+.4,Math.max(1,scale-.8),Math.max(1,scale-.8));}
+const ax=ox+(x+.5)*scale,ay=oy+(y+.5)*scale;ctx.save();ctx.translate(ax,ay);ctx.rotate(dir*Math.PI/2);ctx.fillStyle='#d86c45';ctx.beginPath();const r=Math.max(4,Math.min(scale*.65,9));ctx.moveTo(0,-r);ctx.lineTo(-r*.75,r*.7);ctx.lineTo(r*.75,r*.7);ctx.closePath();ctx.fill();ctx.restore();
+ctx.fillStyle='#d86c45';ctx.beginPath();ctx.arc(ox+scale*.5,oy+scale*.5,Math.max(1.8,Math.min(scale*.16,3)),0,Math.PI*2);ctx.fill();}
+function tick(t){if(!lastTime)lastTime=t;const dt=Math.min(.1,(t-lastTime)/1000);lastTime=t;if(playing){carry+=dt*speedList[+$('speed').value];let steps=Math.min(Math.floor(carry),2000);carry-=steps;for(let i=0;i<steps;i++)stepOne();if(steps){sync();render();}}requestAnimationFrame(tick);}
+function reset(seed=false){playing=false;cells=new Set();x=y=dir=n=0;manualZoom=false;seeded=seed;if(seed)cells.add(key(2,0));carry=0;sync();render();}
+$('play').onclick=()=>{playing=!playing;sync();};$('step').onclick=()=>{playing=false;stepOne();sync();render();};$('chaos').onclick=()=>{playing=false;if(n>9000)reset(seeded);advance(9000);};$('road').onclick=()=>{playing=false;if(n>12000)reset(seeded);advance(12000);};$('reset').onclick=()=>reset(seeded);$('blank').onclick=()=>reset(false);$('perturb').onclick=()=>reset(true);$('speed').oninput=sync;
+$('zoomIn').onclick=()=>{manualZoom=true;scale=Math.min(32,scale*1.3);centerX=x;centerY=y;render();};$('zoomOut').onclick=()=>{manualZoom=true;scale=Math.max(1.5,scale/1.3);centerX=x;centerY=y;render();};canvas.addEventListener('wheel',e=>{e.preventDefault();manualZoom=true;scale=Math.max(1.5,Math.min(40,scale*(e.deltaY>0?.85:1.15)));centerX=x;centerY=y;render();},{passive:false});
+canvas.addEventListener('click',e=>{if(n!==0)return;const r=canvas.getBoundingClientRect(),{ox,oy}=view(),gx=Math.floor((e.clientX-r.left-ox)/scale),gy=Math.floor((e.clientY-r.top-oy)/scale),k=key(gx,gy);if(cells.has(k))cells.delete(k);else cells.add(k);seeded=cells.size>0;sync();render();});
+window.addEventListener('resize',size);sync();size();requestAnimationFrame(tick);
+})();
+</script></body></html>
